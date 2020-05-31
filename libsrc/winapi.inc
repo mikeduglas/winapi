@@ -1,0 +1,219 @@
+!Base Windows classes
+!mikeduglas (c) 2019
+
+  INCLUDE('svapi.inc'), ONCE
+
+  MAP
+    MODULE('winapi.clw')
+      COLORREF::FromRGB(BYTE r, BYTE g, BYTE b), COLORREF
+      COLORREF::FromClarion(LONG pClaColor), COLORREF
+      COLORREF::ToRGB(COLORREF pWinColor, *BYTE r, *BYTE g, *BYTE b)
+      COLORREF::ToClarion(COLORREF pWinColor), LONG
+    END
+  END
+
+!- Window{PROP:Handle}
+TWnd                          CLASS, TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+W                               &WINDOW, PROTECTED
+FEQ                             SIGNED, PROTECTED
+hwnd                            HWND, PROTECTED
+wndProc                         LONG, PRIVATE
+
+Construct                       PROCEDURE()
+Destruct                        PROCEDURE(), VIRTUAL
+
+Init                            PROCEDURE(<*WINDOW w>), VIRTUAL
+Init                            PROCEDURE(LONG pFeq), VIRTUAL
+GetHandle                       PROCEDURE(), HWND
+SetHandle                       PROCEDURE(HWND hwnd)
+GetWindow                       PROCEDURE(), *WINDOW
+GetWndProc                      PROCEDURE(), LONG
+GetFEQ                          PROCEDURE(), SIGNED
+GetParent                       PROCEDURE(), HWND
+
+SetProp                         PROCEDURE(LONG prop, ? value)
+GetProp                         PROCEDURE(LONG prop), ?
+
+SetWindowLong                   PROCEDURE(LONG nIndex, LONG dwNewLong), LONG, PROC
+GetWindowLong                   PROCEDURE(LONG nIndex), LONG
+
+SendMessage                     PROCEDURE(UNSIGNED uMsg, UNSIGNED wParam, LONG lParam), BOOL, PROC
+PostMessage                     PROCEDURE(UNSIGNED nMsg, UNSIGNED wParam, LONG lParam), BOOL, PROC
+PeekMessage                     PROCEDURE(LONG lpMsg, LONG wMsgFilterMin = 0, LONG wMsgFilterMax = 0, LONG wRemoveMsg = 0), BOOL, PROC
+
+SendEraseBkgnd                  PROCEDURE(), BOOL, PROC
+
+GetClientRect                   PROCEDURE(*_RECT_ rc)
+GetClientRect                   PROCEDURE(*TRect rc)
+
+GetWindowRect                   PROCEDURE(*_RECT_ rc)
+GetWindowRect                   PROCEDURE(*TRect rc)
+
+GetRelativeRect                 PROCEDURE(HWND pParentHwnd, *_RECT_ rc) !- get relative to parent window coordinates
+GetRelativeRect                 PROCEDURE(TWnd pWin, *_RECT_ rc)!- get relative to parent window coordinates
+
+SetWindowPos                    PROCEDURE(HWND hWndInsertAfter, LONG x, LONG y, LONG cx, LONG cy, ULONG uFlags), BOOL, PROC
+
+ScreenToClient                  PROCEDURE(*POINT ppt)
+ScreenToClient                  PROCEDURE(*_RECT_ prc)
+ScreenToClient                  PROCEDURE(*TRect prc)
+ClientToScreen                  PROCEDURE(*POINT ppt)
+ClientToScreen                  PROCEDURE(*_RECT_ prc)
+ClientToScreen                  PROCEDURE(*TRect prc)
+
+SetWndProc                      PROCEDURE(LONG lpCallback, LONG lpUserData) !ADDRESS(proc), ADDRESS(class)
+ResetWndProc                    PROCEDURE()
+
+CallWindowProc                  PROCEDURE(UNSIGNED wMsg, UNSIGNED wParam, LONG lParam), LONG
+DefWindowProc                   PROCEDURE(UNSIGNED wMsg, UNSIGNED wParam, LONG lParam), LONG
+
+InvalidateRect                  PROCEDURE(_RECT_ rc, BOOL bErase), BOOL, PROC
+InvalidateRect                  PROCEDURE(TRect rc, BOOL bErase), BOOL, PROC
+InvalidateRect                  PROCEDURE(BOOL bErase), BOOL, PROC
+
+UpdateWindow                    PROCEDURE(), BOOL, PROC
+
+Redraw                          PROCEDURE(_RECT_ rc)
+Redraw                          PROCEDURE(TRect rc)
+
+SetCapture                      PROCEDURE(), HANDLE, PROC
+ReleaseCapture                  PROCEDURE(), BOOL, PROC
+
+GetDlgCtrlID                    PROCEDURE(), LONG
+
+!- pRect (0,0) based (i.e. from (0,0) to (w,h)
+GetBitmap                       PROCEDURE(<_RECT_ pRect>, LONG dwRop=SRCCOPY), *STRING
+SaveBitmap                      PROCEDURE(STRING pFIleName, <_RECT_ pRect>), BOOL, PROC
+CopyBitmap                      PROCEDURE(SIGNED pImageFeq, <_RECT_ pRect>), BOOL, PROC
+
+GetScrollInfo                   PROCEDURE(SIGNED fnBar, *SCROLLINFO lpsi), BOOL, PROC
+GetScrollRange                  PROCEDURE(*SIGNED pHMin, *SIGNED pHMax, *SIGNED pVMin, *SIGNED pVMax)
+GetScrollRange                  PROCEDURE(*_RECT_ pRect)
+                              END
+
+!- Window{PROP:ClientHandle}
+TCWnd                         CLASS(TWnd), TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+Init                            PROCEDURE(<*WINDOW w>), DERIVED
+                              END
+
+!- Rectangle
+TRect                         CLASS(_RECT_), TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+Width                           PROCEDURE(), SIGNED
+Height                          PROCEDURE(), SIGNED
+
+!- assign rc to self
+Assign                          PROCEDURE(_RECT_ rc)
+Assign                          PROCEDURE(*TRect rc)
+Assign                          PROCEDURE(SIGNED left, SIGNED top, SIGNED right, SIGNED bottom)
+
+!- assign self to rc
+AssignTo                        PROCEDURE(*_RECT_ rc)
+AssignTo                        PROCEDURE(*TRect rc)
+
+Equal                           PROCEDURE(_RECT_ rc), BOOL
+Equal                           PROCEDURE(*TRect rc), BOOL
+
+!- determines whether the specified point lies within the specified rectangle.
+PtInRect                        PROCEDURE(POINT pt), BOOL
+PtInRect                        PROCEDURE(SIGNED pX, SIGNED pY), BOOL
+                              END
+
+!- Device context
+TDC                           CLASS, TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+handle                          HDC, PRIVATE
+hwnd                            HWND, PRIVATE
+
+Construct                       PROCEDURE()
+Destruct                        PROCEDURE(), VIRTUAL
+
+GetDC                           PROCEDURE(HWND hwnd), HDC, PROC
+GetDCEx                         PROCEDURE(HWND hwnd, ULONG flags), HDC, PROC
+CreateCompatibleDC              PROCEDURE(*TDC pDC), HDC, PROC
+CreateCompatibleDC              PROCEDURE(HDC hdc), HDC, PROC
+FillRect                        PROCEDURE(_RECT_ r, TBrush br)
+MoveTo                          PROCEDURE(SIGNED x, SIGNED y, <*POINT lpPoint>)
+LineTo                          PROCEDURE(SIGNED x, SIGNED y)
+StretchBlt                      PROCEDURE(_RECT_ rcDest, *TDC dcSrc, _RECT_ rcSrc, LONG dwRop = SRCCOPY), BOOL, PROC
+BitBlt                          PROCEDURE(SIGNED pX, SIGNED pY, SIGNED pW, SIGNED pH, *TDC dcSrc, SIGNED srcX, SIGNED srcY, LONG dwRop = SRCCOPY), BOOL, PROC
+GetDIBits                       PROCEDURE(TBitmap hbmp, UNSIGNED uStartScan, UNSIGNED cScanLines, LONG lpvBits, LONG lpbi, UNSIGNED uUsage), SIGNED
+
+GetTextColor                    PROCEDURE(), LONG
+SetTextColor                    PROCEDURE(LONG pClaColor)
+GetBkColor                      PROCEDURE(), LONG
+SetBkColor                      PROCEDURE(LONG pClaColor)
+DrawText                        PROCEDURE(STRING pText, *_RECT_ pRect, LONG pFormat), BOOL, PROC
+
+ExcludeClipRect                 PROCEDURE(_RECT_ pRect)
+
+ReleaseDC                       PROCEDURE()
+DeleteDC                        PROCEDURE()
+
+GetHandle                       PROCEDURE(), HDC
+                              END
+
+!- GDI object
+TGdiObj                       CLASS, TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+handle                          HGDIOBJ, PROTECTED
+
+Construct                       PROCEDURE()
+Destruct                        PROCEDURE(), VIRTUAL
+
+GetHandle                       PROCEDURE(), HGDIOBJ
+SetHandle                       PROCEDURE(HGDIOBJ handle)
+
+SelectObject                    PROCEDURE(HDC pDC, <*TGdiObj replacedObject>), HGDIOBJ, PROC
+SelectObject                    PROCEDURE(*TDC pDC, <*TGdiObj replacedObject>), HGDIOBJ, PROC
+DeleteObject                    PROCEDURE()
+GetObject                       PROCEDURE(LONG cbBuffer, LONG lpvObject), LONG
+                              END
+
+!- Pen
+TPen                          CLASS(TGdiObj), TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+CreatePen                       PROCEDURE(SIGNED penStyle, SIGNED nWidth, COLORREF color), HPEN, PROC
+                              END
+
+!- Brush
+TBrush                        CLASS(TGdiObj), TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+CreateSolidBrush                PROCEDURE(COLORREF color), HBRUSH, PROC
+CreateSolidBrush                PROCEDURE(BYTE r, BYTE g, BYTE b), HBRUSH, PROC
+                              END
+
+!- Bitmap
+TBitmap                       CLASS(TGdiObj), TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+CreateCompatibleBitmap          PROCEDURE(HDC pDC, SIGNED cx, SIGNED cy), HBITMAP, PROC
+CreateCompatibleBitmap          PROCEDURE(*TDC pDC, SIGNED cx, SIGNED cy), HBITMAP, PROC
+CreateBitmapInfoStruct          PROCEDURE(), *STRING !returns a reference to BITMAPINFO
+                              END
+
+!- Font
+TLogicalFont                  CLASS(TGdiObj), TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+CreateFont                      PROCEDURE(HDC pDC, STRING pTypeface, UNSIGNED pSize, UNSIGNED pStyle = FONT:regular, LONG pCharset = CHARSET:DEFAULT), HFONT, PROC
+CreateFont                      PROCEDURE(*TDC pDC, STRING pTypeface, UNSIGNED pSize, UNSIGNED pStyle = FONT:regular, LONG pCharset = CHARSET:DEFAULT), HFONT, PROC
+                              END
+
+!- I/O device
+TIODevice                     CLASS, TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+handle                          HANDLE, PROTECTED
+
+GetHandle                       PROCEDURE(), HANDLE
+CreateFile                      PROCEDURE(STRING pFilename, ULONG dwDesiredAccess, | 
+                                  ULONG dwShareMode, LONG lpSecurityAttributes, | 
+                                  ULONG dwCreationDisposition, | 
+                                  ULONG dwFlagsAndAttributes, | 
+                                  HANDLE hTemplateFile), BOOL, PROC
+ReadFile                        PROCEDURE(LONG lpBuffer, LONG dwBytes, *LONG dwBytesRead, LONG lpOverlapped), BOOL, PROC
+WriteFile                       PROCEDURE(LONG lpBuffer, LONG dwBytes, *LONG dwBytesWritten, LONG lpOverlapped), BOOL, PROC
+WriteFile                       PROCEDURE(*GROUP pGrp), BOOL, PROC
+WriteFile                       PROCEDURE(*STRING pStr, <LONG pStrSize>), BOOL, PROC
+WriteFile                       PROCEDURE(STRING pStr, <LONG pStrSize>), BOOL, PROC
+CloseHandle                     PROCEDURE(), BOOL, PROC
+GetFileSize                     PROCEDURE(<*LONG pFileSizeHigh>), LONG
+                              END
+
+!- File
+TDiskFile                     CLASS(TIODevice), TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+LoadFile                        PROCEDURE(STRING pFilename, ULONG dwDesiredAccess=GENERIC_READ, ULONG dwCreationDisposition=OPEN_EXISTING), *STRING
+SaveFile                        PROCEDURE(STRING pFilename, LONG pData, LONG pDataLen, ULONG dwDesiredAccess=GENERIC_WRITE, ULONG dwCreationDisposition=CREATE_ALWAYS), BOOL, PROC
+SaveFile                        PROCEDURE(STRING pFilename, *STRING pData, ULONG dwDesiredAccess=GENERIC_WRITE, ULONG dwCreationDisposition=CREATE_ALWAYS), BOOL, PROC
+SaveFile                        PROCEDURE(STRING pFilename, STRING pData, ULONG dwDesiredAccess=GENERIC_WRITE, ULONG dwCreationDisposition=CREATE_ALWAYS), BOOL, PROC
+                              END
