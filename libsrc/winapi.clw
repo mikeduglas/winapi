@@ -60,6 +60,7 @@
       winapi::GetDlgCtrlID(HWND hwnd), LONG, PASCAL, NAME('GetDlgCtrlID')
 
       winapi::GetScrollInfo(HWND hwnd, SIGNED fnBar, *SCROLLINFO lpsi),BOOL,RAW,PASCAL,NAME('GetScrollInfo')
+      winapi::ShowScrollBar(HWND hwnd, SIGNED wBar, BOOL bShow),BOOL,PASCAL,PROC,NAME('ShowScrollBar')
 
       winapi::CreateFile(*CSTRING,ULONG,ULONG,LONG,ULONG,ULONG,UNSIGNED=0),UNSIGNED,RAW,PASCAL,NAME('CreateFileA')
       winapi::ReadFile(HANDLE hFile, LONG lpBuffer, LONG dwBytes, *LONG dwBytesRead, LONG lpOverlapped),BOOL,RAW,PASCAL,PROC,NAME('ReadFile')
@@ -137,7 +138,6 @@ b                                 BYTE
   CODE
   ClaClrGrp :=: winClrGrp
   RETURN claColor
-
 !!!endregion
   
 !!!region TWnd
@@ -249,21 +249,41 @@ r                               LIKE(_RECT_)
   SELF.GetWindowRect(r)
   rc.Assign(r)
 
+TWnd.GetRelativeRect          PROCEDURE(*_RECT_ rc)
+  CODE
+  SELF.GetRelativeRect(SELF.GetParent(), rc)
+  
+TWnd.GetRelativeRect               PROCEDURE(*TRect rc)
+  CODE
+  SELF.GetRelativeRect(SELF.GetParent(), rc)
+
 TWnd.GetRelativeRect          PROCEDURE(HWND pParentHwnd, *_RECT_ rc)
 parentWin                       TWnd
   CODE
   parentWin.SetHandle(pParentHwnd)
   SELF.GetRelativeRect(parentWin, rc)
 
+TWnd.GetRelativeRect          PROCEDURE(HWND pParentHwnd, *TRect rc)
+r                               LIKE(_RECT_)
+  CODE
+  SELF.GetRelativeRect(pParentHwnd, r)
+  rc.Assign(r)
+  
 TWnd.GetRelativeRect          PROCEDURE(TWnd pWin, *_RECT_ prc)
-rc                              LIKE(_RECT_)
+r                               LIKE(_RECT_)
   CODE
   !- get screen coordinates
-  SELF.GetWindowRect(rc)
+  SELF.GetWindowRect(r)
   !- transform to parent client coordinates
-  pWin.ScreenToClient(rc)
-  prc = rc
+  pWin.ScreenToClient(r)
+  prc = r
 
+TWnd.GetRelativeRect          PROCEDURE(TWnd pWin, *TRect rc)
+r                               LIKE(_RECT_)
+  CODE
+  SELF.GetRelativeRect(pWin, r)
+  rc.Assign(r)
+  
 TWnd.SetWindowPos             PROCEDURE(HWND hWndInsertAfter, LONG x, LONG y, LONG cx, LONG cy, ULONG uFlags)
   CODE
   RETURN winapi::SetWindowPos(SELF.hwnd, hWndInsertAfter, x, y, cx, cy, uFlags)
@@ -486,7 +506,7 @@ rc                              BOOL(FALSE)
 TWnd.CopyBitmap               PROCEDURE(SIGNED pImageFeq, <_RECT_ pRect>)
 sBits                           &STRING
   CODE
-  ASSERT(pImageFeq <> 0 AND pImageFeq{PROP:Type} = CREATE:image, 'Invalid control')
+  ASSERT(pImageFeq <> 0 AND pImageFeq{PROP:Type} = CREATE:image, 'Invalid control type.')
   IF pImageFeq = 0 OR pImageFeq{PROP:Type} <> CREATE:image
     RETURN FALSE
   END
@@ -534,6 +554,10 @@ si                              LIKE(SCROLLINFO)
 TWnd.GetScrollRange           PROCEDURE(*_RECT_ pRect)
   CODE
   SELF.GetScrollRange(pRect.left, pRect.right, pRect.top, pRect.bottom)
+  
+TWnd.ShowScrollBar            PROCEDURE(SIGNED wBar, BOOL bShow)
+  CODE
+  RETURN winapi::ShowScrollBar(SELF.hwnd, wBar, bShow)
 !!!endregion
 
 !!!region TCWnd

@@ -49,8 +49,12 @@ GetClientRect                   PROCEDURE(*TRect rc)
 GetWindowRect                   PROCEDURE(*_RECT_ rc)
 GetWindowRect                   PROCEDURE(*TRect rc)
 
-GetRelativeRect                 PROCEDURE(HWND pParentHwnd, *_RECT_ rc) !- get relative to parent window coordinates
-GetRelativeRect                 PROCEDURE(TWnd pWin, *_RECT_ rc)!- get relative to parent window coordinates
+GetRelativeRect                 PROCEDURE(*_RECT_ rc) !- get relative to parent window coordinates
+GetRelativeRect                 PROCEDURE(*TRect rc) !- get relative to parent window coordinates
+GetRelativeRect                 PROCEDURE(HWND pParentHwnd, *_RECT_ rc) !- get relative to window coordinates
+GetRelativeRect                 PROCEDURE(HWND pParentHwnd, *TRect rc) !- get relative to window coordinates
+GetRelativeRect                 PROCEDURE(TWnd pWin, *_RECT_ rc)!- get relative to window coordinates
+GetRelativeRect                 PROCEDURE(TWnd pWin, *TRect rc)!- get relative to window coordinates
 
 SetWindowPos                    PROCEDURE(HWND hWndInsertAfter, LONG x, LONG y, LONG cx, LONG cy, ULONG uFlags), BOOL, PROC
 
@@ -82,13 +86,15 @@ ReleaseCapture                  PROCEDURE(), BOOL, PROC
 GetDlgCtrlID                    PROCEDURE(), LONG
 
 !- pRect (0,0) based (i.e. from (0,0) to (w,h)
-GetBitmap                       PROCEDURE(<_RECT_ pRect>, LONG dwRop=SRCCOPY), *STRING
-SaveBitmap                      PROCEDURE(STRING pFIleName, <_RECT_ pRect>), BOOL, PROC
-CopyBitmap                      PROCEDURE(SIGNED pImageFeq, <_RECT_ pRect>), BOOL, PROC
+GetBitmap                       PROCEDURE(<_RECT_ pRect>, LONG dwRop=SRCCOPY), *STRING  !- For IMAGEs only!
+SaveBitmap                      PROCEDURE(STRING pFIleName, <_RECT_ pRect>), BOOL, PROC !- For IMAGEs only!
+CopyBitmap                      PROCEDURE(SIGNED pImageFeq, <_RECT_ pRect>), BOOL, PROC !- For IMAGEs only!
 
 GetScrollInfo                   PROCEDURE(SIGNED fnBar, *SCROLLINFO lpsi), BOOL, PROC
 GetScrollRange                  PROCEDURE(*SIGNED pHMin, *SIGNED pHMax, *SIGNED pVMin, *SIGNED pVMax)
 GetScrollRange                  PROCEDURE(*_RECT_ pRect)
+ShowScrollBar                   PROCEDURE(SIGNED wBar, BOOL bShow), BOOL, PROC
+
                               END
 
 !- Window{PROP:ClientHandle}
