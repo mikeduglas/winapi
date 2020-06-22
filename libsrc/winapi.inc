@@ -1,5 +1,5 @@
 !Base Windows classes
-!mikeduglas (c) 2019
+!mikeduglas (c) 2019-2020
 
   INCLUDE('svapi.inc'), ONCE
 
@@ -30,6 +30,8 @@ GetWindow                       PROCEDURE(), *WINDOW
 GetWndProc                      PROCEDURE(), LONG
 GetFEQ                          PROCEDURE(), SIGNED
 GetParent                       PROCEDURE(), HWND
+SetParent                       PROCEDURE(HWND hWndNewParent), HWND, PROC
+SetParent                       PROCEDURE(TWnd hWndNewParent), HWND, PROC
 
 SetProp                         PROCEDURE(LONG prop, ? value)
 GetProp                         PROCEDURE(LONG prop), ?
@@ -75,6 +77,8 @@ InvalidateRect                  PROCEDURE(_RECT_ rc, BOOL bErase), BOOL, PROC
 InvalidateRect                  PROCEDURE(TRect rc, BOOL bErase), BOOL, PROC
 InvalidateRect                  PROCEDURE(BOOL bErase), BOOL, PROC
 
+ShowWindow                      PROCEDURE(SIGNED nCmdShow), BOOL, PROC
+SetForegroundWindow             PROCEDURE(), BOOL, PROC
 UpdateWindow                    PROCEDURE(), BOOL, PROC
 
 Redraw                          PROCEDURE(_RECT_ rc)
@@ -94,12 +98,22 @@ GetScrollInfo                   PROCEDURE(SIGNED fnBar, *SCROLLINFO lpsi), BOOL,
 GetScrollRange                  PROCEDURE(*SIGNED pHMin, *SIGNED pHMax, *SIGNED pVMin, *SIGNED pVMax)
 GetScrollRange                  PROCEDURE(*_RECT_ pRect)
 ShowScrollBar                   PROCEDURE(SIGNED wBar, BOOL bShow), BOOL, PROC
-
                               END
 
 !- Window{PROP:ClientHandle}
 TCWnd                         CLASS(TWnd), TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
 Init                            PROCEDURE(<*WINDOW w>), DERIVED
+                              END
+
+TPoint                        CLASS(POINT), TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+Offset                          PROCEDURE(SIGNED xOffset, SIGNED yOffset) !- Adds values to the x and y members of the TPoint
+Offset                          PROCEDURE(*POINT pt)
+Offset                          PROCEDURE(*TPoint pt)
+Offset                          PROCEDURE(*SIZE sz)
+Equal                           PROCEDURE(*POINT pt), BOOL
+Equal                           PROCEDURE(*TPoint pt), BOOL
+
+ToString                        PROCEDURE(), STRING
                               END
 
 !- Rectangle
@@ -120,8 +134,11 @@ Equal                           PROCEDURE(_RECT_ rc), BOOL
 Equal                           PROCEDURE(*TRect rc), BOOL
 
 !- determines whether the specified point lies within the specified rectangle.
-PtInRect                        PROCEDURE(POINT pt), BOOL
 PtInRect                        PROCEDURE(SIGNED pX, SIGNED pY), BOOL
+PtInRect                        PROCEDURE(*POINT pt), BOOL
+PtInRect                        PROCEDURE(*TPoint pt), BOOL
+
+ToString                        PROCEDURE(), STRING
                               END
 
 !- Device context
@@ -132,11 +149,13 @@ hwnd                            HWND, PRIVATE
 Construct                       PROCEDURE()
 Destruct                        PROCEDURE(), VIRTUAL
 
+FromHDC                         PROCEDURE(HDC pDC)
 GetDC                           PROCEDURE(HWND hwnd), HDC, PROC
 GetDCEx                         PROCEDURE(HWND hwnd, ULONG flags), HDC, PROC
 CreateCompatibleDC              PROCEDURE(*TDC pDC), HDC, PROC
 CreateCompatibleDC              PROCEDURE(HDC hdc), HDC, PROC
-FillRect                        PROCEDURE(_RECT_ r, TBrush br)
+FillRect                        PROCEDURE(*_RECT_ r, TBrush br), BOOL, PROC
+FillRect                        PROCEDURE(*TRect r, TBrush br), BOOL, PROC
 MoveTo                          PROCEDURE(SIGNED x, SIGNED y, <*POINT lpPoint>)
 LineTo                          PROCEDURE(SIGNED x, SIGNED y)
 StretchBlt                      PROCEDURE(_RECT_ rcDest, *TDC dcSrc, _RECT_ rcSrc, LONG dwRop = SRCCOPY), BOOL, PROC
@@ -147,14 +166,31 @@ GetTextColor                    PROCEDURE(), LONG
 SetTextColor                    PROCEDURE(LONG pClaColor)
 GetBkColor                      PROCEDURE(), LONG
 SetBkColor                      PROCEDURE(LONG pClaColor)
-DrawText                        PROCEDURE(STRING pText, *_RECT_ pRect, LONG pFormat), BOOL, PROC
+DrawText                        PROCEDURE(STRING pText, *_RECT_ pRect, LONG pFormat), LONG, PROC
+DrawText                        PROCEDURE(STRING pText, *TRect pRect, LONG pFormat), LONG, PROC
+TextOut                         PROCEDURE(LONG pX, LONG pY, STRING pText), BOOL, PROC
 
-ExcludeClipRect                 PROCEDURE(_RECT_ pRect)
+Ellipse                         PROCEDURE(LONG pLeft, LONG pTop, LONG pRight, LONG pBottom), BOOL, PROC
+Ellipse                         PROCEDURE(*_RECT_ rc), BOOL, PROC
+Ellipse                         PROCEDURE(*TRect rc), BOOL, PROC
+
+ExcludeClipRect                 PROCEDURE(*_RECT_ pRect), LONG, PROC
+ExcludeClipRect                 PROCEDURE(*TRect pRect), LONG, PROC
 
 ReleaseDC                       PROCEDURE()
 DeleteDC                        PROCEDURE()
 
+BeginPaint                      PROCEDURE(HWND hWnd, *PAINTSTRUCT lpPaint), HDC, PROC
+EndPaint                        PROCEDURE(*PAINTSTRUCT lpPaint)
+
 GetHandle                       PROCEDURE(), HDC
+WindowFromDC                    PROCEDURE(), HWND
+
+DrawIconEx                      PROCEDURE(SIGNED xLeft,SIGNED yTop,HICON hIcon,SIGNED cxWidth,SIGNED cyWidth,UNSIGNED iStepIfAniCur,HBRUSH hbrFlickerFreeDraw,UNSIGNED diFlags),BOOL,PROC
+DrawIconEx                      PROCEDURE(SIGNED xLeft,SIGNED yTop,HICON hIcon,SIGNED cxWidth,SIGNED cyWidth,UNSIGNED iStepIfAniCur,*TBrush brFlickerFreeDraw,UNSIGNED diFlags),BOOL,PROC
+
+DrawImage                       PROCEDURE(STRING pImageFile, *TRect rc), BOOL, PROC
+DrawImage                       PROCEDURE(STRING pImageFile, UNSIGNED pW, UNSIGNED pH), BOOL, PROC
                               END
 
 !- GDI object
@@ -189,6 +225,9 @@ TBitmap                       CLASS(TGdiObj), TYPE, MODULE('winapi.clw'), LINK('
 CreateCompatibleBitmap          PROCEDURE(HDC pDC, SIGNED cx, SIGNED cy), HBITMAP, PROC
 CreateCompatibleBitmap          PROCEDURE(*TDC pDC, SIGNED cx, SIGNED cy), HBITMAP, PROC
 CreateBitmapInfoStruct          PROCEDURE(), *STRING !returns a reference to BITMAPINFO
+
+LoadImage                       PROCEDURE(HINSTANCE hInst, STRING pImage, UNSIGNED uType=IMAGE_BITMAP, SIGNED cxDesired=0, SIGNED cyDesired=0, UNSIGNED fuLoad=LR_LOADFROMFILE), HBITMAP, PROC
+LoadImage                       PROCEDURE(STRING pImage, UNSIGNED uType=IMAGE_BITMAP, SIGNED cxDesired=0, SIGNED cyDesired=0, UNSIGNED fuLoad=LR_LOADFROMFILE), HBITMAP, PROC
                               END
 
 !- Font
@@ -222,4 +261,17 @@ LoadFile                        PROCEDURE(STRING pFilename, ULONG dwDesiredAcces
 SaveFile                        PROCEDURE(STRING pFilename, LONG pData, LONG pDataLen, ULONG dwDesiredAccess=GENERIC_WRITE, ULONG dwCreationDisposition=CREATE_ALWAYS), BOOL, PROC
 SaveFile                        PROCEDURE(STRING pFilename, *STRING pData, ULONG dwDesiredAccess=GENERIC_WRITE, ULONG dwCreationDisposition=CREATE_ALWAYS), BOOL, PROC
 SaveFile                        PROCEDURE(STRING pFilename, STRING pData, ULONG dwDesiredAccess=GENERIC_WRITE, ULONG dwCreationDisposition=CREATE_ALWAYS), BOOL, PROC
+                              END
+
+!- Timer
+TTimer                        CLASS, TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+hwnd                            HWND, PRIVATE
+nIDEvent                        UNSIGNED, PRIVATE
+uTimer                          UNSIGNED, PRIVATE
+
+SetTimer                        PROCEDURE(HWND hwnd, UNSIGNED nIDEvent, UNSIGNED uElapse, LONG lpTimerFunc), UNSIGNED, PROC
+SetTimer                        PROCEDURE(HWND hwnd, UNSIGNED uElapse), UNSIGNED, PROC
+SetTimer                        PROCEDURE(UNSIGNED uElapse), UNSIGNED, PROC
+KillTimer                       PROCEDURE(), BOOL, PROC
+GetTimerID                      PROCEDURE(), UNSIGNED
                               END

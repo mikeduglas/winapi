@@ -12,4 +12,4 @@ A set of helper classes:
 - TLogicalFont (font)
 - TIODevice (I/O device)
 - TDiskFile (file)
-
+- TTimer (timer)
