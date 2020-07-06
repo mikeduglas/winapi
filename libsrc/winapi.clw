@@ -1,4 +1,5 @@
 !Base Windows classes
+!06.07.2020 revision
 !mikeduglas (c) 2019-2020
 
   MEMBER
@@ -75,6 +76,9 @@
       winapi::CloseHandle(HANDLE hFile),BOOL,PASCAL,PROC,NAME('CloseHandle')
       winapi::GetFileSize(HANDLE hFile, LONG pFileSizeHigh),LONG,RAW,PASCAL,NAME('GetFileSize')
 
+      winapi::GetTempPath(UNSIGNED nBufferLength, *CSTRING lpBuffer), UNSIGNED, PASCAL, RAW, PROC, NAME('GetTempPathA')
+      winapi::GetTempFileName(*CSTRING lpPathName, *CSTRING lpPrefixString, UNSIGNED uUnique, *CSTRING lpTempFileName), UNSIGNED, PASCAL, RAW, PROC, NAME('GetTempFileNameA')
+
       winapi::PtInRect(*_RECT_ rc, POINT pt),BOOL,RAW,PASCAL,NAME('PtInRect')
 
       winapi::SetTimer(HWND hWnd, UNSIGNED nIDEvent, UNSIGNED uElapse, long lpTimerFunc),UNSIGNED,PASCAL,PROC,NAME('SetTimer')
@@ -84,6 +88,17 @@
       winapi::EndPaint(HWND hWnd, *PAINTSTRUCT lpPaint),BOOL,RAW,PROC,PASCAL,NAME('EndPaint')
 
       winapi::Ellipse(HDC hdc,LONG pLeft,LONG pTop,LONG pRight,LONG pBottom),BOOL,PROC,PASCAL,NAME('Ellipse')
+
+      winapi::PlaySound(*CSTRING pszSound, HMODULE hmod, UNSIGNED fdwSound),BOOL,PROC,RAW,PASCAL,NAME('PlaySoundA')
+
+      winapi::GetModuleHandle(<*CSTRING pszModuleName>),HMODULE,PASCAL,RAW,NAME('GetModuleHandleA')
+      winapi::FindResource(HMODULE hModule, *CSTRING lpName, *CSTRING lpType),HRSRC,PASCAL,RAW,NAME('FindResourceA')
+      winapi::LoadResource(HMODULE hModule, HRSRC hResInfo),HGLOBAL,PASCAL,NAME('LoadResource')
+      winapi::LockResource(HGLOBAL hResData),LONG,PASCAL,NAME('LockResource')
+      winapi::SizeofResource(HMODULE hModule, HRSRC hResInfo),UNSIGNED,PASCAL,NAME('SizeofResource')
+
+      winapi::mciSendString(*CSTRING lpszCommand, <*CSTRING lpszReturnString>, UNSIGNED cchReturn, HANDLE  hwndCallback),MCIERROR,RAW,PASCAL,NAME('mciSendStringA')
+      winapi::mciGetErrorString(MCIERROR fdwError, *CSTRING lpszErrorText, UNSIGNED cchErrorText),BOOL,RAW,PASCAL,NAME('mciGetErrorStringA')
 
       winapi::memcpy(LONG lpDest,LONG lpSource,LONG nCount),LONG,PROC,NAME('_memcpy')
       winapi::GetLastError(), LONG, PASCAL, NAME('GetLastError')
@@ -113,6 +128,29 @@ bmBitsPixel                     USHORT
 bmBits                          LONG
                               END
 
+!-- PlaySound flags
+SND_SYNC                      EQUATE(0)
+SND_ASYNC                     EQUATE(1)
+SND_NODEFAULT                 EQUATE(2)
+SND_MEMORY                    EQUATE(4)
+SND_LOOP                      EQUATE(8)
+SND_NOSTOP                    EQUATE(16)
+SND_NOWAIT                    EQUATE(2000h)
+SND_ALIAS                     EQUATE(10000h)
+SND_ALIAS_ID                  EQUATE(110000h)
+SND_FILENAME                  EQUATE(20000h)
+SND_RESOURCE                  EQUATE(40004h)
+SND_PURGE                     EQUATE(40h)
+SND_APPLICATION               EQUATE(80h)
+SND_ALIAS_SYSTEMASTERISK      EQUATE(10835)
+SND_ALIAS_SYSTEMQUESTION      EQUATE(16211)
+SND_ALIAS_SYSTEMHAND          EQUATE(18515)
+SND_ALIAS_SYSTEMEXIT          EQUATE(17747)
+SND_ALIAS_SYSTEMSTART         EQUATE(21331)
+SND_ALIAS_SYSTEMWELCOME       EQUATE(22355)
+SND_ALIAS_SYSTEMEXCLAMATION   EQUATE(8531)
+SND_ALIAS_SYSTEMDEFAULT       EQUATE(17491)
+
 !!!region static functions
 COLORREF::FromRGB             PROCEDURE(BYTE r, BYTE g, BYTE b)
   CODE
@@ -128,7 +166,7 @@ b                                 BYTE
   RETURN COLORREF::FromRGB(clrGrp:r, clrGrp:g, clrGrp:b)
   
 COLORREF::ToRGB               PROCEDURE(COLORREF pWinColor, *BYTE r, *BYTE g, *BYTE b)
-clrGrp                        GROUP, OVER(pWinColor), PRE(colorGrp)
+clrGrp                          GROUP, OVER(pWinColor), PRE(colorGrp)
 r                                 BYTE
 g                                 BYTE
 b                                 BYTE
@@ -276,7 +314,7 @@ TWnd.GetRelativeRect          PROCEDURE(*_RECT_ rc)
   CODE
   SELF.GetRelativeRect(SELF.GetParent(), rc)
   
-TWnd.GetRelativeRect               PROCEDURE(*TRect rc)
+TWnd.GetRelativeRect          PROCEDURE(*TRect rc)
   CODE
   SELF.GetRelativeRect(SELF.GetParent(), rc)
 
@@ -1240,6 +1278,34 @@ TDiskFile.SaveFile            PROCEDURE(STRING pFilename, STRING pData, ULONG dw
   RETURN SELF.SaveFile(pFilename, pData, dwDesiredAccess, dwCreationDisposition)
 !!!endregion
   
+!!!region TTempFile
+TTempFile.GetTempPath         PROCEDURE()
+szTempPath                      CSTRING(260)
+  CODE
+  winapi::GetTempPath(SIZE(szTempPath), szTempPath)
+  RETURN CLIP(szTempPath)
+  
+TTempFile.GetTempFileName     PROCEDURE(STRING pPathName, STRING pPrefixString, UNSIGNED uUnique=0)
+szTempPath                      CSTRING(LEN(CLIP(pPathName))+1), AUTO
+szTempName                      CSTRING(260), AUTO
+szPrefix                        CSTRING(LEN(CLIP(pPrefixString))+1), AUTO
+  CODE
+  szTempPath = CLIP(pPathName)
+  szPrefix = CLIP(pPrefixString)
+  winapi::GetTempFileName(szTempPath, szPrefix, uUnique, szTempName)
+  REMOVE(szTempName)  !- If uUnique is zero, GetTempFileName creates an empty file and closes it.
+  RETURN CLIP(szTempName)
+  
+TTempFile.GetTempFileName     PROCEDURE(<STRING pExt>)
+tmpName                         STRING(260), AUTO
+  CODE
+  tmpName = SELF.GetTempFileName(SELF.GetTempPath(), 'tmp')
+  IF pExt <> ''
+    tmpName = printf('%s.%s', tmpName, pExt)
+  END
+  RETURN(tmpName)
+!!!endregion
+
 !!!region TTimer
 TTimer.SetTimer               PROCEDURE(HWND hwnd, UNSIGNED nIDEvent, UNSIGNED uElapse, LONG lpTimerFunc)
   CODE
@@ -1255,16 +1321,26 @@ TTimer.SetTimer               PROCEDURE(HWND hwnd, UNSIGNED uElapse)
 TTimer.SetTimer               PROCEDURE(UNSIGNED uElapse)
 w                               TWnd
   CODE
-  w.Init()
-  RETURN SELF.SetTimer(w.GetHandle(), uElapse)
+  IF SELF.hwnd
+    RETURN SELF.SetTimer(SELF.hwnd, uElapse)
+  ELSE
+    w.Init()
+    RETURN SELF.SetTimer(w.GetHandle(), uElapse)
+  END
   
 TTimer.KillTimer              PROCEDURE()
+rc                              BOOL, AUTO
   CODE
   IF SELF.hwnd
-    RETURN winapi::KillTimer(SELF.hwnd, SELF.nIDEvent)
+    rc = winapi::KillTimer(SELF.hwnd, SELF.nIDEvent)
   ELSE
-    RETURN winapi::KillTimer(SELF.hwnd, SELF.uTimer)
+    rc =  winapi::KillTimer(SELF.hwnd, SELF.uTimer)
   END
+  SELF.hwnd = 0
+  SELF.nIDEvent = 0
+  SELF.uTimer = 0
+ 
+  RETURN rc
   
 TTimer.GetTimerID             PROCEDURE()
   CODE
@@ -1272,5 +1348,331 @@ TTimer.GetTimerID             PROCEDURE()
     RETURN SELF.nIDEvent
   ELSE
     RETURN SELF.uTimer
+  END
+!!!endregion
+  
+!!!region SoundPlayer
+TSoundPlayer.PlaySound        PROCEDURE(STRING pSound, HMODULE hmod, UNSIGNED fdwSound)
+szSound                         CSTRING(LEN(CLIP(pSound))+1)
+  CODE
+  szSound = CLIP(pSound)
+!  printd('PlaySound(%Z, %i, %i)', szSound, hmod, fdwSound)
+  RETURN winapi::PlaySound(szSound, hmod, fdwSound)
+  
+TSoundPlayer.PlayFromFile     PROCEDURE(STRING pFile, UNSIGNED fOptions=0)
+fdwSound                        UNSIGNED, AUTO
+  CODE
+  fdwSound = BOR(BOR(SND_FILENAME, SND_NODEFAULT), fOptions)
+  RETURN SELF.PlaySound(pFile, 0, fdwSound)
+  
+TSoundPlayer.PlayFromResource PROCEDURE(STRING pResourceName, UNSIGNED fOptions=0)
+fdwSound                        UNSIGNED, AUTO
+  CODE
+  fdwSound = BOR(BOR(SND_RESOURCE, SND_NODEFAULT), fOptions)
+  RETURN SELF.PlaySound(pResourceName, winapi::GetModuleHandle(), fdwSound)
+  
+TSoundPlayer.PlaySystemEvent  PROCEDURE(STRING pEventName, UNSIGNED fOptions=0)
+fdwSound                        UNSIGNED, AUTO
+  CODE
+  fdwSound = BOR(SND_ALIAS, fOptions)
+  RETURN SELF.PlaySound(pEventName, 0, fdwSound)
+  
+TSoundPlayer.StopSound        PROCEDURE()
+szSound                         &CSTRING
+  CODE
+  RETURN winapi::PlaySound(szSound, 0, 0)
+!!!endregion
+  
+!!!region TResource
+TResource.Construct           PROCEDURE()
+  CODE
+  
+TResource.Destruct            PROCEDURE()
+  CODE
+  SELF.DisposeResource()
+  
+TResource.DisposeResource     PROCEDURE()
+  CODE
+  IF NOT SELF.sResData &= NULL
+    DISPOSE(SELF.sResData)
+    SELF.sResData &= NULL
+  END
+  
+TResource.GetModuleHandle     PROCEDURE(<STRING pModuleName>)
+szModuleName                    CSTRING(LEN(CLIP(pModuleName))+1), AUTO
+  CODE
+  IF pModuleName
+    szModuleName = CLIP(pModuleName)
+    SELF.hModule = winapi::GetModuleHandle(szModuleName)
+  ELSE
+    SELF.hModule = winapi::GetModuleHandle()
+  END
+  IF SELF.hModule=0
+    printd('GetModuleHandle(%Z) failed, error %i', szModuleName, winapi::GetLastError())
+  END
+  RETURN SELF.hModule
+  
+TResource.FindResource        PROCEDURE(HMODULE hModule, STRING pName, STRING pType)
+szName                          CSTRING(LEN(CLIP(pName))+1), AUTO
+szType                          CSTRING(LEN(CLIP(pType))+1), AUTO
+  CODE
+  szName = CLIP(pName)
+  szType = CLIP(pType)
+  SELF.hResInfo = winapi::FindResource(hModule, szName, szType)
+  IF SELF.hResInfo=0
+    printd('FindResource(%i,%Z,%Z) failed, error %i', hModule, szName, szType, winapi::GetLastError())
+  END
+  RETURN SELF.hResInfo
+  
+TResource.FindResource        PROCEDURE(STRING pName, STRING pType)
+  CODE
+  RETURN SELF.FindResource(SELF.hModule, pName, pType)
+  
+TResource.LoadResource        PROCEDURE(HMODULE hModule, HRSRC hResInfo)
+  CODE
+  SELF.hResData = winapi::LoadResource(hModule, hResInfo)
+  IF SELF.hResData=0
+    printd('LoadResource(%i,%i) failed, error %i', hModule, hResInfo, winapi::GetLastError())
+  END
+  RETURN SELF.hResData
+  
+TResource.LoadResource        PROCEDURE()
+  CODE
+  RETURN SELF.LoadResource(SELF.hModule, SELF.hResInfo)
+  
+TResource.LockResource        PROCEDURE(HGLOBAL hResData)
+aResData                        LONG, AUTO
+  CODE
+  aResData = winapi::LockResource(hResData)
+  IF aResData=0
+    printd('LockResource(%i) failed, error %i', hResData, winapi::GetLastError())
+  END
+  RETURN aResData
+  
+TResource.LockResource        PROCEDURE()
+  CODE
+  RETURN SELF.LockResource(SELF.hResData)
+  
+TResource.SizeofResource      PROCEDURE(HMODULE hModule, HRSRC hResInfo)
+  CODE
+  RETURN winapi::SizeofResource(hModule, hResInfo)
+  
+TResource.SizeofResource      PROCEDURE()
+  CODE
+  RETURN SELF.SizeofResource(SELF.hModule, SELF.hResInfo)
+  
+TResource.GetResource         PROCEDURE(STRING pModuleName, STRING pName, STRING pType)
+aData                           LONG, AUTO
+nLen                            UNSIGNED, AUTO
+  CODE
+  SELF.DisposeResource()
+  IF SELF.GetModuleHandle(pModuleName)
+    IF SELF.FindResource(pName, pType)
+      IF SELF.LoadResource()
+        aData = SELF.LockResource()
+        IF aData
+          nLen = SELF.SizeofResource()
+          SELF.sResData &= NEW STRING(nLen)
+          winapi::memcpy(ADDRESS(SELF.sResData), aData, nLen)
+        END
+      END
+    END
+  END
+  RETURN SELF.sResData
+  
+TResource.GetResource         PROCEDURE(STRING pName, STRING pType)
+  CODE
+  RETURN SELF.GetResource('', pName, pType)
+  
+TResource.GetResource         PROCEDURE()
+  CODE
+  RETURN SELF.sResData
+!!!endregion
+  
+!!!region TMCIDevice
+TMCIDevice.SendString         PROCEDURE(STRING pCommand, <*STRING pReturnString>, HANDLE hwndCallback = 0)
+szCommand                       CSTRING(LEN(CLIP(pCommand))+1), AUTO
+szReturnString                  CSTRING(LEN(CLIP(pReturnString))+1), AUTO
+rc                              MCIERROR, AUTO
+  CODE
+  szCommand = CLIP(pCommand)
+  IF NOT OMITTED(pReturnString)
+    rc = winapi::mciSendString(szCommand, szReturnString, LEN(pReturnString), hwndCallback)
+    IF rc = 0
+      pReturnString = szReturnString
+    END
+  ELSE
+    rc = winapi::mciSendString(szCommand,,0,hwndCallback)
+  END
+  SELF.lastError = rc
+  RETURN rc
+  
+TMCIDevice.GetErrorString     PROCEDURE(MCIERROR fdwError)
+szErrortext                     CSTRING(256), AUTO
+  CODE
+  IF winapi::mciGetErrorString(fdwError, szErrortext, LEN(szErrortext))
+    RETURN CLIP(szErrortext)
+  ELSE
+    RETURN 'Unknown error'
+  END
+  
+TMCIDevice.GetErrorString     PROCEDURE()
+  CODE
+  RETURN SELF.GetErrorString(SELF.lastError)
+!!!endregion
+  
+!!!region TMpegVideo
+TMpegVideo.Construct          PROCEDURE()
+  CODE
+  SELF.theAlias = 'mp3'
+  
+TMpegVideo.Destruct           PROCEDURE()
+  CODE
+  SELF.Close()
+  
+TMpegVideo.Open               PROCEDURE(STRING pFilename)
+cmd                             ANY
+  CODE
+  SELF.Close()
+  !- Try to open as mpegvideo
+  cmd = printf('open "%s" type mpegvideo alias %s', pFilename, SELF.theAlias)
+  IF SELF.SendString(cmd)<> 0
+    !- Let MCI deside which file type the song is
+    cmd = printf('open "%s" alias %s', pFilename, SELF.theAlias)
+    IF SELF.SendString(cmd) = 0
+      RETURN TRUE
+    ELSE
+      printd('%s error %i (%Z)', cmd, SELF.lastError, SELF.GetErrorString())
+    END
+  END
+  RETURN FALSE
+  
+TMpegVideo.Close              PROCEDURE()
+cmd                             ANY
+  CODE
+  cmd = printf('close %s', SELF.theAlias)
+  SELF.SendString(cmd)
+  
+TMpegVideo.Play               PROCEDURE()
+cmd                             ANY
+  CODE
+  cmd = printf('play %s', SELF.theAlias)
+  IF SELF.SendString(cmd) = 0
+    RETURN TRUE
+  ELSE
+    printd('%s error %i (%Z)', cmd, SELF.lastError, SELF.GetErrorString())
+    SELF.Close()
+    RETURN FALSE
+  END
+  
+TMpegVideo.Pause              PROCEDURE()
+cmd                             ANY
+  CODE
+  IF SELF.IsPaused()
+    SELF.Resume()
+  ELSIF SELF.IsPlaying()
+    cmd = printf('pause %s', SELF.theAlias)
+    SELF.SendString(cmd)
+  END
+  
+TMpegVideo.Stop               PROCEDURE()
+cmd                             ANY
+  CODE
+  cmd = printf('stop %s', SELF.theAlias)
+  SELF.SendString(cmd)
+  SELF.Close()
+  
+TMpegVideo.Resume             PROCEDURE()
+cmd                             ANY
+  CODE
+  cmd = printf('resume %s', SELF.theAlias)
+  SELF.SendString(cmd)
+  
+TMpegVideo.IsPlaying          PROCEDURE()
+cmd                             ANY
+returnData                      STRING(7), AUTO
+  CODE
+  cmd = printf('status %s mode', SELF.theAlias)
+  SELF.SendString(cmd, returnData)
+  IF returnData = 'playing'
+    RETURN TRUE
+  END
+  RETURN FALSE
+
+TMpegVideo.IsPaused           PROCEDURE()
+cmd                             ANY
+returnData                      STRING(6), AUTO
+  CODE
+  cmd = printf('status %s mode', SELF.theAlias)
+  SELF.SendString(cmd, returnData)
+  IF returnData = 'paused'
+    RETURN TRUE
+  END
+  RETURN FALSE
+
+TMpegVideo.IsStopped          PROCEDURE()
+cmd                             ANY
+returnData                      STRING(7), AUTO
+  CODE
+  cmd = printf('status %s mode', SELF.theAlias)
+  SELF.SendString(cmd, returnData)
+  IF returnData = 'stopped'
+    RETURN TRUE
+  END
+  RETURN FALSE
+
+TMpegVideo.GetPosition        PROCEDURE()
+cmd                             ANY
+returnData                      STRING(32)
+  CODE
+  cmd = printf('status %s position', SELF.theAlias)
+  SELF.SendString(cmd, returnData)
+  RETURN returnData
+
+TMpegVideo.SetPosition        PROCEDURE(LONG milliseconds)
+cmd                             ANY
+  CODE
+  IF SELF.IsPlaying()
+    cmd = printf('play %s from %i', SELF.theAlias, milliseconds)
+    SELF.SendString(cmd)
+  ELSE
+    cmd = printf('seek %s to %i', SELF.theAlias, milliseconds)
+    SELF.SendString(cmd)
+  END
+  
+TMpegVideo.GetLength          PROCEDURE()
+cmd                             ANY
+returnData                      STRING(32)
+  CODE
+  IF SELF.IsPlaying()
+    cmd = printf('status %s length', SELF.theAlias)
+    SELF.SendString(cmd, returnData)
+    RETURN returnData
+  ELSE
+    RETURN 0
+  END
+  
+TMpegVideo.SetVolume          PROCEDURE(LONG pVolume)
+cmd                             ANY
+  CODE
+  IF pVolume >= 0 AND pVolume <= 1000
+    cmd = printf('setaudio %s volume to %i', SELF.theAlias, pVolume)
+    SELF.SendString(cmd)
+    RETURN TRUE
+  ELSE
+    RETURN FALSE
+  END
+  
+TMpegVideo.SetBalance         PROCEDURE(LONG pBalance)
+cmd                             ANY
+  CODE
+  IF pBalance >= 0 AND pBalance <= 1000
+    cmd = printf('setaudio %s left volume to %i', SELF.theAlias, 1000-pBalance)
+    SELF.SendString(cmd)
+    cmd = printf('setaudio %s right volume to %i', SELF.theAlias, pBalance)
+    SELF.SendString(cmd)
+    RETURN TRUE
+  ELSE
+    RETURN FALSE
   END
 !!!endregion

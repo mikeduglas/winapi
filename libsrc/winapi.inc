@@ -1,4 +1,5 @@
 !Base Windows classes
+!06.07.2020 revision
 !mikeduglas (c) 2019-2020
 
   INCLUDE('svapi.inc'), ONCE
@@ -263,6 +264,13 @@ SaveFile                        PROCEDURE(STRING pFilename, *STRING pData, ULONG
 SaveFile                        PROCEDURE(STRING pFilename, STRING pData, ULONG dwDesiredAccess=GENERIC_WRITE, ULONG dwCreationDisposition=CREATE_ALWAYS), BOOL, PROC
                               END
 
+!- Temp files
+TTempFile                     CLASS(TDiskFile), TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+GetTempPath                     PROCEDURE(), STRING
+GetTempFileName                 PROCEDURE(STRING pPathName, STRING pPrefixString, UNSIGNED uUnique=0), STRING
+GetTempFileName                 PROCEDURE(<STRING pExt>), STRING
+                              END
+
 !- Timer
 TTimer                        CLASS, TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
 hwnd                            HWND, PRIVATE
@@ -274,4 +282,80 @@ SetTimer                        PROCEDURE(HWND hwnd, UNSIGNED uElapse), UNSIGNED
 SetTimer                        PROCEDURE(UNSIGNED uElapse), UNSIGNED, PROC
 KillTimer                       PROCEDURE(), BOOL, PROC
 GetTimerID                      PROCEDURE(), UNSIGNED
+                              END
+
+!- SoundPlayer (WAV format)
+TSoundPlayer                  CLASS, TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+PlaySound                       PROCEDURE(STRING pSound, HMODULE hmod, UNSIGNED fdwSound), BOOL, PROC
+PlayFromFile                    PROCEDURE(STRING pFile, UNSIGNED fOptions=0), BOOL, PROC
+PlayFromResource                PROCEDURE(STRING pResourceName, UNSIGNED fOptions=0), BOOL, PROC
+PlaySystemEvent                 PROCEDURE(STRING pEventName, UNSIGNED fOptions=0), BOOL, PROC
+StopSound                       PROCEDURE(), BOOL, PROC
+                              END
+
+!- Resources
+HRSRC                         EQUATE(HANDLE)
+
+TResource                     CLASS, TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+hModule                         HMODULE, PRIVATE  !- call GetModuleHandle to obtaion it
+hResInfo                        HRSRC, PRIVATE    !- call FindResource to obtaion it
+hResData                        HGLOBAL, PRIVATE  !- call LoadResource to obtaion it
+sResData                        &STRING, PROTECTED
+
+Construct                       PROCEDURE()
+Destruct                        PROCEDURE(), VIRTUAL
+DisposeResource                 PROCEDURE()
+
+GetModuleHandle                 PROCEDURE(<STRING pModuleName>), HMODULE, PROC
+FindResource                    PROCEDURE(HMODULE hModule, STRING pName, STRING pType), HRSRC
+FindResource                    PROCEDURE(STRING pName, STRING pType), HRSRC, PROC
+LoadResource                    PROCEDURE(HMODULE hModule, HRSRC hResInfo), HGLOBAL
+LoadResource                    PROCEDURE(), HGLOBAL, PROC
+LockResource                    PROCEDURE(HGLOBAL hResData), LONG
+LockResource                    PROCEDURE(), LONG
+SizeofResource                  PROCEDURE(HMODULE hModule, HRSRC hResInfo), UNSIGNED
+SizeofResource                  PROCEDURE(), UNSIGNED
+!- returns a resource data from an exe or dll
+GetResource                     PROCEDURE(STRING pModuleName, STRING pName, STRING pType), *STRING, PROC
+!- returns a resource data from this module
+GetResource                     PROCEDURE(STRING pName, STRING pType), *STRING, PROC
+!- returns previously obtained resource data
+GetResource                     PROCEDURE(), *STRING
+                              END
+
+!- MCI device
+!- https://docs.microsoft.com/ru-ru/windows/win32/multimedia/multimedia-command-strings?redirectedfrom=MSDN
+
+!- mciSendString return type
+MCIERROR                      EQUATE(UNSIGNED)
+
+TMCIDevice                    CLASS, TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+lastError                       MCIERROR
+
+SendString                      PROCEDURE(STRING pCommand, <*STRING pReturnString>, HANDLE hwndCallback = 0), MCIERROR, PROC
+GetErrorString                  PROCEDURE(MCIERROR fdwError), STRING
+GetErrorString                  PROCEDURE(), STRING
+                              END
+
+!- MCI: MpegVideo type (mp3 files)
+TMpegVideo                    CLASS(TMCIDevice), TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+theAlias                        STRING(10), PRIVATE
+
+Construct                       PROCEDURE()
+Destruct                        PROCEDURE(), VIRTUAL
+
+Open                            PROCEDURE(STRING pFilename), BOOL, PROC
+Close                           PROCEDURE()
+Play                            PROCEDURE(), BOOL, PROC
+Pause                           PROCEDURE()   !- toggle pause state
+Stop                            PROCEDURE()
+Resume                          PROCEDURE()
+IsPlaying                       PROCEDURE(), BOOL
+IsPaused                        PROCEDURE(), BOOL
+IsStopped                       PROCEDURE(), BOOL
+GetPosition                     PROCEDURE(), LONG
+SetPosition                     PROCEDURE(LONG milliseconds)
+GetLength                       PROCEDURE(), LONG
+SetVolume                       PROCEDURE(LONG pVolume), BOOL, PROC
+SetBalance                      PROCEDURE(LONG pBalance), BOOL, PROC
                               END
