@@ -18,3 +18,7 @@ A set of helper classes:
 - TResource (exe/dll resources)
 - TMCIDevice (MCI devices)
 - TMpegVideo (MP3)
+
+
+## Related projects
+- [printf](https://github.com/mikeduglas/printf)
