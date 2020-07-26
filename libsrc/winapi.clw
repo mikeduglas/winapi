@@ -1,5 +1,5 @@
 !Base Windows classes
-!06.07.2020 revision
+!26.07.2020 revision
 !mikeduglas (c) 2019-2020
 
   MEMBER
@@ -88,6 +88,7 @@
       winapi::EndPaint(HWND hWnd, *PAINTSTRUCT lpPaint),BOOL,RAW,PROC,PASCAL,NAME('EndPaint')
 
       winapi::Ellipse(HDC hdc,LONG pLeft,LONG pTop,LONG pRight,LONG pBottom),BOOL,PROC,PASCAL,NAME('Ellipse')
+      winapi::Polygon(HDC HDC, LONG apt, LONG cpt),BOOL,PASCAL,PROC,NAME('Polygon')
 
       winapi::PlaySound(*CSTRING pszSound, HMODULE hmod, UNSIGNED fdwSound),BOOL,PROC,RAW,PASCAL,NAME('PlaySoundA')
 
@@ -178,9 +179,9 @@ b                                 BYTE
 
 COLORREF::ToClarion           PROCEDURE(COLORREF pWinColor)
 winClrGrp                       GROUP, OVER(pWinColor), PRE(winClrGrp)
-b                                 BYTE
-g                                 BYTE
 r                                 BYTE
+g                                 BYTE
+b                                 BYTE
                                 END
 claColor                        LONG, AUTO
 ClaClrGrp                       GROUP, OVER(claColor), PRE(ClaClrGrp)
@@ -684,9 +685,17 @@ TRect.Width                   PROCEDURE()
   CODE
   RETURN SELF.right - SELF.left
 
+TRect.Width                   PROCEDURE(SIGNED pNewWidth)
+  CODE
+  SELF.right += (pNewWidth-SELF.Width())
+  
 TRect.Height                  PROCEDURE()
   CODE
   RETURN SELF.bottom - SELF.top
+
+TRect.Height                  PROCEDURE(SIGNED pNewHeight)
+  CODE
+  SELF.bottom += (pNewHeight-SELF.Height())
 
 TRect.Assign                  PROCEDURE(_RECT_ rc)
   CODE
@@ -876,6 +885,10 @@ TDC.Ellipse                   PROCEDURE(*TRect rc)
   CODE
   RETURN SELF.Ellipse(rc.left, rc.top, rc.right, rc.bottom)
 
+TDC.Polygon                   PROCEDURE(LONG apt, LONG cpt)
+  CODE
+  RETURN winapi::Polygon(SELF.handle, apt, cpt)
+  
 TDC.ExcludeClipRect           PROCEDURE(*_RECT_ pRect)
   CODE
   RETURN winapi::ExcludeClipRect(SELF.handle, pRect.left, pRect.top, pRect.right, pRect.bottom)
@@ -1212,6 +1225,27 @@ dwBytesWritten                  LONG, AUTO
 TIODevice.WriteFile           PROCEDURE(STRING pStr, <LONG pStrSize>)
   CODE
   RETURN SELF.WriteFile(pStr, pStrSize)
+
+TIODevice.WriteMem            PROCEDURE(LONG pAddr, LONG pSize)
+dwBytesWritten                  LONG, AUTO
+  CODE
+  RETURN SELF.WriteFile(pAddr, pSize, dwBytesWritten, 0)
+
+TIODevice.WriteByte           PROCEDURE(BYTE pVal)
+  CODE
+  RETURN SELF.WriteMem(ADDRESS(pVal), SIZE(pVal))
+
+TIODevice.WriteShort          PROCEDURE(SHORT pVal)
+  CODE
+  RETURN SELF.WriteMem(ADDRESS(pVal), SIZE(pVal))
+
+TIODevice.WriteLong           PROCEDURE(LONG pVal)
+  CODE
+  RETURN SELF.WriteMem(ADDRESS(pVal), SIZE(pVal))
+
+TIODevice.WriteReal           PROCEDURE(REAL pVal)
+  CODE
+  RETURN SELF.WriteMem(ADDRESS(pVal), SIZE(pVal))
 
 TIODevice.CloseHandle         PROCEDURE()
   CODE

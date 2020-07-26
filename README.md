@@ -19,6 +19,7 @@ A set of helper classes:
 - TMCIDevice (MCI devices)
 - TMpegVideo (MP3)
 
+See [change log](https://github.com/mikeduglas/winapi/blob/master/changelog.md).
 
 ## Related projects
 - [printf](https://github.com/mikeduglas/printf)

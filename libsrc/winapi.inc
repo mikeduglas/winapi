@@ -1,5 +1,5 @@
 !Base Windows classes
-!06.07.2020 revision
+!26.07.2020 revision
 !mikeduglas (c) 2019-2020
 
   INCLUDE('svapi.inc'), ONCE
@@ -120,7 +120,9 @@ ToString                        PROCEDURE(), STRING
 !- Rectangle
 TRect                         CLASS(_RECT_), TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
 Width                           PROCEDURE(), SIGNED
+Width                           PROCEDURE(SIGNED pNewWidth)
 Height                          PROCEDURE(), SIGNED
+Height                          PROCEDURE(SIGNED pNewHeight)
 
 !- assign rc to self
 Assign                          PROCEDURE(_RECT_ rc)
@@ -174,6 +176,13 @@ TextOut                         PROCEDURE(LONG pX, LONG pY, STRING pText), BOOL,
 Ellipse                         PROCEDURE(LONG pLeft, LONG pTop, LONG pRight, LONG pBottom), BOOL, PROC
 Ellipse                         PROCEDURE(*_RECT_ rc), BOOL, PROC
 Ellipse                         PROCEDURE(*TRect rc), BOOL, PROC
+
+!!!<summary>Draws a polygon consisting of two or more vertices connected by straight lines.
+!!!The polygon is outlined by using the current pen and filled by using the current brush and polygon fill mode.
+!!!</summary>
+!!!<param name="apt">An address of an array of POINT structures that specify the vertices of the polygon, in logical coordinates.</param>
+!!!<param name="cpt">The number of vertices in the array. This value must be greater than or equal to 2.</param>
+Polygon                         PROCEDURE(LONG apt, LONG cpt), BOOL, PROC
 
 ExcludeClipRect                 PROCEDURE(*_RECT_ pRect), LONG, PROC
 ExcludeClipRect                 PROCEDURE(*TRect pRect), LONG, PROC
@@ -252,6 +261,11 @@ WriteFile                       PROCEDURE(LONG lpBuffer, LONG dwBytes, *LONG dwB
 WriteFile                       PROCEDURE(*GROUP pGrp), BOOL, PROC
 WriteFile                       PROCEDURE(*STRING pStr, <LONG pStrSize>), BOOL, PROC
 WriteFile                       PROCEDURE(STRING pStr, <LONG pStrSize>), BOOL, PROC
+WriteMem                        PROCEDURE(LONG pAddr, LONG pSize), BOOL, PROC
+WriteByte                       PROCEDURE(BYTE pVal), BOOL, PROC
+WriteShort                      PROCEDURE(SHORT pVal), BOOL, PROC
+WriteLong                       PROCEDURE(LONG pVal), BOOL, PROC
+WriteReal                       PROCEDURE(REAL pVal), BOOL, PROC
 CloseHandle                     PROCEDURE(), BOOL, PROC
 GetFileSize                     PROCEDURE(<*LONG pFileSizeHigh>), LONG
                               END
@@ -359,3 +373,5 @@ GetLength                       PROCEDURE(), LONG
 SetVolume                       PROCEDURE(LONG pVolume), BOOL, PROC
 SetBalance                      PROCEDURE(LONG pBalance), BOOL, PROC
                               END
+
+!- TODO: Custom font
