@@ -1,5 +1,5 @@
 !Base Windows classes
-!26.07.2020 revision
+!28.07.2020 revision
 !mikeduglas (c) 2019-2020
 
   INCLUDE('svapi.inc'), ONCE

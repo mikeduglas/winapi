@@ -1,5 +1,5 @@
 28.07.2020
-- TWnd: restores relevant userData before CallWindowProc(), this fixes the issue with multiple window procedures bound to a window/control.
+- TWnd: restores relevant userData before CallWindowProc(), this fixes the issue with multiple window procedures bound to a window/control.  
 
 26.07.2020
 - TDC: Polygon added.

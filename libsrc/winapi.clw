@@ -1,5 +1,5 @@
 !Base Windows classes
-!26.07.2020 revision
+!28.07.2020 revision
 !mikeduglas (c) 2019-2020
 
   MEMBER
@@ -200,6 +200,7 @@ TWnd.Construct                PROCEDURE()
   
 TWnd.Destruct                 PROCEDURE()
   CODE
+  SELF.ResetWndProc()
   SELF.W &= NULL
   
 TWnd.Init                     PROCEDURE(<*WINDOW w>)
@@ -245,8 +246,11 @@ TWnd.ResetWndProc             PROCEDURE()
     !- restore previous window proc
     SELF.SetWindowLong(GWL_WNDPROC, SELF.wndProc)
     SELF.wndProc = 0
-    SELF.SetWindowLong(GWL_USERDATA, SELF.userData)
-    SELF.userData = 0
+    
+    IF SELF.userData <> 0
+      SELF.SetWindowLong(GWL_USERDATA, SELF.userData)
+      SELF.userData = 0
+    END
   END
 
 TWnd.CallWindowProc           PROCEDURE(UNSIGNED wMsg, UNSIGNED wParam, LONG lParam)
@@ -256,14 +260,19 @@ rv                              LONG, AUTO
   IF SELF.wndProc
     !- save our user data
     userData = SELF.GetWindowLong(GWL_USERDATA)
+    
     !- restore prev user data
-    SELF.SetWindowLong(GWL_USERDATA, SELF.userData)
-
+    IF SELF.userData
+      SELF.SetWindowLong(GWL_USERDATA, SELF.userData)
+    END
+    
     !- call previous window proc
     rv = winapi::CallWindowProc(SELF.wndProc, SELF.hWnd, wMsg, wParam, lParam)
 
     !- restore our user data
     SELF.SetWindowLong(GWL_USERDATA, userData)
+    
+    !- return winapi::CallWindowProc result
     RETURN rv
   ELSE
     !- call default window proc
