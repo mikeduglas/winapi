@@ -19,6 +19,7 @@ W                               &WINDOW, PROTECTED
 FEQ                             SIGNED, PROTECTED
 hwnd                            HWND, PROTECTED
 wndProc                         LONG, PRIVATE
+userData                        LONG, PRIVATE
 
 Construct                       PROCEDURE()
 Destruct                        PROCEDURE(), VIRTUAL
@@ -28,7 +29,14 @@ Init                            PROCEDURE(LONG pFeq), VIRTUAL
 GetHandle                       PROCEDURE(), HWND
 SetHandle                       PROCEDURE(HWND hwnd)
 GetWindow                       PROCEDURE(), *WINDOW
-GetWndProc                      PROCEDURE(), LONG
+
+SetWndProc                      PROCEDURE(LONG lpCallback, LONG lpUserData) !- ADDRESS(proc), ADDRESS(self)
+ResetWndProc                    PROCEDURE()
+CallWindowProc                  PROCEDURE(UNSIGNED wMsg, UNSIGNED wParam, LONG lParam), LONG
+DefWindowProc                   PROCEDURE(UNSIGNED wMsg, UNSIGNED wParam, LONG lParam), LONG
+GetWndProc                      PROCEDURE(), LONG     !- returns _previous_ window proc address
+GetUserData                     PROCEDURE(), LONG     !- returns _previous_ window user data
+
 GetFEQ                          PROCEDURE(), SIGNED
 GetParent                       PROCEDURE(), HWND
 SetParent                       PROCEDURE(HWND hWndNewParent), HWND, PROC
@@ -67,12 +75,6 @@ ScreenToClient                  PROCEDURE(*TRect prc)
 ClientToScreen                  PROCEDURE(*POINT ppt)
 ClientToScreen                  PROCEDURE(*_RECT_ prc)
 ClientToScreen                  PROCEDURE(*TRect prc)
-
-SetWndProc                      PROCEDURE(LONG lpCallback, LONG lpUserData) !ADDRESS(proc), ADDRESS(class)
-ResetWndProc                    PROCEDURE()
-
-CallWindowProc                  PROCEDURE(UNSIGNED wMsg, UNSIGNED wParam, LONG lParam), LONG
-DefWindowProc                   PROCEDURE(UNSIGNED wMsg, UNSIGNED wParam, LONG lParam), LONG
 
 InvalidateRect                  PROCEDURE(_RECT_ rc, BOOL bErase), BOOL, PROC
 InvalidateRect                  PROCEDURE(TRect rc, BOOL bErase), BOOL, PROC

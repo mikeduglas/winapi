@@ -230,10 +230,58 @@ TWnd.GetWindow                PROCEDURE()
   CODE
   RETURN SELF.W
   
+TWnd.SetWndProc               PROCEDURE(LONG lpCallback, LONG lpUserData)
+  CODE
+  !- save previous window proc and data
+  SELF.wndProc = SELF.GetWindowLong(GWL_WNDPROC)
+  SELF.userData = SELF.GetWindowLong(GWL_USERDATA)
+  !- set new window user data and proc
+  SELF.SetWindowLong(GWL_USERDATA, lpUserData)
+  SELF.SetWindowLong(GWL_WNDPROC, lpCallback)
+
+TWnd.ResetWndProc             PROCEDURE()
+  CODE
+  IF SELF.wndProc <> 0
+    !- restore previous window proc
+    SELF.SetWindowLong(GWL_WNDPROC, SELF.wndProc)
+    SELF.wndProc = 0
+    SELF.SetWindowLong(GWL_USERDATA, SELF.userData)
+    SELF.userData = 0
+  END
+
+TWnd.CallWindowProc           PROCEDURE(UNSIGNED wMsg, UNSIGNED wParam, LONG lParam)
+userData                        LONG, AUTO
+rv                              LONG, AUTO
+  CODE
+  IF SELF.wndProc
+    !- save our user data
+    userData = SELF.GetWindowLong(GWL_USERDATA)
+    !- restore prev user data
+    SELF.SetWindowLong(GWL_USERDATA, SELF.userData)
+
+    !- call previous window proc
+    rv = winapi::CallWindowProc(SELF.wndProc, SELF.hWnd, wMsg, wParam, lParam)
+
+    !- restore our user data
+    SELF.SetWindowLong(GWL_USERDATA, userData)
+    RETURN rv
+  ELSE
+    !- call default window proc
+    RETURN SELF.DefWindowProc(wMsg, wParam, lParam)
+  END
+
+TWnd.DefWindowProc            PROCEDURE(UNSIGNED wMsg, UNSIGNED wParam, LONG lParam)
+  CODE
+  RETURN winapi::DefWindowProc(SELF.hWnd, wMsg, wParam, lParam)
+
 TWnd.GetWndProc               PROCEDURE()
   CODE
   RETURN SELF.wndProc
-  
+    
+TWnd.GetUserData              PROCEDURE()
+  CODE
+  RETURN SELF.userData
+
 TWnd.GetFEQ                   PROCEDURE()
   CODE
   RETURN SELF.FEQ
@@ -402,31 +450,6 @@ rc                              LIKE(_RECT_), AUTO
   SELF.ClientToScreen(rc)
   prc.Assign(rc)
 
-TWnd.SetWndProc               PROCEDURE(LONG lpCallback, LONG lpUserData)
-  CODE
-  SELF.wndProc = SELF.GetWindowLong(GWL_WNDPROC)
-  SELF.SetWindowLong(GWL_USERDATA, lpUserData)
-  SELF.SetWindowLong(GWL_WNDPROC, lpCallback)
-
-TWnd.ResetWndProc             PROCEDURE()
-  CODE
-  IF SELF.wndProc <> 0
-    SELF.SetWindowLong(GWL_WNDPROC, SELF.wndProc)
-    SELF.wndProc = 0
-  END
-
-TWnd.CallWindowProc           PROCEDURE(UNSIGNED wMsg, UNSIGNED wParam, LONG lParam)
-  CODE
-  IF SELF.wndProc
-    RETURN winapi::CallWindowProc(SELF.wndProc, SELF.hWnd, wMsg, wParam, lParam)
-  ELSE
-    RETURN SELF.DefWindowProc(wMsg, wParam, lParam)
-  END
-
-TWnd.DefWindowProc            PROCEDURE(UNSIGNED wMsg, UNSIGNED wParam, LONG lParam)
-  CODE
-  RETURN winapi::DefWindowProc(SELF.hWnd, wMsg, wParam, lParam)
-  
 TWnd.InvalidateRect           PROCEDURE(_RECT_ rc, BOOL bErase)
   CODE
   RETURN winapi::InvalidateRect(SELF.hwnd, rc, bErase)
