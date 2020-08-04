@@ -23,3 +23,8 @@ See [change log](https://github.com/mikeduglas/winapi/blob/master/changelog.md).
 
 ## Related projects
 - [printf](https://github.com/mikeduglas/printf)
+- [Smart Zoom](https://github.com/mikeduglas/Smart-Zoom)
+- [Embedded Screensaver](https://github.com/mikeduglas/Embedded-Screensaver)
+- [Resizable controls](https://github.com/mikeduglas/Resizable_Controls)
+- [Rating control](https://github.com/mikeduglas/RatingControl)
+- Sticker control

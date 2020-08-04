@@ -42,11 +42,11 @@ GetParent                       PROCEDURE(), HWND
 SetParent                       PROCEDURE(HWND hWndNewParent), HWND, PROC
 SetParent                       PROCEDURE(TWnd hWndNewParent), HWND, PROC
 
-SetProp                         PROCEDURE(LONG prop, ? value)
 GetProp                         PROCEDURE(LONG prop), ?
+SetProp                         PROCEDURE(LONG prop, ? value)
 
-SetWindowLong                   PROCEDURE(LONG nIndex, LONG dwNewLong), LONG, PROC
 GetWindowLong                   PROCEDURE(LONG nIndex), LONG
+SetWindowLong                   PROCEDURE(LONG nIndex, LONG dwNewLong), LONG, PROC
 
 SendMessage                     PROCEDURE(UNSIGNED uMsg, UNSIGNED wParam, LONG lParam), BOOL, PROC
 PostMessage                     PROCEDURE(UNSIGNED nMsg, UNSIGNED wParam, LONG lParam), BOOL, PROC
@@ -83,6 +83,7 @@ InvalidateRect                  PROCEDURE(BOOL bErase), BOOL, PROC
 ShowWindow                      PROCEDURE(SIGNED nCmdShow), BOOL, PROC
 SetForegroundWindow             PROCEDURE(), BOOL, PROC
 UpdateWindow                    PROCEDURE(), BOOL, PROC
+EnableWindow                    PROCEDURE(BOOL pEnable), BOOL, PROC
 
 Redraw                          PROCEDURE(_RECT_ rc)
 Redraw                          PROCEDURE(TRect rc)
@@ -143,6 +144,9 @@ PtInRect                        PROCEDURE(SIGNED pX, SIGNED pY), BOOL
 PtInRect                        PROCEDURE(*POINT pt), BOOL
 PtInRect                        PROCEDURE(*TPoint pt), BOOL
 
+Intersect                       PROCEDURE(_RECT_ rc), BOOL
+Intersect                       PROCEDURE(*TRect rc), BOOL
+
 ToString                        PROCEDURE(), STRING
                               END
 
@@ -171,6 +175,16 @@ GetTextColor                    PROCEDURE(), LONG
 SetTextColor                    PROCEDURE(LONG pClaColor)
 GetBkColor                      PROCEDURE(), LONG
 SetBkColor                      PROCEDURE(LONG pClaColor)
+!!!<summary>Sets the background mix mode of the specified device context.
+!!!The background mix mode is used with text, hatched brushes, and pen styles that are not solid lines.
+!!!</summary>
+!!!<link>https://docs.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-setbkmode</link>
+!!!<param name="pMode">The background mode. This parameter can be one of the following values: TRANSPARENT (1), OPAQUE (2).</param>
+!!!<returns>If the function succeeds, the return value specifies the previous background mode.
+!!!If the function fails, the return value is zero.
+!!!</returns>
+SetBkMode                       PROCEDURE(LONG pMode), LONG, PROC
+
 DrawText                        PROCEDURE(STRING pText, *_RECT_ pRect, LONG pFormat), LONG, PROC
 DrawText                        PROCEDURE(STRING pText, *TRect pRect, LONG pFormat), LONG, PROC
 TextOut                         PROCEDURE(LONG pX, LONG pY, STRING pText), BOOL, PROC

@@ -48,6 +48,7 @@
         nHeightDest, HDC hdcSrc, SIGNED nXSrc, SIGNED nYSrc, SIGNED nWSrc, SIGNED nHSrc, LONG dwRop), BOOL, PASCAL, PROC, NAME('StretchBlt')
       winapi::BitBlt(HDC hDcDest, SIGNED nXDest, SIGNED nYDest, SIGNED nWidth, SIGNED nHeight, HDC hDcSrc, SIGNED nXSrc, SIGNED nYSrc, ULONG dwRop), BOOL, RAW, PASCAL, NAME('BitBlt'), PROC
       winapi::UpdateWindow(HWND hWnd),BOOL,PASCAL,PROC,NAME('UpdateWindow')
+      winapi::EnableWindow(HWND hWnd,BOOL bEnable),BOOL,PASCAL,PROC,NAME('EnableWindow')
       winapi::RedrawWindow(HWND hWnd, *_RECT_ lprcUpdate, HRGN hrgnUpdate, UNSIGNED flags), BOOL, RAW, PASCAL, PROC, NAME('RedrawWindow')
       winapi::DrawText(HDC hdc, LONG lpchText, LONG cchText, *_RECT_ lprc, LONG format), LONG, PROC, RAW, PASCAL, NAME('DrawTextA')
       winapi::TextOut(HDC hdc, LONG x, LONG y, LONG pText, LONG len), BOOL, PROC, PASCAL, NAME('TextOutA')
@@ -55,6 +56,7 @@
       winapi::SetTextColor(HDC HDC, COLORREF color), COLORREF, PROC, PASCAL, NAME('SetTextColor')
       winapi::GetBkColor(HDC HDC), COLORREF, PROC, PASCAL, NAME('GetBkColor')
       winapi::SetBkColor(HDC HDC, COLORREF color), COLORREF, PROC, PASCAL, NAME('SetBkColor')
+      winapi::SetBkMode(HDC HDC, LONG mode), LONG, PROC, PASCAL, NAME('SetBkMode')
       winapi::CreateFont(SIGNED nHeight, SIGNED nWidth, SIGNED nEscapement, SIGNED nOrientation, SIGNED fnWeight, UNSIGNED fdwItalic, |
         UNSIGNED fdwUnderline, UNSIGNED fdwStrikeOut, UNSIGNED fdwCharSet, UNSIGNED fdwOutputPrecision, UNSIGNED fdwClipPrecision, | 
         UNSIGNED fdwQuality, UNSIGNED fdwPitchAndFamily, *CSTRING lpszFace), HFONT, PASCAL, RAW, NAME('CreateFontA')
@@ -322,7 +324,7 @@ TWnd.GetProp                  PROCEDURE(LONG prop)
   ELSE
     RETURN SELF.FEQ{prop}
   END
-  
+
 TWnd.SetWindowLong            PROCEDURE(LONG nIndex, LONG dwNewLong)
   CODE
   RETURN winapi::SetWindowLong(SELF.hwnd, nIndex, dwNewLong)
@@ -485,6 +487,10 @@ TWnd.UpdateWindow             PROCEDURE()
   CODE
   RETURN winapi::UpdateWindow(SELF.hwnd)
   
+TWnd.EnableWindow             PROCEDURE(BOOL pEnable)
+  CODE
+  RETURN winapi::EnableWindow(SELF.hwnd, pEnable)
+
 TWnd.Redraw                   PROCEDURE(_RECT_ rc)
   CODE
   winapi::RedrawWindow(SELF.hwnd, rc, 0, RDW_INVALIDATE + RDW_UPDATENOW + RDW_ALLCHILDREN)
@@ -786,6 +792,20 @@ TRect.PtInRect                PROCEDURE(*TPoint pt)
   CODE
   RETURN SELF.PtInRect(pt.x, pt.y)
   
+TRect.Intersect               PROCEDURE(_RECT_ rc)
+  CODE
+  IF (rc.left > SELF.right) OR (rc.right < SELF.left) OR (rc.top > SELF.bottom) OR (rc.bottom < SELF.top)
+    RETURN FALSE
+  ELSE
+    RETURN TRUE
+  END
+  
+TRect.Intersect               PROCEDURE(*TRect rc)
+r2                              LIKE(_RECT_)
+  CODE
+  rc.AssignTo(r2)
+  RETURN SELF.Intersect(r2)
+
 TRect.ToString                PROCEDURE()
   CODE
   RETURN printf('(%i,%i,%i,%i)', SELF.left, SELF.top, SELF.right, SELF.bottom)
@@ -878,6 +898,10 @@ TDC.GetBkColor                PROCEDURE()
 TDC.SetBkColor                PROCEDURE(LONG pClaColor)
   CODE
   winapi::SetBkColor(SELF.handle, COLORREF::FromClarion(pClaColor))
+
+TDC.SetBkMode                 PROCEDURE(LONG pMode)
+  CODE
+  RETURN winapi::SetBkMode(SELF.handle, pMode)
 
 TDC.DrawText                  PROCEDURE(STRING pText, *_RECT_ pRect, LONG pFormat)
 szText                          CSTRING(LEN(CLIP(pText)) + 1 + 4) !- 4 extra chars if DT_END_ELLIPSIS or DT_PATH_ELLIPSIS flags are specified
