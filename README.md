@@ -18,6 +18,9 @@ A set of helper classes:
 - TResource (exe/dll resources)
 - TMCIDevice (MCI devices)
 - TMpegVideo (MP3)
+- TSystemMetrics (GetSystemMetrics api)
+- TStringEncoding (MultiByteToWideChar, WideCharToMultiByte api)
+
 
 See [change log](https://github.com/mikeduglas/winapi/blob/master/changelog.md).
 
@@ -28,3 +31,4 @@ See [change log](https://github.com/mikeduglas/winapi/blob/master/changelog.md).
 - [Resizable controls](https://github.com/mikeduglas/Resizable_Controls)
 - [Rating control](https://github.com/mikeduglas/RatingControl)
 - Sticker control
+- Unicode support

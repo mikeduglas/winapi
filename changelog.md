@@ -1,3 +1,10 @@
+21.08.2020
+- TWnd: new methods GetClassName, IsWindow, MoveWindow, SetHotKey, GetFocus, SetFocus, Focused.
+- TDC: new methods GetDC(TWnd), GetDCEx(TWnd,ULONG), DrawTextW, Rectangle, DrawFocusRect.
+- TLogicalFont: new method CreateFontIndirect.
+- TSystemMetrics class.
+- TStringEncoding class.
+
 04.08.2020
 - TWnd: EnableWindow(bool).
 - TRect: Intersect method tests if 2 rectangles are intersecting.

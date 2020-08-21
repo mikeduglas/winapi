@@ -1,6 +1,7 @@
 !Base Windows classes
-!28.07.2020 revision
+!21.08.2020 revision
 !mikeduglas (c) 2019-2020
+!mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
   MEMBER
 
@@ -10,6 +11,8 @@
     INCLUDE('printf.inc')
 
     MODULE('win api')
+      winapi::GetClassName(HWND hwnd,LONG lpClassName,LONG nMaxCount),LONG,PASCAL,NAME('GetClassNameA')
+      winapi::IsWindow(HWND hwnd),BOOL,PASCAL,NAME('IsWindow')
       winapi::GetParent(HWND hwnd),HWND,PASCAL,NAME('GetParent')
       winapi::SetParent(HWND hWndChild, HWND hWndNewParent),HWND,PASCAL,PROC,NAME('SetParent')
       winapi::CallWindowProc(LONG lpPrevWndFunc,HWND hWnd, UNSIGNED wMsg, UNSIGNED wParam, LONG lParam), LONG, PASCAL, NAME('CallWindowProcA')
@@ -21,9 +24,12 @@
       winapi::PeekMessage(LONG lpMsg, HWND hWnd, LONG wMsgFilterMin, LONG wMsgFilterMax, LONG wRemoveMsg), BOOL, PASCAL, PROC, NAME('PeekMessageA')
       winapi::ShowWindow(HWND hWnd, SIGNED nCmdShow),BOOL,PASCAL,PROC,NAME('ShowWindow')
       winapi::SetForegroundWindow(HWND hwnd),BOOL,PASCAL,PROC,NAME('SetForegroundWindow')
-      winapi::GetClientRect(HWND hWnd,*_RECT_ lpRect), BOOL, RAW, PASCAL, PROC, NAME('GetClientRect')
-      winapi::GetWindowRect(HWND hWnd,*_RECT_ lpRect), BOOL, RAW, PASCAL, PROC, NAME('GetWindowRect')
+      winapi::GetFocus(),HWND,PASCAL,NAME('GetFocus')
+      winapi::SetFocus(HWND hwnd),HWND,PASCAL,NAME('SetFocus')
+      winapi::GetClientRect(HWND hWnd,*_RECT_ lpRect),BOOL,RAW,PASCAL,PROC,NAME('GetClientRect')
+      winapi::GetWindowRect(HWND hWnd,*_RECT_ lpRect),BOOL,RAW,PASCAL,PROC,NAME('GetWindowRect')
       winapi::SetWindowPos(HWND hWnd,HWND hWndInsertAfter,LONG x,LONG y,LONG cx,LONG cy,ULONG uFlags), BOOL, PASCAL, PROC, NAME('SetWindowPos')
+      winapi::MoveWindow(HWND hwnd,LONG x,LONG y,LONG w,LONG h,BOOL bRepaint),BOOL,RAW,PASCAL,PROC,NAME('MoveWindow')
       winapi::ScreenToClient(HWND hWnd, *POINT ppt), BOOL, RAW, PASCAL, PROC, NAME('ScreenToClient')
       winapi::ClientToScreen(HWND hWnd, *POINT ppt), BOOL, RAW, PASCAL, PROC, NAME('ClientToScreen')
       winapi::GetDC(HWND hwnd), HDC, PASCAL, NAME('GetDC')
@@ -51,15 +57,19 @@
       winapi::EnableWindow(HWND hWnd,BOOL bEnable),BOOL,PASCAL,PROC,NAME('EnableWindow')
       winapi::RedrawWindow(HWND hWnd, *_RECT_ lprcUpdate, HRGN hrgnUpdate, UNSIGNED flags), BOOL, RAW, PASCAL, PROC, NAME('RedrawWindow')
       winapi::DrawText(HDC hdc, LONG lpchText, LONG cchText, *_RECT_ lprc, LONG format), LONG, PROC, RAW, PASCAL, NAME('DrawTextA')
+      winapi::DrawTextW(HDC hdc, LONG lpchText, LONG cchText, *_RECT_ lprc, LONG format), LONG, PROC, RAW, PASCAL, NAME('DrawTextW')
       winapi::TextOut(HDC hdc, LONG x, LONG y, LONG pText, LONG len), BOOL, PROC, PASCAL, NAME('TextOutA')
       winapi::GetTextColor(HDC HDC), COLORREF, PROC, PASCAL, NAME('GetTextColor')
       winapi::SetTextColor(HDC HDC, COLORREF color), COLORREF, PROC, PASCAL, NAME('SetTextColor')
+      winapi::GetTextExtentPoint32A(HDC hdc,LONG lpString,LONG pLen,LONG psizl),BOOL,PROC,PASCAL,NAME('GetTextExtentPoint32A')
+      winapi::GetTextExtentPoint32W(HDC hdc,LONG lpString,LONG pLen,LONG psizl),BOOL,PROC,PASCAL,NAME('GetTextExtentPoint32W')
       winapi::GetBkColor(HDC HDC), COLORREF, PROC, PASCAL, NAME('GetBkColor')
       winapi::SetBkColor(HDC HDC, COLORREF color), COLORREF, PROC, PASCAL, NAME('SetBkColor')
       winapi::SetBkMode(HDC HDC, LONG mode), LONG, PROC, PASCAL, NAME('SetBkMode')
       winapi::CreateFont(SIGNED nHeight, SIGNED nWidth, SIGNED nEscapement, SIGNED nOrientation, SIGNED fnWeight, UNSIGNED fdwItalic, |
         UNSIGNED fdwUnderline, UNSIGNED fdwStrikeOut, UNSIGNED fdwCharSet, UNSIGNED fdwOutputPrecision, UNSIGNED fdwClipPrecision, | 
         UNSIGNED fdwQuality, UNSIGNED fdwPitchAndFamily, *CSTRING lpszFace), HFONT, PASCAL, RAW, NAME('CreateFontA')
+      winapi::CreateFontIndirect(*tagLOGFONTA lplf),HFONT, PASCAL, RAW, NAME('CreateFontIndirectA')
       winapi::GetDeviceCaps(HANDLE pDC, LONG pIndex), LONG, PASCAL, NAME('GetDeviceCaps')
       winapi::MulDiv(LONG,LONG,LONG), LONG, PASCAL, NAME('MulDiv')
       winapi::ExcludeClipRect(HDC hdc, LONG left, LONG top, LONG right, LONG bottom), LONG, PROC, PASCAL, NAME('ExcludeClipRect')
@@ -90,7 +100,9 @@
       winapi::EndPaint(HWND hWnd, *PAINTSTRUCT lpPaint),BOOL,RAW,PROC,PASCAL,NAME('EndPaint')
 
       winapi::Ellipse(HDC hdc,LONG pLeft,LONG pTop,LONG pRight,LONG pBottom),BOOL,PROC,PASCAL,NAME('Ellipse')
+      winapi::Rectangle(HDC hdc,LONG pLeft,LONG pTop,LONG pRight,LONG pBottom),BOOL,PROC,PASCAL,NAME('Rectangle')
       winapi::Polygon(HDC HDC, LONG apt, LONG cpt),BOOL,PASCAL,PROC,NAME('Polygon')
+      winapi::DrawFocusRect(HDC HDC,*_RECT_ lprc),BOOL,PROC,RAW,PASCAL,NAME('DrawFocusRect')
 
       winapi::PlaySound(*CSTRING pszSound, HMODULE hmod, UNSIGNED fdwSound),BOOL,PROC,RAW,PASCAL,NAME('PlaySoundA')
 
@@ -103,8 +115,17 @@
       winapi::mciSendString(*CSTRING lpszCommand, <*CSTRING lpszReturnString>, UNSIGNED cchReturn, HANDLE  hwndCallback),MCIERROR,RAW,PASCAL,NAME('mciSendStringA')
       winapi::mciGetErrorString(MCIERROR fdwError, *CSTRING lpszErrorText, UNSIGNED cchErrorText),BOOL,RAW,PASCAL,NAME('mciGetErrorStringA')
 
-      winapi::memcpy(LONG lpDest,LONG lpSource,LONG nCount),LONG,PROC,NAME('_memcpy')
+      winapi::GetSystemMetrics(LONG nIndex),LONG,PASCAL,NAME('GetSystemMetrics')
+
       winapi::GetLastError(), LONG, PASCAL, NAME('GetLastError')
+
+      winapi::memcpy(LONG lpDest,LONG lpSource,LONG nCount),LONG,PROC,NAME('_memcpy')
+
+      winapi::MultiByteToWideChar(UNSIGNED Codepage, ULONG dwFlags, ULONG LpMultuByteStr, |
+        LONG cbMultiByte, ULONG LpWideCharStr, LONG cchWideChar), RAW, ULONG, PASCAL, PROC, NAME('MultiByteToWideChar')
+
+      winapi::WideCharToMultiByte(UNSIGNED Codepage, ULONG dwFlags, ULONG LpWideCharStr, LONG cchWideChar, |
+        ULONG lpMultuByteStr, LONG cbMultiByte, ULONG LpDefalutChar, ULONG lpUsedDefalutChar), RAW, ULONG, PASCAL, PROC, NAME('WideCharToMultiByte')
     END
   END
 
@@ -153,6 +174,80 @@ SND_ALIAS_SYSTEMSTART         EQUATE(21331)
 SND_ALIAS_SYSTEMWELCOME       EQUATE(22355)
 SND_ALIAS_SYSTEMEXCLAMATION   EQUATE(8531)
 SND_ALIAS_SYSTEMDEFAULT       EQUATE(17491)
+
+!- Windows messages not found in svapi.inc
+WM_SETHOTKEY                  EQUATE(0032h)
+
+!- GetSystemMetrics indices
+  OMIT('** SM_CMONITORS **', SM_CMONITORS=80)
+SM_CMONITORS                  EQUATE(80)
+!'** SM_CMONITORS **'
+  OMIT('** SM_CONVERTIBLESLATEMODE **', SM_CONVERTIBLESLATEMODE=2003h)
+SM_CONVERTIBLESLATEMODE       EQUATE(2003h)
+!'** SM_CONVERTIBLESLATEMODE **'
+  OMIT('** SM_CXFOCUSBORDER **', SM_CXFOCUSBORDER=83)
+SM_CXFOCUSBORDER              EQUATE(83)
+!'** SM_CXFOCUSBORDER **'
+  OMIT('** SM_CXPADDEDBORDER **', SM_CXPADDEDBORDER=92)
+SM_CXPADDEDBORDER             EQUATE(92)
+!'** SM_CXPADDEDBORDER **'
+  OMIT('** SM_CXVIRTUALSCREEN **', SM_CXVIRTUALSCREEN=78)
+SM_CXVIRTUALSCREEN            EQUATE(78)
+!'** SM_CXVIRTUALSCREEN **'
+  OMIT('** SM_CYFOCUSBORDER **', SM_CYFOCUSBORDER=84)
+SM_CYFOCUSBORDER              EQUATE(84)
+!'** SM_CYFOCUSBORDER **'
+  OMIT('** SM_CYVIRTUALSCREEN **', SM_CYVIRTUALSCREEN=79)
+SM_CYVIRTUALSCREEN            EQUATE(79)
+!'** SM_CYVIRTUALSCREEN **'
+  OMIT('** SM_DIGITIZER **', SM_DIGITIZER=94)
+SM_DIGITIZER                  EQUATE(94)
+!'** SM_DIGITIZER **'
+  OMIT('** SM_IMMENABLED **', SM_IMMENABLED=82)
+SM_IMMENABLED                 EQUATE(82)
+!'** SM_IMMENABLED **'
+  OMIT('** SM_MAXIMUMTOUCHES **', SM_MAXIMUMTOUCHES=95)
+SM_MAXIMUMTOUCHES             EQUATE(95)
+!'** SM_MAXIMUMTOUCHES **'
+  OMIT('** SM_MEDIACENTER **', SM_MEDIACENTER=87)
+SM_MEDIACENTER                EQUATE(87)
+!'** SM_MEDIACENTER **'
+  OMIT('** SM_MOUSEHORIZONTALWHEELPRESENT **', SM_MOUSEHORIZONTALWHEELPRESENT=91)
+SM_MOUSEHORIZONTALWHEELPRESENT    EQUATE(91)
+!'** SM_MOUSEHORIZONTALWHEELPRESENT **'
+  OMIT('** SM_MOUSEWHEELPRESENT **', SM_MOUSEWHEELPRESENT=75)
+SM_MOUSEWHEELPRESENT          EQUATE(75)
+!'** SM_MOUSEWHEELPRESENT **'
+  OMIT('** SM_REMOTECONTROL **', SM_REMOTECONTROL=2001h)
+SM_REMOTECONTROL              EQUATE(2001h)
+!'** SM_REMOTECONTROL **'
+  OMIT('** SM_REMOTESESSION **', SM_REMOTESESSION=1000h)
+SM_REMOTESESSION              EQUATE(1000h)
+!'** SM_REMOTESESSION **'
+  OMIT('** SM_SAMEDISPLAYFORMAT **', SM_SAMEDISPLAYFORMAT=81)
+SM_SAMEDISPLAYFORMAT          EQUATE(81)
+!'** SM_SAMEDISPLAYFORMAT **'
+  OMIT('** SM_SERVERR2 **', SM_SERVERR2=89)
+SM_SERVERR2                   EQUATE(89)
+!'** SM_SERVERR2 **'
+  OMIT('** SM_SHUTTINGDOWN **', SM_SHUTTINGDOWN=2000h)
+SM_SHUTTINGDOWN               EQUATE(2000h)
+!'** SM_SHUTTINGDOWN **'
+  OMIT('** SM_STARTER **', SM_STARTER=88)
+SM_STARTER                    EQUATE(88)
+!'** SM_STARTER **'
+  OMIT('** SM_SYSTEMDOCKED **', SM_SYSTEMDOCKED=2004h)
+SM_SYSTEMDOCKED               EQUATE(2004h)
+!'** SM_SYSTEMDOCKED **'
+  OMIT('** SM_TABLETPC **', SM_TABLETPC=86)
+SM_TABLETPC                   EQUATE(86)
+!'** SM_TABLETPC **'
+  OMIT('** SM_XVIRTUALSCREEN **', SM_XVIRTUALSCREEN=76)
+SM_XVIRTUALSCREEN             EQUATE(76)
+!'** SM_XVIRTUALSCREEN **'
+  OMIT('** SM_YVIRTUALSCREEN **', SM_YVIRTUALSCREEN=77)
+SM_YVIRTUALSCREEN             EQUATE(76)
+!'** SM_YVIRTUALSCREEN **'
 
 !!!region static functions
 COLORREF::FromRGB             PROCEDURE(BYTE r, BYTE g, BYTE b)
@@ -215,7 +310,7 @@ TWnd.Init                     PROCEDURE(<*WINDOW w>)
   SELF.FEQ = 0
   SELF.SetHandle(SELF.W{PROP:Handle})
   
-TWnd.Init                     PROCEDURE(LONG pFeq)
+TWnd.Init                     PROCEDURE(SIGNED pFeq)
   CODE
   SELF.FEQ = pFeq
   SELF.W &= NULL
@@ -232,6 +327,22 @@ TWnd.SetHandle                PROCEDURE(HWND hwnd)
 TWnd.GetWindow                PROCEDURE()
   CODE
   RETURN SELF.W
+  
+TWnd.GetClassName             PROCEDURE()
+szClassName                     CSTRING(65), AUTO
+rc                              LONG, AUTO
+  CODE
+  rc = winapi::GetClassName(SELF.hwnd, ADDRESS(szClassName), SIZE(szClassName))
+  IF rc > 0
+    RETURN szClassName
+  ELSE
+    printd('GetClassName error %i', winapi::GetLastError())
+    RETURN ''
+  END
+  
+TWnd.IsWindow                 PROCEDURE()
+  CODE
+  RETURN winapi::IsWindow(SELF.hwnd)
   
 TWnd.SetWndProc               PROCEDURE(LONG lpCallback, LONG lpUserData)
   CODE
@@ -408,6 +519,10 @@ r                               LIKE(_RECT_)
 TWnd.SetWindowPos             PROCEDURE(HWND hWndInsertAfter, LONG x, LONG y, LONG cx, LONG cy, ULONG uFlags)
   CODE
   RETURN winapi::SetWindowPos(SELF.hwnd, hWndInsertAfter, x, y, cx, cy, uFlags)
+  
+TWnd.MoveWindow               PROCEDURE(LONG x, LONG y, LONG nWidth, LONG nHeight, BOOL bRepaint)
+  CODE
+  RETURN winapi::MoveWindow(SELF.hwnd, x, y, nWidth, nHeight, bRepaint)
   
 TWnd.ScreenToClient           PROCEDURE(*POINT ppt)
   CODE
@@ -666,6 +781,24 @@ TWnd.GetScrollRange           PROCEDURE(*_RECT_ pRect)
 TWnd.ShowScrollBar            PROCEDURE(SIGNED wBar, BOOL bShow)
   CODE
   RETURN winapi::ShowScrollBar(SELF.hwnd, wBar, bShow)
+  
+TWnd.SetHotKey                PROCEDURE(STRING pChar, USHORT pModifier)
+vkKey                           UNSIGNED, AUTO
+  CODE
+  vkKey = BSHIFT(pModifier, 16) + VAL(pChar)
+  RETURN SELF.SendMessage(WM_SETHOTKEY, vkKey, 0)
+  
+TWnd.GetFocus                 PROCEDURE()
+  CODE
+  RETURN winapi::GetFocus()
+  
+TWnd.SetFocus                 PROCEDURE()
+  CODE
+  RETURN winapi::SetFocus(SELF.hwnd)
+  
+TWnd.Focused                  PROCEDURE()
+  CODE
+  RETURN CHOOSE(SELF.hwnd = SELF.GetFocus())
 !!!endregion
 
 !!!region TCWnd
@@ -832,12 +965,20 @@ TDC.GetDC                     PROCEDURE(HWND hwnd)
   SELF.handle = winapi::GetDC(hwnd)
   RETURN SELF.handle
   
+TDC.GetDC                     PROCEDURE(TWnd wnd)
+  CODE
+  RETURN SELF.GetDC(wnd.GetHandle())
+  
 TDC.GetDCEx                   PROCEDURE(HWND hwnd, ULONG flags)
   CODE
   SELF.ReleaseDC()
   SELF.hwnd = hwnd
   SELF.handle = winapi::GetDCEx(hwnd, 0, flags)
   RETURN SELF.handle
+  
+TDC.GetDCEx                   PROCEDURE(TWnd wnd, ULONG flags)
+  CODE
+  RETURN SELF.GetDCEx(wnd.GetHandle(), flags)
   
 TDC.CreateCompatibleDC        PROCEDURE(*TDC pDC)
   CODE
@@ -925,10 +1066,65 @@ iTextHeight                     LONG, AUTO
   pRect.Assign(rc)
   RETURN iTextHeight
   
+TDC.DrawTextW                 PROCEDURE(STRINGW pText, *_RECT_ pRect, LONG pFormat)
+nChars                          UNSIGNED, AUTO
+szText                          STRING((LEN(pText) + 1 + 4)*2) !- 4 extra chars if DT_END_ELLIPSIS or DT_PATH_ELLIPSIS flags are specified
+iTextHeight                     LONG, AUTO
+  CODE
+  nChars = LEN(pText)
+  CLEAR(szText, -1) !- fill it by zeros
+  szText[1:nChars] = pText
+
+  IF BAND(pFormat, DT_END_ELLIPSIS) OR BAND(pFormat, DT_PATH_ELLIPSIS)
+    szText[nChars+1 : nChars+8] = '<20h,0h><20h,0h><20h,0h><20h,0h>'
+  END
+
+  iTextHeight = winapi::DrawTextW(SELF.handle, ADDRESS(szText), -1, pRect, pFormat)
+  RETURN iTextHeight
+  
+TDC.DrawTextW                 PROCEDURE(STRINGW pText, *TRect pRect, LONG pFormat)
+rc                              LIKE(_RECT_), AUTO
+iTextHeight                     LONG, AUTO
+  CODE
+  pRect.AssignTo(rc)
+  iTextHeight = SELF.DrawTextW(pText, rc, pFormat)
+  pRect.Assign(rc)
+  RETURN iTextHeight
+
 TDC.TextOut                   PROCEDURE(LONG pX, LONG pY, STRING pText)
   CODE
   RETURN winapi::TextOut(SELF.handle, pX, pY, ADDRESS(pText), LEN(CLIP(pText)))
   
+TDC.GetTextExtentPoint32      PROCEDURE(STRING pText, *SIZE pSize)
+  CODE
+  RETURN winapi::GetTextExtentPoint32A(SELF.handle, ADDRESS(pText), LEN(pText), ADDRESS(pSize))
+    
+TDC.GetTextExtentPoint32W     PROCEDURE(STRINGW pText, *SIZE pSize)
+cch                             LONG, AUTO  !- number of characters (not bytes)
+i                               LONG, AUTO
+  CODE
+  IF LEN(pText) < 2
+    RETURN 0
+  END
+  
+  cch = 0
+  
+  LOOP i = 1 TO LEN(pText) BY 2
+    IF pText[i : i+1] = '<0h,0h>'
+      !- null
+      BREAK
+    END
+    
+    cch += 1
+  END
+  
+  !- exclude BOM
+  IF pText[1:2]='<0FFh,0FEh>' OR pText[1:2]='<0FEh,0FFh>'
+    cch -= 1
+  END
+
+  RETURN winapi::GetTextExtentPoint32W(SELF.handle, ADDRESS(pText), cch, ADDRESS(pSize))
+
 TDC.Ellipse                   PROCEDURE(LONG pLeft, LONG pTop, LONG pRight, LONG pBottom)
   CODE
   RETURN winapi::Ellipse(SELF.handle, pLeft, pTop, pRight, pBottom)
@@ -940,11 +1136,33 @@ TDC.Ellipse                   PROCEDURE(*_RECT_ rc)
 TDC.Ellipse                   PROCEDURE(*TRect rc)
   CODE
   RETURN SELF.Ellipse(rc.left, rc.top, rc.right, rc.bottom)
+  
+TDC.Rectangle                 PROCEDURE(LONG pLeft, LONG pTop, LONG pRight, LONG pBottom)
+  CODE
+  RETURN winapi::Rectangle(SELF.handle, pLeft, pTop, pRight, pBottom)
+  
+TDC.Rectangle                 PROCEDURE(*_RECT_ rc)
+  CODE
+  RETURN SELF.Rectangle(rc.left, rc.top, rc.right, rc.bottom)
+
+TDC.Rectangle                 PROCEDURE(*TRect rc)
+  CODE
+  RETURN SELF.Rectangle(rc.left, rc.top, rc.right, rc.bottom)
 
 TDC.Polygon                   PROCEDURE(LONG apt, LONG cpt)
   CODE
   RETURN winapi::Polygon(SELF.handle, apt, cpt)
+
+TDC.DrawFocusRect             PROCEDURE(*_RECT_ rc)
+  CODE
+  RETURN winapi::DrawFocusRect(SELF.handle, rc)
   
+TDC.DrawFocusRect             PROCEDURE(*TRect rc)
+r                               LIKE(_RECT_), AUTO
+  CODE
+  rc.AssignTo(r)
+  RETURN SELF.DrawFocusRect(r)
+
 TDC.ExcludeClipRect           PROCEDURE(*_RECT_ pRect)
   CODE
   RETURN winapi::ExcludeClipRect(SELF.handle, pRect.left, pRect.top, pRect.right, pRect.bottom)
@@ -1214,6 +1432,10 @@ szFace                          CSTRING(LEN(CLIP(pTypeface)) + 1), AUTO
 TLogicalFont.CreateFont       PROCEDURE(*TDC pDC, STRING pTypeface, UNSIGNED pSize, UNSIGNED pStyle = FONT:regular, LONG pCharset = CHARSET:DEFAULT)
   CODE
   RETURN SELF.CreateFont(pDC.GetHandle(), pTypeface, pSize, pStyle, pCharset)
+  
+TLogicalFont.CreateFontIndirect   PROCEDURE(*tagLOGFONTA lplf)
+  CODE
+  RETURN winapi::CreateFontIndirect(lplf)
 !!!endregion
   
 !!!region TIODevice
@@ -1765,4 +1987,453 @@ cmd                             ANY
   ELSE
     RETURN FALSE
   END
+!!!endregion
+  
+!!!region TSystemMetrics
+TSystemMetrics.GetSystemMetrics   PROCEDURE(LONG nIndex)
+  CODE
+  RETURN winapi::GetSystemMetrics(nIndex)
+  
+TSystemMetrics.Arrange        PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_ARRANGE)
+  
+TSystemMetrics.CleanBoot      PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CLEANBOOT)
+    
+TSystemMetrics.CMonitors      PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CMONITORS)
+    
+TSystemMetrics.CMouseButtons  PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CMOUSEBUTTONS)
+    
+TSystemMetrics.ConvertibleSlateMode   PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CONVERTIBLESLATEMODE)
+    
+TSystemMetrics.CxBorder       PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXBORDER)
+    
+TSystemMetrics.CxCursor       PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXCURSOR)
+    
+TSystemMetrics.CxDlgFrame     PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXDLGFRAME)
+    
+TSystemMetrics.CxDoubleClk    PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXDOUBLECLK)
+    
+TSystemMetrics.CxDrag         PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXDRAG)
+    
+TSystemMetrics.CxEdge         PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXEDGE)
+    
+TSystemMetrics.CxFixedFrame   PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXFIXEDFRAME)
+    
+TSystemMetrics.CxFocusBorder  PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXFOCUSBORDER)
+    
+TSystemMetrics.CxFrame        PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXFRAME)
+    
+TSystemMetrics.CxFullScreen   PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXFULLSCREEN)
+    
+TSystemMetrics.CxHScroll      PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXHSCROLL)
+    
+TSystemMetrics.CxHThumb       PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXHTHUMB)
+    
+TSystemMetrics.CxIcon         PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXICON)
+    
+TSystemMetrics.CxIconSpacing  PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXICONSPACING)
+    
+TSystemMetrics.CxMaximized    PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXMAXIMIZED)
+    
+TSystemMetrics.CxMaxTrack     PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXMAXTRACK)
+    
+TSystemMetrics.CxMenuCheck    PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXMENUCHECK)
+    
+TSystemMetrics.CxMenuSize     PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXMENUSIZE)
+    
+TSystemMetrics.CxMin          PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXMIN)
+    
+TSystemMetrics.CxMinimized    PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXMINIMIZED)
+    
+TSystemMetrics.CxMinSpacing   PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXMINSPACING)
+    
+TSystemMetrics.CxMinTrack     PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXMINTRACK)
+    
+TSystemMetrics.CxPaddedBorder PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXPADDEDBORDER)
+    
+TSystemMetrics.CxScreen       PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXSCREEN)
+    
+TSystemMetrics.CxSize         PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXSIZE)
+    
+TSystemMetrics.CxSizeFrame    PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXSIZEFRAME)
+    
+TSystemMetrics.CxSMIcon       PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXSMICON)
+    
+TSystemMetrics.CxSMSize       PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXSMSIZE)
+    
+TSystemMetrics.CxVirtualScreen    PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXVIRTUALSCREEN)
+    
+TSystemMetrics.CxVScroll      PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXVSCROLL)
+    
+TSystemMetrics.CyBorder       PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYBORDER)
+    
+TSystemMetrics.CyCaption      PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYCAPTION)
+    
+TSystemMetrics.CyCursor       PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYCURSOR)
+    
+TSystemMetrics.CyDlgFrame     PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYDLGFRAME)
+    
+TSystemMetrics.CyDoubleClk    PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYDOUBLECLK)
+    
+TSystemMetrics.CyDrag         PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYDRAG)
+    
+TSystemMetrics.CyEdge         PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYEDGE)
+    
+TSystemMetrics.CyFixedFrame   PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYFIXEDFRAME)
+    
+TSystemMetrics.CyFocusBorder  PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYFOCUSBORDER)
+    
+TSystemMetrics.CyFrame        PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYFRAME)
+    
+TSystemMetrics.CyFullScreen   PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYFULLSCREEN)
+    
+TSystemMetrics.CyHScroll      PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYHSCROLL)
+    
+TSystemMetrics.CyIcon         PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYICON)
+    
+TSystemMetrics.CyIconSpacing  PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYICONSPACING)
+    
+TSystemMetrics.CyKanjiWindow  PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYKANJIWINDOW)
+    
+TSystemMetrics.CyMaximized    PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYMAXIMIZED)
+    
+TSystemMetrics.CyMaxTrack     PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYMAXTRACK)
+    
+TSystemMetrics.CyMenu         PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYMENU)
+    
+TSystemMetrics.CyMenuCheck    PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYMENUCHECK)
+    
+TSystemMetrics.CyMenuSize     PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYMENUSIZE)
+    
+TSystemMetrics.CyMin          PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYMIN)
+    
+TSystemMetrics.CyMinimized    PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYMINIMIZED)
+    
+TSystemMetrics.CyMinSpacing   PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYMINSPACING)
+    
+TSystemMetrics.CyMinTrack     PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYMINTRACK)
+    
+TSystemMetrics.CyScreen       PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYSCREEN)
+    
+TSystemMetrics.CySize         PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYSIZE)
+    
+TSystemMetrics.CySizeFrame    PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYSIZEFRAME)
+    
+TSystemMetrics.CySMCaption    PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYSMCAPTION)
+    
+TSystemMetrics.CySMIcon       PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYSMICON)
+    
+TSystemMetrics.CySMSize       PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYSMSIZE)
+    
+TSystemMetrics.CyVirtualScreen    PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYVIRTUALSCREEN)
+    
+TSystemMetrics.CyVScroll      PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYVSCROLL)
+    
+TSystemMetrics.CyVThumb       PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYVTHUMB)
+    
+TSystemMetrics.DBCSEnabled    PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_DBCSENABLED)
+    
+TSystemMetrics.Debug          PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_DEBUG)
+    
+TSystemMetrics.Digitizer      PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_DIGITIZER)
+    
+TSystemMetrics.IMMEnabled     PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_IMMENABLED)
+    
+TSystemMetrics.MaximumTouches PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_MAXIMUMTOUCHES)
+    
+TSystemMetrics.MediaCenter    PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_MEDIACENTER)
+    
+TSystemMetrics.MenuDropAlignment  PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_MENUDROPALIGNMENT)
+    
+TSystemMetrics.MidEastEnabled PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_MIDEASTENABLED)
+    
+TSystemMetrics.MousePresent   PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_MOUSEPRESENT)
+    
+TSystemMetrics.MouseHorizontalWheelPresent    PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_MOUSEHORIZONTALWHEELPRESENT)
+    
+TSystemMetrics.MouseWheelPresent  PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_MOUSEWHEELPRESENT)
+    
+TSystemMetrics.Network        PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_NETWORK)
+    
+TSystemMetrics.PenWindows     PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_PENWINDOWS)
+    
+TSystemMetrics.RemoteControl  PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_REMOTECONTROL)
+    
+TSystemMetrics.RemoteSession  PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_REMOTESESSION)
+    
+TSystemMetrics.SameDisplayFormat  PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_SAMEDISPLAYFORMAT)
+    
+TSystemMetrics.ServerR2       PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_SERVERR2)
+    
+TSystemMetrics.ShowSounds     PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_SHOWSOUNDS)
+    
+TSystemMetrics.ShuttingDown   PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_SHUTTINGDOWN)
+    
+TSystemMetrics.SlowMachine    PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_SLOWMACHINE)
+    
+TSystemMetrics.Starter        PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_STARTER)
+    
+TSystemMetrics.SwapButton     PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_SWAPBUTTON)
+    
+TSystemMetrics.SystemDocked   PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_SYSTEMDOCKED)
+    
+TSystemMetrics.TabletPC       PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_TABLETPC)
+    
+TSystemMetrics.XVirtualScreen PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_XVIRTUALSCREEN)
+
+TSystemMetrics.YVirtualScreen PROCEDURE()
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_YVIRTUALSCREEN)
+!!!endregion
+
+!!!region TStringEncoding
+TStringEncoding.MultiByteToWideChar   PROCEDURE(UNSIGNED Codepage, ULONG dwFlags, ULONG LpMultuByteStr, |
+                                        LONG cbMultiByte, ULONG LpWideCharStr, LONG cchWideChar)
+  CODE
+  RETURN winapi::MultiByteToWideChar(Codepage, dwFlags, LpMultuByteStr, cbMultiByte, LpWideCharStr, cchWideChar)
+  
+TStringEncoding.WideCharToMultiByte   PROCEDURE(UNSIGNED Codepage, ULONG dwFlags, ULONG LpWideCharStr, LONG cchWideChar, |
+                                        ULONG lpMultuByteStr, LONG cbMultiByte, ULONG LpDefalutChar, ULONG lpUsedDefalutChar)
+  CODE
+  RETURN winapi::WideCharToMultiByte(Codepage, dwFlags, LpWideCharStr, cchWideChar, lpMultuByteStr, cbMultiByte, LpDefalutChar, lpUsedDefalutChar)
+  
+TStringEncoding.Convert       PROCEDURE(STRING pInput, UNSIGNED pInputCodepage, UNSIGNED pOutputCodepage)
+szInput                         CSTRING(LEN(pInput) + 1)
+UnicodeText                     CSTRING(LEN(pInput)*2+2)
+DecodedText                     CSTRING(LEN(pInput)*2+2)
+Len                             LONG, AUTO
+  CODE
+  IF NOT pInput
+    RETURN ''
+  END
+  
+  IF pInputCodepage <> CP_UTF16
+    szInput = pInput
+    !- get length of UnicodeText in characters
+    Len = SELF.MultiByteToWideChar(pInputCodePage, 0, ADDRESS(szInput), -1, 0, 0)
+    IF Len = 0
+      printd('MultiByteToWideChar failed, error %i', winapi::GetLastError())
+      RETURN ''
+    END
+    !- get UnicodeText terminated by <0,0>
+    SELF.MultiByteToWideChar(pInputCodePage, 0, ADDRESS(szInput), -1, ADDRESS(UnicodeText), Len)
+  ELSE
+    Len = LEN(pInput) / 2
+    UnicodeText = pInput & '<0,0>'
+  END
+  
+  IF pOutputCodepage = CP_UTF16
+    RETURN UnicodeText[1 : Len*2]
+  END
+  
+  !- get length of DecodedText in bytes
+  Len = SELF.WideCharToMultiByte(pOutputCodePage, 0, ADDRESS(UnicodeText), -1, 0, 0, 0, 0)
+  IF Len = 0
+    printd('WideCharToMultiByte failed, error %i', winapi::GetLastError())
+    RETURN ''
+  END
+  SELF.WideCharToMultiByte(pOutputCodePage, 0, ADDRESS(UnicodeText), -1, ADDRESS(DecodedText), Len, 0, 0)
+  RETURN DecodedText
+
+TStringEncoding.FromUtf8      PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_ACP)
+  CODE
+  RETURN SELF.Convert(pInput, CP_UTF8, pCodepage)
+  
+TStringEncoding.ToUtf8        PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_ACP)
+  CODE
+  RETURN SELF.Convert(pInput, pCodepage, CP_UTF8)
+
+TStringEncoding.FromUtf16     PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_ACP)
+  CODE
+  RETURN SELF.Convert(pInput, CP_UTF16, pCodepage)
+  
+TStringEncoding.ToUtf16        PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_ACP)
+  CODE
+  RETURN SELF.Convert(pInput, pCodepage, CP_UTF16)
+
 !!!endregion

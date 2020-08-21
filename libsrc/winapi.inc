@@ -1,8 +1,12 @@
 !Base Windows classes
-!28.07.2020 revision
+!21.08.2020 revision
 !mikeduglas (c) 2019-2020
+!mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
   INCLUDE('svapi.inc'), ONCE
+
+!- means that a method expects UTF-16LE encoded string
+STRINGW                       EQUATE(STRING)
 
   MAP
     MODULE('winapi.clw')
@@ -25,14 +29,17 @@ Construct                       PROCEDURE()
 Destruct                        PROCEDURE(), VIRTUAL
 
 Init                            PROCEDURE(<*WINDOW w>), VIRTUAL
-Init                            PROCEDURE(LONG pFeq), VIRTUAL
+Init                            PROCEDURE(SIGNED pFeq), VIRTUAL
 GetHandle                       PROCEDURE(), HWND
 SetHandle                       PROCEDURE(HWND hwnd)
 GetWindow                       PROCEDURE(), *WINDOW
+GetClassName                    PROCEDURE(), STRING
+!!!<summary>Determines whether the specified window handle identifies an existing window.</summary>
+IsWindow                        PROCEDURE(), BOOL
 
 SetWndProc                      PROCEDURE(LONG lpCallback, LONG lpUserData) !- ADDRESS(proc), ADDRESS(self)
 ResetWndProc                    PROCEDURE()
-CallWindowProc                  PROCEDURE(UNSIGNED wMsg, UNSIGNED wParam, LONG lParam), LONG
+CallWindowProc                  PROCEDURE(UNSIGNED wMsg, UNSIGNED wParam, LONG lParam), LONG, PROC
 DefWindowProc                   PROCEDURE(UNSIGNED wMsg, UNSIGNED wParam, LONG lParam), LONG
 GetWndProc                      PROCEDURE(), LONG     !- returns _previous_ window proc address
 GetUserData                     PROCEDURE(), LONG     !- returns _previous_ window user data
@@ -49,7 +56,7 @@ GetWindowLong                   PROCEDURE(LONG nIndex), LONG
 SetWindowLong                   PROCEDURE(LONG nIndex, LONG dwNewLong), LONG, PROC
 
 SendMessage                     PROCEDURE(UNSIGNED uMsg, UNSIGNED wParam, LONG lParam), BOOL, PROC
-PostMessage                     PROCEDURE(UNSIGNED nMsg, UNSIGNED wParam, LONG lParam), BOOL, PROC
+PostMessage                     PROCEDURE(UNSIGNED uMsg, UNSIGNED wParam, LONG lParam), BOOL, PROC
 PeekMessage                     PROCEDURE(LONG lpMsg, LONG wMsgFilterMin = 0, LONG wMsgFilterMax = 0, LONG wRemoveMsg = 0), BOOL, PROC
 
 SendEraseBkgnd                  PROCEDURE(), BOOL, PROC
@@ -68,6 +75,16 @@ GetRelativeRect                 PROCEDURE(TWnd pWin, *_RECT_ rc)!- get relative 
 GetRelativeRect                 PROCEDURE(TWnd pWin, *TRect rc)!- get relative to window coordinates
 
 SetWindowPos                    PROCEDURE(HWND hWndInsertAfter, LONG x, LONG y, LONG cx, LONG cy, ULONG uFlags), BOOL, PROC
+!!!<summary>
+!!!Changes the position and dimensions of the specified window.
+!!!For a top-level window, the position and dimensions are relative to the upper-left corner of the screen.
+!!!For a child window, they are relative to the upper-left corner of the parent window's client area.
+!!!</summary>
+!!!<param name="bRepaint">
+!!!Indicates whether the window is to be repainted. If this parameter is TRUE, the window receives a message.
+!!!If the parameter is FALSE, no repainting of any kind occurs. This applies to the client area, the nonclient area (including the title bar and scroll bars), and any part of the parent window uncovered as a result of moving a child window.
+!!!</param>
+MoveWindow                      PROCEDURE(LONG x, LONG y, LONG nWidth, LONG nHeight, BOOL bRepaint), BOOL, PROC
 
 ScreenToClient                  PROCEDURE(*POINT ppt)
 ScreenToClient                  PROCEDURE(*_RECT_ prc)
@@ -102,6 +119,27 @@ GetScrollInfo                   PROCEDURE(SIGNED fnBar, *SCROLLINFO lpsi), BOOL,
 GetScrollRange                  PROCEDURE(*SIGNED pHMin, *SIGNED pHMax, *SIGNED pVMin, *SIGNED pVMax)
 GetScrollRange                  PROCEDURE(*_RECT_ pRect)
 ShowScrollBar                   PROCEDURE(SIGNED wBar, BOOL bShow), BOOL, PROC
+
+!!!<summary>Associate a hot key with the window.
+!!!When the user presses the hot key, the system activates the window.</summary>
+!!!<param name="pChar"></param>
+!!!<param name="pModifier">One or more of the following values from CommCtrl.h:
+!!!HOTKEYF_SHIFT 0x04
+!!!HOTKEYF_CONTROL 0x02
+!!!HOTKEYF_ALT 0x04
+!!!HOTKEYF_EXT 0x08
+!!!</param>
+!!!<returns>
+!!!-1: The function is unsuccessful the hot key is invalid.
+!!!0: The function is unsuccessful the window is invalid.
+!!!1: The function is successful, and no other window has the same hot key.
+!!!2: The function is successful, but another window already has the same hot key.
+!!!</returns>
+SetHotKey                       PROCEDURE(STRING pChar, USHORT pModifier), SIGNED, PROC
+
+GetFocus                        PROCEDURE(), HWND
+SetFocus                        PROCEDURE(), HWND, PROC
+Focused                         PROCEDURE(), BOOL
                               END
 
 !- Window{PROP:ClientHandle}
@@ -160,7 +198,9 @@ Destruct                        PROCEDURE(), VIRTUAL
 
 FromHDC                         PROCEDURE(HDC pDC)
 GetDC                           PROCEDURE(HWND hwnd), HDC, PROC
+GetDC                           PROCEDURE(TWnd wnd), HDC, PROC
 GetDCEx                         PROCEDURE(HWND hwnd, ULONG flags), HDC, PROC
+GetDCEx                         PROCEDURE(TWnd wnd, ULONG flags), HDC, PROC
 CreateCompatibleDC              PROCEDURE(*TDC pDC), HDC, PROC
 CreateCompatibleDC              PROCEDURE(HDC hdc), HDC, PROC
 FillRect                        PROCEDURE(*_RECT_ r, TBrush br), BOOL, PROC
@@ -187,18 +227,48 @@ SetBkMode                       PROCEDURE(LONG pMode), LONG, PROC
 
 DrawText                        PROCEDURE(STRING pText, *_RECT_ pRect, LONG pFormat), LONG, PROC
 DrawText                        PROCEDURE(STRING pText, *TRect pRect, LONG pFormat), LONG, PROC
+DrawTextW                       PROCEDURE(STRINGW pText, *_RECT_ pRect, LONG pFormat), LONG, PROC
+DrawTextW                       PROCEDURE(STRINGW pText, *TRect pRect, LONG pFormat), LONG, PROC
 TextOut                         PROCEDURE(LONG pX, LONG pY, STRING pText), BOOL, PROC
 
-Ellipse                         PROCEDURE(LONG pLeft, LONG pTop, LONG pRight, LONG pBottom), BOOL, PROC
-Ellipse                         PROCEDURE(*_RECT_ rc), BOOL, PROC
-Ellipse                         PROCEDURE(*TRect rc), BOOL, PROC
+!!!<summary>Computes the width and height of the specified string of text.</summary>
+!!!<param name="pText">The text string.</param>
+!!!<param name="pSize">SIZE structure that receives the dimensions of the string, in logical units.</param>
+!!!<returns>If the function succeeds, the return value is nonzero. If the function fails, the return value is zero.</returns>
+GetTextExtentPoint32            PROCEDURE(STRING pText, *SIZE pSize), BOOL, PROC
+!!!<summary>Computes the width and height of the specified string of text.</summary>
+!!!<param name="pText">The text string.</param>
+!!!<param name="pSize">SIZE structure that receives the dimensions of the string, in logical units.</param>
+!!!<returns>If the function succeeds, the return value is nonzero. If the function fails, the return value is zero.</returns>
+GetTextExtentPoint32W           PROCEDURE(STRINGW pText,*SIZE pSize), BOOL, PROC
 
+!!!<summary>Draws an ellipse. The center of the ellipse is the center of the specified bounding rectangle. The ellipse is outlined by using the current pen and is filled by using the current brush.
+!!!</summary>
+Ellipse                         PROCEDURE(LONG pLeft, LONG pTop, LONG pRight, LONG pBottom), BOOL, PROC
+!!!<summary>Draws an ellipse. The center of the ellipse is the center of the specified bounding rectangle. The ellipse is outlined by using the current pen and is filled by using the current brush.
+!!!</summary>
+Ellipse                         PROCEDURE(*_RECT_ rc), BOOL, PROC
+!!!<summary>Draws an ellipse. The center of the ellipse is the center of the specified bounding rectangle. The ellipse is outlined by using the current pen and is filled by using the current brush.
+!!!</summary>
+Ellipse                         PROCEDURE(*TRect rc), BOOL, PROC
+!!!<summary>Draws a rectangle. The rectangle is outlined by using the current pen and filled by using the current brush.
+!!!</summary>
+Rectangle                       PROCEDURE(LONG pLeft, LONG pTop, LONG pRight, LONG pBottom), BOOL, PROC
+!!!<summary>Draws a rectangle. The rectangle is outlined by using the current pen and filled by using the current brush.
+!!!</summary>
+Rectangle                       PROCEDURE(*_RECT_ rc), BOOL, PROC
+!!!<summary>Draws a rectangle. The rectangle is outlined by using the current pen and filled by using the current brush.
+!!!</summary>
+Rectangle                       PROCEDURE(*TRect rc), BOOL, PROC
 !!!<summary>Draws a polygon consisting of two or more vertices connected by straight lines.
 !!!The polygon is outlined by using the current pen and filled by using the current brush and polygon fill mode.
 !!!</summary>
 !!!<param name="apt">An address of an array of POINT structures that specify the vertices of the polygon, in logical coordinates.</param>
 !!!<param name="cpt">The number of vertices in the array. This value must be greater than or equal to 2.</param>
 Polygon                         PROCEDURE(LONG apt, LONG cpt), BOOL, PROC
+
+DrawFocusRect                   PROCEDURE(*_RECT_ rc), BOOL, PROC
+DrawFocusRect                   PROCEDURE(*TRect rc), BOOL, PROC
 
 ExcludeClipRect                 PROCEDURE(*_RECT_ pRect), LONG, PROC
 ExcludeClipRect                 PROCEDURE(*TRect pRect), LONG, PROC
@@ -257,9 +327,26 @@ LoadImage                       PROCEDURE(STRING pImage, UNSIGNED uType=IMAGE_BI
                               END
 
 !- Font
+tagLOGFONTA                   GROUP, TYPE
+lfHeight                        LONG
+lfWidth                         LONG
+lfEscapement                    LONG
+lfOrientation                   LONG
+lfWeight                        LONG
+lfItalic                        BYTE
+lfUnderline                     BYTE
+lfStrikeOut                     BYTE
+lfCharSet                       BYTE
+lfOutPrecision                  BYTE
+lfClipPrecision                 BYTE
+lfQuality                       BYTE
+lfPitchAndFamily                BYTE
+lfFaceName                      CSTRING(32)
+                              END
 TLogicalFont                  CLASS(TGdiObj), TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
 CreateFont                      PROCEDURE(HDC pDC, STRING pTypeface, UNSIGNED pSize, UNSIGNED pStyle = FONT:regular, LONG pCharset = CHARSET:DEFAULT), HFONT, PROC
 CreateFont                      PROCEDURE(*TDC pDC, STRING pTypeface, UNSIGNED pSize, UNSIGNED pStyle = FONT:regular, LONG pCharset = CHARSET:DEFAULT), HFONT, PROC
+CreateFontIndirect              PROCEDURE(*tagLOGFONTA lplf), HFONT, PROC
                               END
 
 !- I/O device
@@ -389,5 +476,427 @@ GetLength                       PROCEDURE(), LONG
 SetVolume                       PROCEDURE(LONG pVolume), BOOL, PROC
 SetBalance                      PROCEDURE(LONG pBalance), BOOL, PROC
                               END
+
+!https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getsystemmetrics
+TSystemMetrics                CLASS, TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+GetSystemMetrics                PROCEDURE(LONG nIndex), LONG
+
+!!!<summary>
+!!!The flags that specify how the system arranged minimized windows.
+!!!</summary>
+Arrange                         PROCEDURE(), LONG
+!!!<summary>
+!!!The value that specifies how the system is started:
+!!! 0 Normal boot
+!!! 1 Fail-safe boot
+!!! 2 Fail-safe with network boot
+!!!A fail-safe boot (also called SafeBoot, Safe Mode, or Clean Boot) bypasses the user startup files.
+!!!</summary>
+CleanBoot                       PROCEDURE(), LONG
+!!!<summary>
+!!!The number of display monitors on a desktop.
+!!!</summary>
+CMonitors                       PROCEDURE(), LONG
+!!!<summary>
+!!!The number of buttons on a mouse, or zero if no mouse is installed.
+!!!</summary>
+CMouseButtons                   PROCEDURE(), LONG
+!!!<summary>
+!!!Reflects the state of the laptop or slate mode, 0 for Slate Mode and non-zero otherwise.
+!!!</summary>
+ConvertibleSlateMode            PROCEDURE(), LONG
+!!!<summary>
+!!!The width of a window border, in pixels. This is equivalent to the SM_CXEDGE value for windows with the 3-D look.
+!!!</summary>
+CxBorder                        PROCEDURE(), LONG
+!!!<summary>
+!!!The width of a cursor, in pixels. The system cannot create cursors of other sizes.
+!!!</summary>
+CxCursor                        PROCEDURE(), LONG
+!!!<summary>
+!!!This value is the same as SM_CXFIXEDFRAME.
+!!!</summary>
+CxDlgFrame                      PROCEDURE(), LONG
+!!!<summary>
+!!!The width of the rectangle around the location of a first click in a double-click sequence, in pixels.
+!!!The second click must occur within the rectangle that is defined by SM_CXDOUBLECLK and SM_CYDOUBLECLK for the system to consider the two clicks a double-click. The two clicks must also occur within a specified time.
+!!!</summary>
+CxDoubleClk                     PROCEDURE(), LONG
+!!!<summary>
+!!!The number of pixels on either side of a mouse-down point that the mouse pointer can move before a drag operation begins.
+!!!This allows the user to click and release the mouse button easily without unintentionally starting a drag operation.
+!!!If this value is negative, it is subtracted from the left of the mouse-down point and added to the right of it.
+!!!</summary>
+CxDrag                          PROCEDURE(), LONG
+!!!<summary>
+!!!The width of a 3-D border, in pixels. This metric is the 3-D counterpart of SM_CXBORDER.
+!!!</summary>
+CxEdge                          PROCEDURE(), LONG
+!!!<summary>
+!!!The thickness of the frame around the perimeter of a window that has a caption but is not sizable, in pixels. SM_CXFIXEDFRAME is the height of the horizontal border, and SM_CYFIXEDFRAME is the width of the vertical border.
+!!!This value is the same as SM_CXDLGFRAME.
+!!!</summary>
+CxFixedFrame                    PROCEDURE(), LONG
+!!!<summary>
+!!!The width of the left and right edges of the focus rectangle that the DrawFocusRect draws. This value is in pixels.
+!!!</summary>
+CxFocusBorder                   PROCEDURE(), LONG
+!!!<summary>
+!!!This value is the same as SM_CXSIZEFRAME.
+!!!</summary>
+CxFrame                         PROCEDURE(), LONG
+!!!<summary>
+!!!The width of the client area for a full-screen window on the primary display monitor, in pixels.
+!!!To get the coordinates of the portion of the screen that is not obscured by the system taskbar or by application desktop toolbars, 
+!!! call the SystemParametersInfo function with the SPI_GETWORKAREA value.
+!!!</summary>
+CxFullScreen                    PROCEDURE(), LONG
+!!!<summary>
+!!!The width of the arrow bitmap on a horizontal scroll bar, in pixels.
+!!!</summary>
+CxHScroll                       PROCEDURE(), LONG
+!!!<summary>
+!!!The width of the thumb box in a horizontal scroll bar, in pixels.
+!!!</summary>
+CxHThumb                        PROCEDURE(), LONG
+!!!<summary>
+!!!The default width of an icon, in pixels. 
+!!!The LoadIcon function can load only icons with the dimensions that SM_CXICON and SM_CYICON specifies.
+!!!</summary>
+CxIcon                          PROCEDURE(), LONG
+!!!<summary>
+!!!The width of a grid cell for items in large icon view, in pixels.
+!!!</summary>
+CxIconSpacing                   PROCEDURE(), LONG
+!!!<summary>
+!!!The default width, in pixels, of a maximized top-level window on the primary display monitor.
+!!!</summary>
+CxMaximized                     PROCEDURE(), LONG
+!!!<summary>
+!!!The default maximum width of a window that has a caption and sizing borders, in pixels.
+!!!</summary>
+CxMaxTrack                      PROCEDURE(), LONG
+!!!<summary>
+!!!The width of the default menu check-mark bitmap, in pixels.
+!!!</summary>
+CxMenuCheck                     PROCEDURE(), LONG
+!!!<summary>
+!!!The width of menu bar buttons, such as the child window close button that is used in the multiple document interface, in pixels.
+!!!</summary>
+CxMenuSize                      PROCEDURE(), LONG
+!!!<summary>
+!!!The minimum width of a window, in pixels.
+!!!</summary>
+CxMin                           PROCEDURE(), LONG
+!!!<summary>
+!!!The width of a minimized window, in pixels.
+!!!</summary>
+CxMinimized                     PROCEDURE(), LONG
+!!!<summary>
+!!!The width of a grid cell for a minimized window, in pixels.
+!!!</summary>
+CxMinSpacing                    PROCEDURE(), LONG
+!!!<summary>
+!!!The minimum tracking width of a window, in pixels.
+!!!</summary>
+CxMinTrack                      PROCEDURE(), LONG
+!!!<summary>
+!!!The amount of border padding for captioned windows, in pixels.
+!!!</summary>
+CxPaddedBorder                  PROCEDURE(), LONG
+!!!<summary>
+!!!The width of the screen of the primary display monitor, in pixels.
+!!!</summary>
+CxScreen                        PROCEDURE(), LONG
+!!!<summary>
+!!!The width of a button in a window caption or title bar, in pixels.
+!!!</summary>
+CxSize                          PROCEDURE(), LONG
+!!!<summary>
+!!!The thickness of the sizing border around the perimeter of a window that can be resized, in pixels.
+!!!</summary>
+CxSizeFrame                     PROCEDURE(), LONG
+!!!<summary>
+!!!The recommended width of a small icon, in pixels.
+!!!</summary>
+CxSMIcon                        PROCEDURE(), LONG
+!!!<summary>
+!!!The width of small caption buttons, in pixels.
+!!!</summary>
+CxSMSize                        PROCEDURE(), LONG
+!!!<summary>
+!!!The width of the virtual screen, in pixels.
+!!!</summary>
+CxVirtualScreen                 PROCEDURE(), LONG
+!!!<summary>
+!!!The width of a vertical scroll bar, in pixels.
+!!!</summary>
+CxVScroll                       PROCEDURE(), LONG
+!!!<summary>
+!!!The height of a window border, in pixels.
+!!!</summary>
+CyBorder                        PROCEDURE(), LONG
+!!!<summary>
+!!!The height of a caption area, in pixels.
+!!!</summary>
+CyCaption                       PROCEDURE(), LONG
+!!!<summary>
+!!!The height of a cursor, in pixels. The system cannot create cursors of other sizes.
+!!!</summary>
+CyCursor                        PROCEDURE(), LONG
+!!!<summary>
+!!!This value is the same as SM_CYFIXEDFRAME.
+!!!</summary>
+CyDlgFrame                      PROCEDURE(), LONG
+!!!<summary>
+!!!The height of the rectangle around the location of a first click in a double-click sequence, in pixels.
+!!!</summary>
+CyDoubleClk                     PROCEDURE(), LONG
+!!!<summary>
+!!!The number of pixels above and below a mouse-down point that the mouse pointer can move before a drag operation begins.
+!!!</summary>
+CyDrag                          PROCEDURE(), LONG
+!!!<summary>
+!!!The height of a 3-D border, in pixels. This is the 3-D counterpart of SM_CYBORDER.
+!!!</summary>
+CyEdge                          PROCEDURE(), LONG
+!!!<summary>
+!!!The thickness of the frame around the perimeter of a window that has a caption but is not sizable, in pixels.
+!!!</summary>
+CyFixedFrame                    PROCEDURE(), LONG
+!!!<summary>
+!!!The height of the top and bottom edges of the focus rectangle drawn by DrawFocusRect. This value is in pixels.
+!!!</summary>
+CyFocusBorder                   PROCEDURE(), LONG
+!!!<summary>
+!!!This value is the same as SM_CYSIZEFRAME.
+!!!</summary>
+CyFrame                         PROCEDURE(), LONG
+!!!<summary>
+!!!The height of the client area for a full-screen window on the primary display monitor, in pixels.
+!!!</summary>
+CyFullScreen                    PROCEDURE(), LONG
+!!!<summary>
+!!!The height of a horizontal scroll bar, in pixels.
+!!!</summary>
+CyHScroll                       PROCEDURE(), LONG
+!!!<summary>
+!!!The default height of an icon, in pixels.
+!!!</summary>
+CyIcon                          PROCEDURE(), LONG
+!!!<summary>
+!!!The height of a grid cell for items in large icon view, in pixels.
+!!!</summary>
+CyIconSpacing                   PROCEDURE(), LONG
+!!!<summary>
+!!!For double byte character set versions of the system, this is the height of the Kanji window at the bottom of the screen, in pixels.
+!!!</summary>
+CyKanjiWindow                   PROCEDURE(), LONG
+!!!<summary>
+!!!The default height, in pixels, of a maximized top-level window on the primary display monitor.
+!!!</summary>
+CyMaximized                     PROCEDURE(), LONG
+!!!<summary>
+!!!The default maximum height of a window that has a caption and sizing borders, in pixels.
+!!!</summary>
+CyMaxTrack                      PROCEDURE(), LONG
+!!!<summary>
+!!!The height of a single-line menu bar, in pixels.
+!!!</summary>
+CyMenu                          PROCEDURE(), LONG
+!!!<summary>
+!!!The height of the default menu check-mark bitmap, in pixels.
+!!!</summary>
+CyMenuCheck                     PROCEDURE(), LONG
+!!!<summary>
+!!!The height of menu bar buttons, such as the child window close button that is used in the multiple document interface, in pixels.
+!!!</summary>
+CyMenuSize                      PROCEDURE(), LONG
+!!!<summary>
+!!!The minimum height of a window, in pixels.
+!!!</summary>
+CyMin                           PROCEDURE(), LONG
+!!!<summary>
+!!!The height of a minimized window, in pixels.
+!!!</summary>
+CyMinimized                     PROCEDURE(), LONG
+!!!<summary>
+!!!The height of a grid cell for a minimized window, in pixels.
+!!!</summary>
+CyMinSpacing                    PROCEDURE(), LONG
+!!!<summary>
+!!!The minimum tracking height of a window, in pixels.
+!!!</summary>
+CyMinTrack                      PROCEDURE(), LONG
+!!!<summary>
+!!!The height of the screen of the primary display monitor, in pixels.
+!!!</summary>
+CyScreen                        PROCEDURE(), LONG
+!!!<summary>
+!!!The height of a button in a window caption or title bar, in pixels.
+!!!</summary>
+CySize                          PROCEDURE(), LONG
+!!!<summary>
+!!!The thickness of the sizing border around the perimeter of a window that can be resized, in pixels.
+!!!</summary>
+CySizeFrame                     PROCEDURE(), LONG
+!!!<summary>
+!!!The height of a small caption, in pixels.
+!!!</summary>
+CySMCaption                     PROCEDURE(), LONG
+!!!<summary>
+!!!The recommended height of a small icon, in pixels.
+!!!</summary>
+CySMIcon                        PROCEDURE(), LONG
+!!!<summary>
+!!!The height of small caption buttons, in pixels.
+!!!</summary>
+CySMSize                        PROCEDURE(), LONG
+!!!<summary>
+!!!The height of the virtual screen, in pixels.
+!!!</summary>
+CyVirtualScreen                 PROCEDURE(), LONG
+!!!<summary>
+!!!The height of the arrow bitmap on a vertical scroll bar, in pixels.
+!!!</summary>
+CyVScroll                       PROCEDURE(), LONG
+!!!<summary>
+!!!The height of the thumb box in a vertical scroll bar, in pixels.
+!!!</summary>
+CyVThumb                        PROCEDURE(), LONG
+!!!<summary>
+!!!Nonzero if User32.dll supports DBCS; otherwise, 0.
+!!!</summary>
+DBCSEnabled                     PROCEDURE(), LONG
+!!!<summary>
+!!!Nonzero if the debug version of User.exe is installed; otherwise, 0.
+!!!</summary>
+Debug                           PROCEDURE(), LONG
+!!!<summary>
+!!!Nonzero if the current operating system is Windows 7 or Windows Server 2008 R2 and the Tablet PC Input service is started; otherwise, 0. 
+!!!</summary>
+Digitizer                       PROCEDURE(), LONG
+!!!<summary>
+!!!Nonzero if Input Method Manager/Input Method Editor features are enabled; otherwise, 0.
+!!!</summary>
+IMMEnabled                      PROCEDURE(), LONG
+!!!<summary>
+!!!Nonzero if there are digitizers in the system; otherwise, 0.
+!!!</summary>
+MaximumTouches                  PROCEDURE(), LONG
+!!!<summary>
+!!!Nonzero if the current operating system is the Windows XP, Media Center Edition, 0 if not.
+!!!</summary>
+MediaCenter                     PROCEDURE(), LONG
+!!!<summary>
+!!!Nonzero if drop-down menus are right-aligned with the corresponding menu-bar item; 0 if the menus are left-aligned.
+!!!</summary>
+MenuDropAlignment               PROCEDURE(), LONG
+!!!<summary>
+!!!Nonzero if the system is enabled for Hebrew and Arabic languages, 0 if not.
+!!!</summary>
+MidEastEnabled                  PROCEDURE(), LONG
+!!!<summary>
+!!!Nonzero if a mouse is installed; otherwise, 0.
+!!!</summary>
+MousePresent                    PROCEDURE(), LONG
+!!!<summary>
+!!!Nonzero if a mouse with a horizontal scroll wheel is installed; otherwise 0.
+!!!</summary>
+MouseHorizontalWheelPresent     PROCEDURE(), LONG
+!!!<summary>
+!!!Nonzero if a mouse with a vertical scroll wheel is installed; otherwise 0.
+!!!</summary>
+MouseWheelPresent               PROCEDURE(), LONG
+!!!<summary>
+!!!The least significant bit is set if a network is present; otherwise, it is cleared. The other bits are reserved for future use.
+!!!</summary>
+Network                         PROCEDURE(), LONG
+!!!<summary>
+!!!Nonzero if the Microsoft Windows for Pen computing extensions are installed; zero otherwise.
+!!!</summary>
+PenWindows                      PROCEDURE(), LONG
+!!!<summary>
+!!!This system metric is used in a Terminal Services environment to determine if the current Terminal Server session is being remotely controlled. 
+!!!Its value is nonzero if the current session is remotely controlled; otherwise, 0.
+!!!</summary>
+RemoteControl                   PROCEDURE(), LONG
+!!!<summary>
+!!!This system metric is used in a Terminal Services environment. 
+!!!If the calling process is associated with a Terminal Services client session, the return value is nonzero. 
+!!!If the calling process is associated with the Terminal Services console session, the return value is 0. 
+!!!</summary>
+RemoteSession                   PROCEDURE(), LONG
+!!!<summary>
+!!!Nonzero if all the display monitors have the same color format, otherwise, 0. 
+!!!</summary>
+SameDisplayFormat               PROCEDURE(), LONG
+!!!<summary>
+!!!The build number if the system is Windows Server 2003 R2; otherwise, 0.
+!!!</summary>
+ServerR2                        PROCEDURE(), LONG
+!!!<summary>
+!!!Nonzero if the user requires an application to present information visually in situations where it would otherwise present the information only in audible form; otherwise, 0.
+!!!</summary>
+ShowSounds                      PROCEDURE(), LONG
+!!!<summary>
+!!!Nonzero if the current session is shutting down; otherwise, 0.
+!!!</summary>
+ShuttingDown                    PROCEDURE(), LONG
+!!!<summary>
+!!!Nonzero if the computer has a low-end (slow) processor; otherwise, 0.
+!!!</summary>
+SlowMachine                     PROCEDURE(), LONG
+!!!<summary>
+!!!Nonzero if the current operating system is Windows 7 Starter Edition, Windows Vista Starter, or Windows XP Starter Edition; otherwise, 0.
+!!!</summary>
+Starter                         PROCEDURE(), LONG
+!!!<summary>
+!!!Nonzero if the meanings of the left and right mouse buttons are swapped; otherwise, 0.
+!!!</summary>
+SwapButton                      PROCEDURE(), LONG
+!!!<summary>
+!!!Reflects the state of the docking mode, 0 for Undocked Mode and non-zero otherwise. 
+!!!</summary>
+SystemDocked                    PROCEDURE(), LONG
+!!!<summary>
+!!!Nonzero if the current operating system is the Windows XP Tablet PC edition or if the current operating system is Windows Vista or Windows 7 and the Tablet PC Input service is started; otherwise, 0. 
+!!!</summary>
+TabletPC                        PROCEDURE(), LONG
+!!!<summary>
+!!!The coordinates for the left side of the virtual screen.
+!!!</summary>
+XVirtualScreen                  PROCEDURE(), LONG
+!!!<summary>
+!!!The coordinates for the top of the virtual screen.
+!!!</summary>
+YVirtualScreen                  PROCEDURE(), LONG
+                              END
+
+!- MultiByteToWideChar/WideCharToMultiByte
+  OMIT('**_CP_UTF16_**', CP_UTF16 = 0FFFFFFFFh)
+CP_UTF16                      EQUATE(0FFFFFFFFh)
+!'**_CP_UTF16_**'
+
+TStringEncoding               CLASS, TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+MultiByteToWideChar             PROCEDURE(UNSIGNED Codepage, ULONG dwFlags, ULONG LpMultuByteStr, |
+                                  LONG cbMultiByte, ULONG LpWideCharStr, LONG cchWideChar), ULONG, PROC
+WideCharToMultiByte             PROCEDURE(UNSIGNED Codepage, ULONG dwFlags, ULONG LpWideCharStr, LONG cchWideChar, |
+                                  ULONG lpMultuByteStr, LONG cbMultiByte, ULONG LpDefalutChar, ULONG lpUsedDefalutChar), ULONG, PROC
+!!!<summary>Converts input string from one encoding to another.</summary>
+!!!<param name="pInput">Input string.</param>
+!!!<param name="pInputCodepage">Input code page, like CP_ACP, CP_UTF8.</param>
+!!!<param name="pOutputCodepage">Output code page; pass -1 to convert to UTF16.</param>
+Convert                         PROCEDURE(STRING pInput, UNSIGNED pInputCodepage, UNSIGNED pOutputCodepage), STRING
+!!!<summary>Converts input string from utf-8.</summary>
+FromUtf8                        PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_ACP), STRING
+!!!<summary>Converts input string to utf-8.</summary>
+ToUtf8                          PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_ACP), STRING
+!!!<summary>Converts input string from utf-16.</summary>
+FromUtf16                       PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_ACP), STRING
+!!!<summary>Converts input string to utf-16.</summary>
+ToUtf16                          PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_ACP), STRING
+                              END
+
 
 !- TODO: Custom font
