@@ -31,4 +31,4 @@ See [change log](https://github.com/mikeduglas/winapi/blob/master/changelog.md).
 - [Resizable controls](https://github.com/mikeduglas/Resizable_Controls)
 - [Rating control](https://github.com/mikeduglas/RatingControl)
 - Sticker control
-- Unicode support
+- [Unicode aware controls](https://github.com/mikeduglas/Unicode-aware-controls)
