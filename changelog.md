@@ -1,3 +1,6 @@
+08.09.2020
+- TDC: new drawing methods: Arc, Pie, GetArcDirection, SetArcDirection.
+
 21.08.2020
 - TWnd: new methods GetClassName, IsWindow, MoveWindow, SetHotKey, GetFocus, SetFocus, Focused.
 - TDC: new methods GetDC(TWnd), GetDCEx(TWnd,ULONG), DrawTextW, Rectangle, DrawFocusRect.
