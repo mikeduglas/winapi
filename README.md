@@ -33,3 +33,4 @@ See [change log](https://github.com/mikeduglas/winapi/blob/master/changelog.md).
 - Sticker control
 - [Unicode aware controls](https://github.com/mikeduglas/Unicode-aware-controls)
 - [Timer control](https://github.com/mikeduglas/Timer-Control)
+- [Cue Banner]
