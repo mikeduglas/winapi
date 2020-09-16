@@ -1,5 +1,5 @@
 !Base Windows classes
-!21.08.2020 revision
+!17.09.2020 revision
 !mikeduglas (c) 2019-2020
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -49,11 +49,18 @@ GetParent                       PROCEDURE(), HWND
 SetParent                       PROCEDURE(HWND hWndNewParent), HWND, PROC
 SetParent                       PROCEDURE(TWnd hWndNewParent), HWND, PROC
 
+!!!<summary>Gets Clarion property value</summary>
 GetProp                         PROCEDURE(LONG prop), ?
+!!!<summary>Sets Clarion property value</summary>
 SetProp                         PROCEDURE(LONG prop, ? value)
 
 GetWindowLong                   PROCEDURE(LONG nIndex), LONG
 SetWindowLong                   PROCEDURE(LONG nIndex, LONG dwNewLong), LONG, PROC
+
+!!!<summary>Gets Window property value</summary>
+GetPropA                        PROCEDURE(STRING pPropId), HANDLE
+!!!<summary>Sets Window property value</summary>
+SetPropA                        PROCEDURE(STRING pPropId, HANDLE pData), BOOL, PROC
 
 SendMessage                     PROCEDURE(UNSIGNED uMsg, UNSIGNED wParam, LONG lParam), BOOL, PROC
 PostMessage                     PROCEDURE(UNSIGNED uMsg, UNSIGNED wParam, LONG lParam), BOOL, PROC
@@ -140,6 +147,14 @@ SetHotKey                       PROCEDURE(STRING pChar, USHORT pModifier), SIGNE
 GetFocus                        PROCEDURE(), HWND
 SetFocus                        PROCEDURE(), HWND, PROC
 Focused                         PROCEDURE(), BOOL
+
+!!!<summary>Retrieves the length, in characters, of the specified window's title bar text (if the window has a title bar). If the specified window is a control, the function retrieves the length of the text within the control. However, GetWindowTextLength cannot retrieve the length of the text of an edit control in another application.</summary>
+GetWindowTextLength             PROCEDURE(), LONG
+
+GetWindowSubclass               PROCEDURE(LONG pfnSubclass, ULONG uIdSubclass, *UNSIGNED dwRefData), BOOL, PROC
+SetWindowSubclass               PROCEDURE(LONG pfnSubclass, ULONG uIdSubclass, UNSIGNED dwRefData), BOOL, PROC
+RemoveWindowSubclass            PROCEDURE(LONG pfnSubclass, ULONG uIdSubclass), BOOL, PROC
+DefSubclassProc                 PROCEDURE(ULONG wMsg, UNSIGNED wParam, LONG lParam), LONG, PROC
                               END
 
 !- Window{PROP:ClientHandle}
@@ -199,6 +214,8 @@ Destruct                        PROCEDURE(), VIRTUAL
 FromHDC                         PROCEDURE(HDC pDC)
 GetDC                           PROCEDURE(HWND hwnd), HDC, PROC
 GetDC                           PROCEDURE(TWnd wnd), HDC, PROC
+GetDCEx                         PROCEDURE(HWND hwnd, HRGN hrgn, ULONG flags), HDC, PROC
+GetDCEx                         PROCEDURE(TWnd wnd, HRGN hrgn, ULONG flags), HDC, PROC
 GetDCEx                         PROCEDURE(HWND hwnd, ULONG flags), HDC, PROC
 GetDCEx                         PROCEDURE(TWnd wnd, ULONG flags), HDC, PROC
 CreateCompatibleDC              PROCEDURE(*TDC pDC), HDC, PROC
@@ -210,6 +227,14 @@ LineTo                          PROCEDURE(SIGNED x, SIGNED y)
 StretchBlt                      PROCEDURE(_RECT_ rcDest, *TDC dcSrc, _RECT_ rcSrc, LONG dwRop = SRCCOPY), BOOL, PROC
 BitBlt                          PROCEDURE(SIGNED pX, SIGNED pY, SIGNED pW, SIGNED pH, *TDC dcSrc, SIGNED srcX, SIGNED srcY, LONG dwRop = SRCCOPY), BOOL, PROC
 GetDIBits                       PROCEDURE(TBitmap hbmp, UNSIGNED uStartScan, UNSIGNED cScanLines, LONG lpvBits, LONG lpbi, UNSIGNED uUsage), SIGNED
+
+!!!<summary>
+!!!Retrieves a handle to an object of the specified type that has been selected into the specified device context (DC).
+!!!</summary>
+!!!<param name="pObjType">The object type to be queried. This parameter can be one of the following values:
+!!!OBJ_BITMAP, OBJ_BRUSH, OBJ_COLORSPACE, OBJ_FONT, OBJ_PAL, OBJ_PEN.
+!!!</param>
+GetCurrentObject                PROCEDURE(UNSIGNED pObjType), HGDIOBJ
 
 GetTextColor                    PROCEDURE(), LONG
 SetTextColor                    PROCEDURE(LONG pClaColor)
@@ -266,6 +291,31 @@ Rectangle                       PROCEDURE(*TRect rc), BOOL, PROC
 !!!<param name="apt">An address of an array of POINT structures that specify the vertices of the polygon, in logical coordinates.</param>
 !!!<param name="cpt">The number of vertices in the array. This value must be greater than or equal to 2.</param>
 Polygon                         PROCEDURE(LONG apt, LONG cpt), BOOL, PROC
+!!!<summary>Draws an elliptical arc.</summary>
+!!!<param name="x1">The x-coordinate, in logical units, of the upper-left corner of the bounding rectangle.</param>
+!!!<param name="y1">The y-coordinate, in logical units, of the upper-left corner of the bounding rectangle.</param>
+!!!<param name="x2">The x-coordinate, in logical units, of the lower-right corner of the bounding rectangle.</param>
+!!!<param name="y2">The y-coordinate, in logical units, of the lower-right corner of the bounding rectangle.</param>
+!!!<param name="x3">The x-coordinate, in logical units, of the ending point of the radial line defining the starting point of the arc.</param>
+!!!<param name="y3">The x-coordinate, in logical units, of the ending point of the radial line defining the starting point of the arc.</param>
+!!!<param name="x4">The x-coordinate, in logical units, of the ending point of the radial line defining the ending point of the arc.</param>
+!!!<param name="y4">The x-coordinate, in logical units, of the ending point of the radial line defining the ending point of the arc.</param>
+Arc                             PROCEDURE(LONG x1,LONG y1,LONG x2,LONG y2,LONG x3,LONG y3,LONG x4,LONG y4), BOOL, PROC
+Arc                             PROCEDURE(TRect rc, TPoint pt1, TPoint pt2), BOOL, PROC
+
+Pie                             PROCEDURE(LONG left,LONG top,LONG right,LONG bottom,LONG xr1,LONG yr1,LONG xr2,LONG yr2), BOOL, PROC
+Pie                             PROCEDURE(TRect rc, TPoint pt1, TPoint pt2), BOOL, PROC
+
+!!!<summary>Retrieves the current arc direction for the specified device context. Arc and rectangle functions use the arc direction.</summary>
+!!!<returns>the current arc direction; it can be any one of the following values:
+!!!AD_COUNTERCLOCKWISE (1)	Arcs and rectangles are drawn counterclockwise.
+!!!AD_CLOCKWISE (2)	Arcs and rectangles are drawn clockwise.
+!!!</returns>
+GetArcDirection                 PROCEDURE(), LONG
+!!!<summary>Sets the drawing direction to be used for arc and rectangle functions.</summary>
+!!!<param name="dir">The new arc direction. This parameter can be one of the following values.</param>
+!!!<returns>If the function succeeds, the return value specifies the old arc direction. If the function fails, the return value is zero.</returns>
+SetArcDirection                 PROCEDURE(LONG dir), LONG, PROC
 
 DrawFocusRect                   PROCEDURE(*_RECT_ rc), BOOL, PROC
 DrawFocusRect                   PROCEDURE(*TRect rc), BOOL, PROC
@@ -347,6 +397,7 @@ TLogicalFont                  CLASS(TGdiObj), TYPE, MODULE('winapi.clw'), LINK('
 CreateFont                      PROCEDURE(HDC pDC, STRING pTypeface, UNSIGNED pSize, UNSIGNED pStyle = FONT:regular, LONG pCharset = CHARSET:DEFAULT), HFONT, PROC
 CreateFont                      PROCEDURE(*TDC pDC, STRING pTypeface, UNSIGNED pSize, UNSIGNED pStyle = FONT:regular, LONG pCharset = CHARSET:DEFAULT), HFONT, PROC
 CreateFontIndirect              PROCEDURE(*tagLOGFONTA lplf), HFONT, PROC
+GetProperties                   PROCEDURE(*tagLOGFONTA lplf), BOOL, PROC
                               END
 
 !- I/O device

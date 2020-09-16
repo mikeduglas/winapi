@@ -1,5 +1,7 @@
-08.09.2020
-- TDC: new drawing methods: Arc, Pie, GetArcDirection, SetArcDirection.
+17.09.2020
+- TWnd: GetPropA, SetPropA, GetWindowTextLength, GetWindowSubclass, SetWindowSubclass, RemoveWindowSubclass, DefSubclassProc.
+- TDC: overloaded GetDCEx(hwnd,hrgn,flags), GetCurrentObject, Arc, Pie, GetArcDirection, SetArcDirection.
+- TLogicalFont: fixed CreateFontIndirect, new GetProperties.
 
 21.08.2020
 - TWnd: new methods GetClassName, IsWindow, MoveWindow, SetHotKey, GetFocus, SetFocus, Focused.

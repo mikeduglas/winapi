@@ -1,5 +1,5 @@
 !Base Windows classes
-!21.08.2020 revision
+!17.09.2020 revision
 !mikeduglas (c) 2019-2020
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -19,6 +19,12 @@
       winapi::DefWindowProc(HWND hWnd, UNSIGNED wMsg, UNSIGNED wParam, LONG lParam),LONG,PASCAL,NAME('DefWindowProcA')
       winapi::SetWindowLong(HWND hWnd, LONG nIndex, LONG dwNewLong), LONG, PASCAL, PROC, NAME('SetWindowLongA')
       winapi::GetWindowLong(HWND hWnd,LONG nIndex), LONG, PASCAL, NAME('GetWindowLongA')
+      winapi::GetPropA(HWND hWnd,LONG lpString),HANDLE,PASCAL,NAME('GetPropA')
+      winapi::SetPropA(HWND hWnd,LONG lpString,HANDLE hData),BOOL,PROC,PASCAL,NAME('SetPropA')
+      winapi::SetWindowSubclass(HWND hWnd,LONG pfnSubclass,ULONG uIdSubclass,UNSIGNED dwRefData),BOOL,PASCAL,NAME('SetWindowSubclass')
+      winapi::GetWindowSubclass(HWND hWnd,LONG pfnSubclass,ULONG uIdSubclass,*UNSIGNED dwRefData),BOOL,PASCAL,NAME('GetWindowSubclass')
+      winapi::RemoveWindowSubclass(HWND hWnd,LONG pfnSubclass,ULONG uIdSubclass),BOOL,PASCAL,NAME('RemoveWindowSubclass')
+      winapi::DefSubclassProc(HWND hWnd,ULONG wMsg,UNSIGNED wParam,LONG lParam),LONG,PASCAL,NAME('DefSubclassProc')
       winapi::SendMessage(HWND hWnd, UNSIGNED uMsg, UNSIGNED wParam, LONG lParam), BOOL, PASCAL, PROC, NAME('SendMessageA')
       winapi::PostMessage(HWND hWnd, UNSIGNED nMsg, UNSIGNED wParam, LONG lParam), BOOL, PASCAL, PROC, NAME('PostMessageA')
       winapi::PeekMessage(LONG lpMsg, HWND hWnd, LONG wMsgFilterMin, LONG wMsgFilterMax, LONG wRemoveMsg), BOOL, PASCAL, PROC, NAME('PeekMessageA')
@@ -36,7 +42,8 @@
       winapi::GetDCEx(HWND hwnd, HRGN hrgnClip, ULONG flags), HDC, PASCAL, NAME('GetDCEx')
       winapi::ReleaseDC(HWND hwnd, HDC hdc), BOOL, PASCAL, PROC, NAME('ReleaseDC')
       winapi::DeleteDC(HDC hdc), BOOL, PASCAL, PROC, NAME('DeleteDC')
-      winapi::WindowFromDC(HDC HDC),HWND,PASCAL,NAME('WindowFromDC')
+      winapi::WindowFromDC(HDC hdc),HWND,PASCAL,NAME('WindowFromDC')
+      winapi::GetCurrentObject(HDC hdc,UNSIGNED pObjType),HGDIOBJ,PASCAL,NAME('GetCurrentObject')
       winapi::FillRect(HDC hdc, *_RECT_ lprc, HBRUSH hbr), BOOL, RAW, PASCAL, PROC, NAME('FillRect')
       winapi::CreateCompatibleDC(HDC hdc), HDC, PASCAL, NAME('CreateCompatibleDC')
       winapi::SelectObject(HDC hdc, HGDIOBJ hgdiobj), HGDIOBJ, PASCAL, PROC, NAME('SelectObject')
@@ -99,10 +106,16 @@
       winapi::BeginPaint(HWND hWnd, *PAINTSTRUCT lpPaint),HDC,RAW,PASCAL,PROC,NAME('BeginPaint')
       winapi::EndPaint(HWND hWnd, *PAINTSTRUCT lpPaint),BOOL,RAW,PROC,PASCAL,NAME('EndPaint')
 
+      winapi::Arc(HDC hdc,LONG x1,LONG y1,LONG x2,LONG y2,LONG x3,LONG y3,LONG x4,LONG y4),BOOL,PROC,PASCAL,NAME('Arc')
       winapi::Ellipse(HDC hdc,LONG pLeft,LONG pTop,LONG pRight,LONG pBottom),BOOL,PROC,PASCAL,NAME('Ellipse')
       winapi::Rectangle(HDC hdc,LONG pLeft,LONG pTop,LONG pRight,LONG pBottom),BOOL,PROC,PASCAL,NAME('Rectangle')
       winapi::Polygon(HDC HDC, LONG apt, LONG cpt),BOOL,PASCAL,PROC,NAME('Polygon')
-      winapi::DrawFocusRect(HDC HDC,*_RECT_ lprc),BOOL,PROC,RAW,PASCAL,NAME('DrawFocusRect')
+      winapi::Pie(HDC hdc,LONG left,LONG top,LONG right,LONG bottom,LONG xr1,LONG yr1,LONG xr2,LONG yr2),BOOL,PASCAL,PROC,NAME('Pie')
+
+      winapi::GetArcDirection(HDC hdc),LONG,PASCAL,NAME('GetArcDirection')
+      winapi::SetArcDirection(HDC hdc,LONG dir),LONG,PASCAL,NAME('SetArcDirection')
+
+      winapi::DrawFocusRect(HDC hdc,*_RECT_ lprc),BOOL,PROC,RAW,PASCAL,NAME('DrawFocusRect')
 
       winapi::PlaySound(*CSTRING pszSound, HMODULE hmod, UNSIGNED fdwSound),BOOL,PROC,RAW,PASCAL,NAME('PlaySoundA')
 
@@ -126,6 +139,8 @@
 
       winapi::WideCharToMultiByte(UNSIGNED Codepage, ULONG dwFlags, ULONG LpWideCharStr, LONG cchWideChar, |
         ULONG lpMultuByteStr, LONG cbMultiByte, ULONG LpDefalutChar, ULONG lpUsedDefalutChar), RAW, ULONG, PASCAL, PROC, NAME('WideCharToMultiByte')
+
+      winapi::GetWindowTextLength(HWND hwnd),LONG,PASCAL,NAME('GetWindowTextLengthA')
     END
   END
 
@@ -302,7 +317,7 @@ TWnd.Destruct                 PROCEDURE()
   
 TWnd.Init                     PROCEDURE(<*WINDOW w>)
   CODE
-  IF NOT OMITTED(w)
+  IF NOT OMITTED(w) AND NOT w &= NULL
     SELF.W &= w
   ELSE
     SELF.W &= SYSTEM{PROP:Target}
@@ -443,6 +458,18 @@ TWnd.SetWindowLong            PROCEDURE(LONG nIndex, LONG dwNewLong)
 TWnd.GetWindowLong            PROCEDURE(LONG nIndex)
   CODE
   RETURN winapi::GetWindowLong(SELF.hwnd, nIndex)
+  
+TWnd.GetPropA                 PROCEDURE(STRING pPropId)
+szString                        CSTRING(LEN(pPropId)+1), AUTO
+  CODE
+  szString = pPropId
+  RETURN winapi::GetPropA(SELF.hwnd, ADDRESS(szString))
+  
+TWnd.SetPropA                 PROCEDURE(STRING pPropId, HANDLE pData)
+szString                        CSTRING(LEN(pPropId)+1), AUTO
+  CODE
+  szString = pPropId
+  RETURN winapi::SetPropA(SELF.hwnd, ADDRESS(szString), pData)
   
 TWnd.SendMessage              PROCEDURE(UNSIGNED uMsg, UNSIGNED wParam, LONG lParam)
   CODE
@@ -799,6 +826,26 @@ TWnd.SetFocus                 PROCEDURE()
 TWnd.Focused                  PROCEDURE()
   CODE
   RETURN CHOOSE(SELF.hwnd = SELF.GetFocus())
+  
+TWnd.GetWindowTextLength      PROCEDURE()
+  CODE
+  RETURN winapi::GetWindowTextLength(SELF.hwnd)
+  
+TWnd.GetWindowSubclass        PROCEDURE(LONG pfnSubclass, ULONG uIdSubclass, *UNSIGNED dwRefData)
+  CODE
+  RETURN winapi::GetWindowSubclass(SELF.hwnd, pfnSubclass, uIdSubclass, dwRefData)
+  
+TWnd.SetWindowSubclass        PROCEDURE(LONG pfnSubclass, ULONG uIdSubclass, UNSIGNED dwRefData)
+  CODE
+  RETURN winapi::SetWindowSubclass(SELF.hwnd, pfnSubclass, uIdSubclass, dwRefData)
+
+TWnd.RemoveWindowSubclass     PROCEDURE(LONG pfnSubclass, ULONG uIdSubclass)
+  CODE
+  RETURN winapi::RemoveWindowSubclass(SELF.hwnd, pfnSubclass, uIdSubclass)
+
+TWnd.DefSubclassProc          PROCEDURE(ULONG wMsg, UNSIGNED wParam, LONG lParam)
+  CODE
+  RETURN winapi::DefSubclassProc(SELF.hwnd, wMsg, wParam, lParam)
 !!!endregion
 
 !!!region TCWnd
@@ -969,12 +1016,20 @@ TDC.GetDC                     PROCEDURE(TWnd wnd)
   CODE
   RETURN SELF.GetDC(wnd.GetHandle())
   
-TDC.GetDCEx                   PROCEDURE(HWND hwnd, ULONG flags)
+TDC.GetDCEx                   PROCEDURE(HWND hwnd, HRGN hrgn, ULONG flags)
   CODE
   SELF.ReleaseDC()
   SELF.hwnd = hwnd
-  SELF.handle = winapi::GetDCEx(hwnd, 0, flags)
+  SELF.handle = winapi::GetDCEx(hwnd, hrgn, flags)
   RETURN SELF.handle
+  
+TDC.GetDCEx                   PROCEDURE(TWnd wnd, HRGN hrgn, ULONG flags)
+  CODE
+  RETURN SELF.GetDCEx(wnd.GetHandle(), hrgn, flags)
+  
+TDC.GetDCEx                   PROCEDURE(HWND hwnd, ULONG flags)
+  CODE
+  RETURN SELF.GetDCEx(hwnd, 0, flags)
   
 TDC.GetDCEx                   PROCEDURE(TWnd wnd, ULONG flags)
   CODE
@@ -1023,6 +1078,10 @@ TDC.BitBlt                    PROCEDURE(SIGNED pX, SIGNED pY, SIGNED pW, SIGNED 
 TDC.GetDIBits                 PROCEDURE(TBitmap hbmp, UNSIGNED uStartScan, UNSIGNED cScanLines, LONG lpvBits, LONG lpbi, UNSIGNED uUsage)
   CODE
   RETURN winapi::GetDIBits(SELF.handle, hbmp.GetHandle(), uStartScan, cScanLines, lpvBits, lpbi, uUsage)
+  
+TDC.GetCurrentObject          PROCEDURE(UNSIGNED pObjType)
+  CODE
+  RETURN winapi::GetCurrentObject(SELF.handle, pObjType)
   
 TDC.GetTextColor              PROCEDURE()
   CODE
@@ -1153,6 +1212,30 @@ TDC.Polygon                   PROCEDURE(LONG apt, LONG cpt)
   CODE
   RETURN winapi::Polygon(SELF.handle, apt, cpt)
 
+TDC.Arc                       PROCEDURE(LONG x1,LONG y1,LONG x2,LONG y2,LONG x3,LONG y3,LONG x4,LONG y4)
+  CODE
+  RETURN winapi::Arc(SELF.handle, x1, y1, x2, y2, x3, y3, x4, y4)
+  
+TDC.Arc                       PROCEDURE(TRect rc, TPoint pt1, TPoint pt2)
+  CODE
+  RETURN SELF.Arc(rc.left,rc.top,rc.right,rc.bottom,pt1.x,pt1.y,pt2.x,pt2.y)
+  
+TDC.Pie                       PROCEDURE(LONG left,LONG top,LONG right,LONG bottom,LONG xr1,LONG yr1,LONG xr2,LONG yr2)
+  CODE
+  RETURN winapi::Pie(SELF.handle, left, top, right, bottom, xr1, yr1, xr2, yr2)
+  
+TDC.Pie                       PROCEDURE(TRect rc, TPoint pt1, TPoint pt2)
+  CODE
+  RETURN SELF.Pie(rc.left,rc.top,rc.right,rc.bottom,pt1.x,pt1.y,pt2.x,pt2.y)
+  
+TDC.GetArcDirection           PROCEDURE()
+  CODE
+  RETURN winapi::GetArcDirection(SELF.handle)
+  
+TDC.SetArcDirection           PROCEDURE(LONG dir)
+  CODE
+  RETURN winapi::SetArcDirection(SELF.handle, dir)
+  
 TDC.DrawFocusRect             PROCEDURE(*_RECT_ rc)
   CODE
   RETURN winapi::DrawFocusRect(SELF.handle, rc)
@@ -1209,7 +1292,7 @@ TDC.GetHandle                 PROCEDURE()
   
 TDC.WindowFromDC              PROCEDURE()
   CODE
-  RETURN winapi::WindowFromDC(SELF.handle)
+  RETURN SELF.hwnd
   
 TDC.DrawIconEx                PROCEDURE(SIGNED xLeft,SIGNED yTop,HICON hIcon,SIGNED cxWidth,SIGNED cyWidth,UNSIGNED iStepIfAniCur,HBRUSH hbrFlickerFreeDraw,UNSIGNED diFlags)
   CODE
@@ -1435,7 +1518,12 @@ TLogicalFont.CreateFont       PROCEDURE(*TDC pDC, STRING pTypeface, UNSIGNED pSi
   
 TLogicalFont.CreateFontIndirect   PROCEDURE(*tagLOGFONTA lplf)
   CODE
-  RETURN winapi::CreateFontIndirect(lplf)
+  SELF.SetHandle(winapi::CreateFontIndirect(lplf))
+  RETURN SELF.handle
+
+TLogicalFont.GetProperties    PROCEDURE(*tagLOGFONTA lplf)
+  CODE
+  RETURN CHOOSE(SELF.GetObject(SIZE(tagLOGFONTA), ADDRESS(lplf)) <> 0)
 !!!endregion
   
 !!!region TIODevice
@@ -1628,7 +1716,8 @@ TTimer.SetTimer               PROCEDURE(HWND hwnd, UNSIGNED nIDEvent, UNSIGNED u
 
 TTimer.SetTimer               PROCEDURE(HWND hwnd, UNSIGNED uElapse)
   CODE
-  RETURN SELF.SetTimer(hwnd, 251266, uElapse, 0)
+!  RETURN SELF.SetTimer(hwnd, 251266, uElapse, 0)
+  RETURN SELF.SetTimer(hwnd, RANDOM(100000, 999999), uElapse, 0)
 
 TTimer.SetTimer               PROCEDURE(UNSIGNED uElapse)
 w                               TWnd
