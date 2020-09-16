@@ -2,6 +2,7 @@
 - TWnd: GetPropA, SetPropA, GetWindowTextLength, GetWindowSubclass, SetWindowSubclass, RemoveWindowSubclass, DefSubclassProc.
 - TDC: overloaded GetDCEx(hwnd,hrgn,flags), GetCurrentObject, Arc, Pie, GetArcDirection, SetArcDirection.
 - TLogicalFont: fixed CreateFontIndirect, new GetProperties.
+- added winapi.lib for Clarion versions prior C10.
 
 21.08.2020
 - TWnd: new methods GetClassName, IsWindow, MoveWindow, SetHotKey, GetFocus, SetFocus, Focused.
