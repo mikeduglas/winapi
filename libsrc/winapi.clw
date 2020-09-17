@@ -1,9 +1,14 @@
 !Base Windows classes
-!17.09.2020 revision
+!18.09.2020 revision
 !mikeduglas (c) 2019-2020
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
   MEMBER
+
+  OMIT('***', _C100_)
+  !- GetWindowSubclass, SetWindowSubclass, RemoveWindowSubclass, DefSubclassProc in Win32.lib since C10
+  PRAGMA('link(winapi.lib)')
+!***
 
   INCLUDE('winapi.inc'), ONCE
 
@@ -141,6 +146,8 @@
         ULONG lpMultuByteStr, LONG cbMultiByte, ULONG LpDefalutChar, ULONG lpUsedDefalutChar), RAW, ULONG, PASCAL, PROC, NAME('WideCharToMultiByte')
 
       winapi::GetWindowTextLength(HWND hwnd),LONG,PASCAL,NAME('GetWindowTextLengthA')
+      winapi::ShowCaret(HWND hWnd),BOOL,PASCAL,PROC,NAME('ShowCaret')
+      winapi::HideCaret(HWND hWnd),BOOL,PASCAL,PROC,NAME('HideCaret')
     END
   END
 
@@ -633,15 +640,25 @@ TWnd.EnableWindow             PROCEDURE(BOOL pEnable)
   CODE
   RETURN winapi::EnableWindow(SELF.hwnd, pEnable)
 
+TWnd.RedrawWindow             PROCEDURE(_RECT_ rc, HRGN hrgnUpdate, UNSIGNED pFlags)
+  CODE
+  RETURN winapi::RedrawWindow(SELF.hwnd, rc, hrgnUpdate, pFlags)
+
+TWnd.RedrawWindow             PROCEDURE(TRect rc, HRGN hrgnUpdate, UNSIGNED pFlags)
+oRect                           LIKE(_RECT_), AUTO
+  CODE
+  oRect :=: rc
+  RETURN SELF.RedrawWindow(oRect, hrgnUpdate, pFlags)
+
 TWnd.Redraw                   PROCEDURE(_RECT_ rc)
   CODE
-  winapi::RedrawWindow(SELF.hwnd, rc, 0, RDW_INVALIDATE + RDW_UPDATENOW + RDW_ALLCHILDREN)
+  RETURN SELF.RedrawWindow(rc, 0, RDW_INVALIDATE + RDW_UPDATENOW + RDW_ALLCHILDREN)
 
 TWnd.Redraw                   PROCEDURE(TRect rc)
 oRect                           LIKE(_RECT_), AUTO
   CODE
   oRect :=: rc
-  SELF.Redraw(oRect)
+  RETURN SELF.Redraw(oRect)
 
 TWnd.SetCapture               PROCEDURE()
   CODE
@@ -846,6 +863,14 @@ TWnd.RemoveWindowSubclass     PROCEDURE(LONG pfnSubclass, ULONG uIdSubclass)
 TWnd.DefSubclassProc          PROCEDURE(ULONG wMsg, UNSIGNED wParam, LONG lParam)
   CODE
   RETURN winapi::DefSubclassProc(SELF.hwnd, wMsg, wParam, lParam)
+  
+TWnd.ShowCaret                PROCEDURE()
+  CODE
+  RETURN winapi::ShowCaret(SELF.hwnd)
+  
+TWnd.HideCaret                PROCEDURE()
+  CODE
+  RETURN winapi::HideCaret(SELF.hwnd)
 !!!endregion
 
 !!!region TCWnd

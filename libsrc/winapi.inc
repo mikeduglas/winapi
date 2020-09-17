@@ -1,5 +1,5 @@
 !Base Windows classes
-!17.09.2020 revision
+!18.09.2020 revision
 !mikeduglas (c) 2019-2020
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -109,8 +109,11 @@ SetForegroundWindow             PROCEDURE(), BOOL, PROC
 UpdateWindow                    PROCEDURE(), BOOL, PROC
 EnableWindow                    PROCEDURE(BOOL pEnable), BOOL, PROC
 
-Redraw                          PROCEDURE(_RECT_ rc)
-Redraw                          PROCEDURE(TRect rc)
+RedrawWindow                    PROCEDURE(_RECT_ rc, HRGN hrgnUpdate, UNSIGNED pFlags), BOOL, PROC
+RedrawWindow                    PROCEDURE(TRect rc, HRGN hrgnUpdate, UNSIGNED pFlags), BOOL, PROC
+
+Redraw                          PROCEDURE(_RECT_ rc), BOOL, PROC
+Redraw                          PROCEDURE(TRect rc), BOOL, PROC
 
 SetCapture                      PROCEDURE(), HANDLE, PROC
 ReleaseCapture                  PROCEDURE(), BOOL, PROC
@@ -151,10 +154,14 @@ Focused                         PROCEDURE(), BOOL
 !!!<summary>Retrieves the length, in characters, of the specified window's title bar text (if the window has a title bar). If the specified window is a control, the function retrieves the length of the text within the control. However, GetWindowTextLength cannot retrieve the length of the text of an edit control in another application.</summary>
 GetWindowTextLength             PROCEDURE(), LONG
 
+!- GetWindowSubclass requires Comctl32.dll version 6.0 or later
 GetWindowSubclass               PROCEDURE(LONG pfnSubclass, ULONG uIdSubclass, *UNSIGNED dwRefData), BOOL, PROC
 SetWindowSubclass               PROCEDURE(LONG pfnSubclass, ULONG uIdSubclass, UNSIGNED dwRefData), BOOL, PROC
 RemoveWindowSubclass            PROCEDURE(LONG pfnSubclass, ULONG uIdSubclass), BOOL, PROC
 DefSubclassProc                 PROCEDURE(ULONG wMsg, UNSIGNED wParam, LONG lParam), LONG, PROC
+
+ShowCaret                       PROCEDURE(), BOOL, PROC
+HideCaret                       PROCEDURE(), BOOL, PROC
                               END
 
 !- Window{PROP:ClientHandle}

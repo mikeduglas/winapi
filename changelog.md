@@ -1,3 +1,6 @@
+18.09.2020
+- TWnd: RedrawWindow, ShowCaret, HideCaret.
+
 17.09.2020
 - TWnd: GetPropA, SetPropA, GetWindowTextLength, GetWindowSubclass, SetWindowSubclass, RemoveWindowSubclass, DefSubclassProc.
 - TDC: overloaded GetDCEx(hwnd,hrgn,flags), GetCurrentObject, Arc, Pie, GetArcDirection, SetArcDirection.
