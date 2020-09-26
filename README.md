@@ -34,3 +34,4 @@ See [change log](https://github.com/mikeduglas/winapi/blob/master/changelog.md).
 - [Unicode aware controls](https://github.com/mikeduglas/Unicode-aware-controls)
 - [Timer control](https://github.com/mikeduglas/Timer-Control)
 - [Cue Banner](https://github.com/mikeduglas/Cue-Banner)
+- [XEdit - edit controls extender](https://github.com/mikeduglas/XEdit)

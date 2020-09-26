@@ -30,7 +30,7 @@
       winapi::GetWindowSubclass(HWND hWnd,LONG pfnSubclass,ULONG uIdSubclass,*UNSIGNED dwRefData),BOOL,PASCAL,NAME('GetWindowSubclass')
       winapi::RemoveWindowSubclass(HWND hWnd,LONG pfnSubclass,ULONG uIdSubclass),BOOL,PASCAL,NAME('RemoveWindowSubclass')
       winapi::DefSubclassProc(HWND hWnd,ULONG wMsg,UNSIGNED wParam,LONG lParam),LONG,PASCAL,NAME('DefSubclassProc')
-      winapi::SendMessage(HWND hWnd, UNSIGNED uMsg, UNSIGNED wParam, LONG lParam), BOOL, PASCAL, PROC, NAME('SendMessageA')
+      winapi::SendMessage(HWND hWnd, UNSIGNED uMsg, UNSIGNED wParam, LONG lParam), LONG, PASCAL, PROC, NAME('SendMessageA')
       winapi::PostMessage(HWND hWnd, UNSIGNED nMsg, UNSIGNED wParam, LONG lParam), BOOL, PASCAL, PROC, NAME('PostMessageA')
       winapi::PeekMessage(LONG lpMsg, HWND hWnd, LONG wMsgFilterMin, LONG wMsgFilterMax, LONG wRemoveMsg), BOOL, PASCAL, PROC, NAME('PeekMessageA')
       winapi::ShowWindow(HWND hWnd, SIGNED nCmdShow),BOOL,PASCAL,PROC,NAME('ShowWindow')
@@ -561,7 +561,14 @@ TWnd.MoveWindow               PROCEDURE(LONG x, LONG y, LONG nWidth, LONG nHeigh
 TWnd.ScreenToClient           PROCEDURE(*POINT ppt)
   CODE
   winapi::ScreenToClient(SELF.hwnd, ppt)
-  
+    
+TWnd.ScreenToClient           PROCEDURE(*TPoint ppt)
+pt                              LIKE(POINT)
+  CODE
+  SELF.ScreenToClient(pt)
+  ppt.x = pt.x
+  ppt.y = pt.y
+
 TWnd.ScreenToClient           PROCEDURE(*_RECT_ prc)
 pt1                             LIKE(POINT), AUTO
 pt2                             LIKE(POINT), AUTO

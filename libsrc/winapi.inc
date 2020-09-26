@@ -62,7 +62,7 @@ GetPropA                        PROCEDURE(STRING pPropId), HANDLE
 !!!<summary>Sets Window property value</summary>
 SetPropA                        PROCEDURE(STRING pPropId, HANDLE pData), BOOL, PROC
 
-SendMessage                     PROCEDURE(UNSIGNED uMsg, UNSIGNED wParam, LONG lParam), BOOL, PROC
+SendMessage                     PROCEDURE(UNSIGNED uMsg, UNSIGNED wParam, LONG lParam), LONG, PROC
 PostMessage                     PROCEDURE(UNSIGNED uMsg, UNSIGNED wParam, LONG lParam), BOOL, PROC
 PeekMessage                     PROCEDURE(LONG lpMsg, LONG wMsgFilterMin = 0, LONG wMsgFilterMax = 0, LONG wRemoveMsg = 0), BOOL, PROC
 
@@ -94,6 +94,7 @@ SetWindowPos                    PROCEDURE(HWND hWndInsertAfter, LONG x, LONG y, 
 MoveWindow                      PROCEDURE(LONG x, LONG y, LONG nWidth, LONG nHeight, BOOL bRepaint), BOOL, PROC
 
 ScreenToClient                  PROCEDURE(*POINT ppt)
+ScreenToClient                  PROCEDURE(*TPoint ppt)
 ScreenToClient                  PROCEDURE(*_RECT_ prc)
 ScreenToClient                  PROCEDURE(*TRect prc)
 ClientToScreen                  PROCEDURE(*POINT ppt)
