@@ -1,5 +1,5 @@
 !Base Windows classes
-!18.09.2020 revision
+!28.09.2020 revision
 !mikeduglas (c) 2019-2020
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -163,6 +163,19 @@ DefSubclassProc                 PROCEDURE(ULONG wMsg, UNSIGNED wParam, LONG lPar
 
 ShowCaret                       PROCEDURE(), BOOL, PROC
 HideCaret                       PROCEDURE(), BOOL, PROC
+
+!!!<summary>
+!!!Retrieves a handle to the top-level window whose class name and window name match the specified strings. 
+!!!This function does not search child windows. This function does not perform a case-sensitive search.
+!!!</summary>
+FindWindow                      PROCEDURE(STRING pClassName, STRING pWindowName), HWND, PROC
+!!!<summary>
+!!!Retrieves a handle to the top-level window whose window name matches the specified strings. 
+!!!This function does not search child windows. This function does not perform a case-sensitive search.
+!!!</summary>
+FindWindow                      PROCEDURE(STRING pWindowName), HWND, PROC
+FindWindowEx                    PROCEDURE(HWND hWndParent, HWND hWndChildAfter, STRING pClassName, STRING pWindowName), HWND, PROC
+FindWindowEx                    PROCEDURE(HWND hWndParent, HWND hWndChildAfter, STRING pWindowName), HWND, PROC
                               END
 
 !- Window{PROP:ClientHandle}

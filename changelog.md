@@ -1,3 +1,6 @@
+28.09.2020
+- TWnd: FindWindow, FindWindowEx.
+
 18.09.2020
 - TWnd: RedrawWindow, ShowCaret, HideCaret.
 

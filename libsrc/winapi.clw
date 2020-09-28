@@ -1,5 +1,5 @@
 !Base Windows classes
-!18.09.2020 revision
+!28.09.2020 revision
 !mikeduglas (c) 2019-2020
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -41,6 +41,10 @@
       winapi::GetWindowRect(HWND hWnd,*_RECT_ lpRect),BOOL,RAW,PASCAL,PROC,NAME('GetWindowRect')
       winapi::SetWindowPos(HWND hWnd,HWND hWndInsertAfter,LONG x,LONG y,LONG cx,LONG cy,ULONG uFlags), BOOL, PASCAL, PROC, NAME('SetWindowPos')
       winapi::MoveWindow(HWND hwnd,LONG x,LONG y,LONG w,LONG h,BOOL bRepaint),BOOL,RAW,PASCAL,PROC,NAME('MoveWindow')
+      winapi::FindWindow(*CSTRING lpszClass,*CSTRING lpszWindow),HWND,RAW,PASCAL,NAME('FindWindowA')
+      winapi::FindWindow(LONG lpszClass,LONG lpszWindow),HWND,PASCAL,NAME('FindWindowA')
+      winapi::FindWindowW(LONG lpszClass,LONG lpszWindow),HWND,PASCAL,NAME('FindWindowW')
+      winapi::FindWindowEx(HWND hWndParent,HWND hWndChildAfter,LONG lpszClass,LONG lpszWindow),HWND,PASCAL,NAME('FindWindowExA')
       winapi::ScreenToClient(HWND hWnd, *POINT ppt), BOOL, RAW, PASCAL, PROC, NAME('ScreenToClient')
       winapi::ClientToScreen(HWND hWnd, *POINT ppt), BOOL, RAW, PASCAL, PROC, NAME('ClientToScreen')
       winapi::GetDC(HWND hwnd), HDC, PASCAL, NAME('GetDC')
@@ -878,6 +882,74 @@ TWnd.ShowCaret                PROCEDURE()
 TWnd.HideCaret                PROCEDURE()
   CODE
   RETURN winapi::HideCaret(SELF.hwnd)
+  
+TWnd.FindWindow               PROCEDURE(STRING pClassName, STRING pWindowName)
+szClassName                     CSTRING(LEN(CLIP(pClassName))+1), AUTO
+aClassName                      LONG, AUTO
+szWindowName                    CSTRING(LEN(CLIP(pWindowName))+1), AUTO
+aWindowName                     LONG, AUTO
+hwnd                            HWND, AUTO
+  CODE
+  szWindowName = CLIP(pWindowName)
+  IF pClassName
+    szClassName = CLIP(pClassName)
+    aClassName = ADDRESS(szClassName)
+  ELSE
+    aClassName = 0
+  END
+  IF pWindowName
+    szWindowName = CLIP(pWindowName)
+    aWindowName = ADDRESS(szWindowName)
+  ELSE
+    aWindowName = 0
+  END
+
+  hwnd = winapi::FindWindow(aClassName, aWindowName)
+
+  IF hwnd
+    SELF.hwnd = hwnd
+  ELSE
+    printd('FindWindow(%s, %s) failed, error %i', pClassName, pWindowName, winapi::GetLastError())
+  END
+  RETURN hwnd
+  
+TWnd.FindWindow               PROCEDURE(STRING pWindowName)
+  CODE
+  RETURN SELF.FindWindow('', pWindowName)
+  
+TWnd.FindWindowEx             PROCEDURE(HWND hWndParent, HWND hWndChildAfter, STRING pClassName, STRING pWindowName)
+szClassName                     CSTRING(LEN(CLIP(pClassName))+1), AUTO
+aClassName                      LONG, AUTO
+szWindowName                    CSTRING(LEN(CLIP(pWindowName))+1), AUTO
+aWindowName                     LONG, AUTO
+hwnd                            HWND, AUTO
+  CODE
+  szWindowName = CLIP(pWindowName)
+  IF pClassName
+    szClassName = CLIP(pClassName)
+    aClassName = ADDRESS(szClassName)
+  ELSE
+    aClassName = 0
+  END
+  IF pWindowName
+    szWindowName = CLIP(pWindowName)
+    aWindowName = ADDRESS(szWindowName)
+  ELSE
+    aWindowName = 0
+  END
+
+  hwnd = winapi::FindWindowEx(hWndParent, hWndChildAfter, aClassName, aWindowName)
+
+  IF hwnd
+    SELF.hwnd = hwnd
+  ELSE
+    printd('FindWindowEx(%i, %i, %s, %s) failed, error %i', hWndParent, hWndChildAfter, pClassName, pWindowName, winapi::GetLastError())
+  END
+  RETURN hwnd
+
+TWnd.FindWindowEx             PROCEDURE(HWND hWndParent, HWND hWndChildAfter, STRING pWindowName)
+  CODE
+  RETURN SELF.FindWindowEx(hWndParent, hWndChildAfter, '', pWindowName)
 !!!endregion
 
 !!!region TCWnd
