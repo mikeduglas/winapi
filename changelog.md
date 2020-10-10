@@ -1,3 +1,7 @@
+10.10.2020
+- TDC: new methods StretchDIBits, GetStretchBltMode, SetStretchBltMode;  
+overloaded methods StretchBlt, BitBlt.
+
 28.09.2020
 - TWnd: FindWindow, FindWindowEx.
 

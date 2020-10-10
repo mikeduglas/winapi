@@ -1,5 +1,5 @@
 !Base Windows classes
-!28.09.2020 revision
+!10.10.2020 revision
 !mikeduglas (c) 2019-2020
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -56,8 +56,12 @@
       winapi::FillRect(HDC hdc, *_RECT_ lprc, HBRUSH hbr), BOOL, RAW, PASCAL, PROC, NAME('FillRect')
       winapi::CreateCompatibleDC(HDC hdc), HDC, PASCAL, NAME('CreateCompatibleDC')
       winapi::SelectObject(HDC hdc, HGDIOBJ hgdiobj), HGDIOBJ, PASCAL, PROC, NAME('SelectObject')
-      winapi::GetObject(HGDIOBJ hgdiobj, LONG cbBuffer, LONG lpvObject), LONG, PASCAL, NAME('GetObjectA'), PROC
-      winapi::GetDIBits(HDC hdc, HBITMAP hbmp, UNSIGNED uStartScan, UNSIGNED cScanLines, LONG lpvBits, LONG lpbi, UNSIGNED uUsage), SIGNED, RAW, PASCAL, NAME('GetDIBits'), PROC
+      winapi::GetObject(HGDIOBJ hgdiobj, LONG cbBuffer, LONG lpvObject), LONG, PASCAL, NAME('GetObjectA'),PROC
+      winapi::GetDIBits(HDC hdc, HBITMAP hbmp, UNSIGNED uStartScan, UNSIGNED cScanLines, LONG lpvBits, LONG lpbi, UNSIGNED uUsage),SIGNED,RAW,PASCAL,NAME('GetDIBits'),PROC
+      winapi::StretchDIBits(HDC hdc,SIGNED pDestX,SIGNED pDestY,SIGNED pDestW,SIGNED pDestH,SIGNED pSrcX,SIGNED pSrcY,SIGNED pSrcW,SIGNED pSrcH,LONG lpBits,LONG lpbmi,UNSIGNED iUsage,ULONG rop),SIGNED,RAW,PASCAL,NAME('StretchDIBits'),PROC
+      winapi::GetStretchBltMode(HDC hdc),LONG,PASCAL,NAME('GetStretchBltMode')
+      winapi::SetStretchBltMode(HDC hdc,LONG pMode),LONG,PASCAL,NAME('SetStretchBltMode')
+
       winapi::DrawIconEx(HDC hDC,SIGNED xLeft,SIGNED yTop,HICON hIcon,SIGNED cxWidth,SIGNED cyWidth,UNSIGNED iStepIfAniCur,HBRUSH hbrFlickerFreeDraw,UNSIGNED diFlags),BOOL,PASCAL,PROC,NAME('DrawIconEx')
       winapi::CreateSolidBrush(COLORREF crColor), HBRUSH, PASCAL, NAME('CreateSolidBrush')
       winapi::DeleteObject(HGDIOBJ hObj), BOOL, RAW, PASCAL, NAME('DeleteObject'), PROC
@@ -157,6 +161,7 @@
 
 winapi::OS_INVALID_HANDLE_VALUE   EQUATE(-1)
 DWORD                         EQUATE(ULONG)
+GDI_ERROR                     EQUATE(0FFFFFFFFh)
 
 !-- Screen capture
 BITMAPFILEHEADER              GROUP, TYPE
@@ -1175,14 +1180,39 @@ TDC.StretchBlt                PROCEDURE(_RECT_ rcDest, *TDC dcSrc, _RECT_ rcSrc,
   RETURN winapi::StretchBlt(SELF.handle, rcDest.left, rcDest.top, rcDest.right - rcDest.left, rcDest.bottom - rcDest.top, | 
     dcSrc.GetHandle(), rcSrc.left, rcSrc.top, rcSrc.right - rcSrc.left, rcSrc.bottom - rcSrc.top, dwRop)
 
+TDC.StretchBlt                PROCEDURE(*TRect rcDest, *TDC dcSrc, *TRect rcSrc, LONG dwRop = SRCCOPY)
+  CODE
+  RETURN winapi::StretchBlt(SELF.handle, rcDest.left, rcDest.top, rcDest.right - rcDest.left, rcDest.bottom - rcDest.top, | 
+    dcSrc.GetHandle(), rcSrc.left, rcSrc.top, rcSrc.right - rcSrc.left, rcSrc.bottom - rcSrc.top, dwRop)
+
 TDC.BitBlt                    PROCEDURE(SIGNED pX, SIGNED pY, SIGNED pW, SIGNED pH, *TDC dcSrc, SIGNED srcX, SIGNED srcY, LONG dwRop = SRCCOPY)
   CODE
   RETURN winapi::BitBlt(SELF.handle, pX, pY, pW, pH, dcSrc.GetHandle(), srcX, srcY, dwRop)
+
+TDC.BitBlt                    PROCEDURE(*TRect rcDest, *TDC dcSrc, SIGNED srcX, SIGNED srcY, LONG dwRop = SRCCOPY)
+  CODE
+  RETURN SELF.BitBlt(rcDest.left, rcDest.top, rcDest.Width(), rcDest.Height(), dcSrc, srcX, srcY, dwRop)
 
 TDC.GetDIBits                 PROCEDURE(TBitmap hbmp, UNSIGNED uStartScan, UNSIGNED cScanLines, LONG lpvBits, LONG lpbi, UNSIGNED uUsage)
   CODE
   RETURN winapi::GetDIBits(SELF.handle, hbmp.GetHandle(), uStartScan, cScanLines, lpvBits, lpbi, uUsage)
   
+TDC.StretchDIBits             PROCEDURE(SIGNED pDestX, SIGNED pDestY, SIGNED pDestW, SIGNED pDestH, SIGNED pSrcX, SIGNED pSrcY, SIGNED pSrcW, SIGNED pSrcH, LONG lpBits, LONG lpbmi, UNSIGNED iUsage, ULONG rop)
+  CODE
+  RETURN winapi::StretchDIBits(SELF.handle, pDestX, pDestY, pDestW, pDestH, pSrcX, pSrcY, pSrcW, pSrcH, lpBits, lpbmi, iUsage, rop)
+
+TDC.StretchDIBits             PROCEDURE(TRect rcDest, TRect rcSrc, LONG lpBits, LONG lpbmi, UNSIGNED iUsage, ULONG rop)
+  CODE
+  RETURN SELF.StretchDIBits(rcDest.left, rcDest.top, rcDest.Width(), rcDest.Height(), rcSrc.left, rcSrc.top, rcSrc.Width(), rcSrc.Height(), lpBits, lpbmi, iUsage, rop)
+  
+TDC.GetStretchBltMode         PROCEDURE()
+  CODE
+  RETURN winapi::GetStretchBltMode(SELF.handle)
+  
+TDC.SetStretchBltMode         PROCEDURE(LONG pMode)
+  CODE
+  RETURN winapi::SetStretchBltMode(SELF.handle, pMode)
+
 TDC.GetCurrentObject          PROCEDURE(UNSIGNED pObjType)
   CODE
   RETURN winapi::GetCurrentObject(SELF.handle, pObjType)
@@ -1819,9 +1849,10 @@ TTimer.SetTimer               PROCEDURE(HWND hwnd, UNSIGNED nIDEvent, UNSIGNED u
   RETURN SELF.uTimer
 
 TTimer.SetTimer               PROCEDURE(HWND hwnd, UNSIGNED uElapse)
+uIDEvent                        UNSIGNED, AUTO
   CODE
-!  RETURN SELF.SetTimer(hwnd, 251266, uElapse, 0)
-  RETURN SELF.SetTimer(hwnd, RANDOM(100000, 999999), uElapse, 0)
+  uIDEvent = RANDOM(100000, 999999)
+  RETURN SELF.SetTimer(hwnd, uIDEvent, uElapse, 0)
 
 TTimer.SetTimer               PROCEDURE(UNSIGNED uElapse)
 w                               TWnd

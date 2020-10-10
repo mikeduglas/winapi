@@ -1,5 +1,5 @@
 !Base Windows classes
-!28.09.2020 revision
+!10.10.2020 revision
 !mikeduglas (c) 2019-2020
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -246,8 +246,15 @@ FillRect                        PROCEDURE(*TRect r, TBrush br), BOOL, PROC
 MoveTo                          PROCEDURE(SIGNED x, SIGNED y, <*POINT lpPoint>)
 LineTo                          PROCEDURE(SIGNED x, SIGNED y)
 StretchBlt                      PROCEDURE(_RECT_ rcDest, *TDC dcSrc, _RECT_ rcSrc, LONG dwRop = SRCCOPY), BOOL, PROC
+StretchBlt                      PROCEDURE(*TRect rcDest, *TDC dcSrc, *TRect rcSrc, LONG dwRop = SRCCOPY), BOOL, PROC
 BitBlt                          PROCEDURE(SIGNED pX, SIGNED pY, SIGNED pW, SIGNED pH, *TDC dcSrc, SIGNED srcX, SIGNED srcY, LONG dwRop = SRCCOPY), BOOL, PROC
+BitBlt                          PROCEDURE(*TRect rcDest, *TDC dcSrc, SIGNED srcX, SIGNED srcY, LONG dwRop = SRCCOPY), BOOL, PROC
 GetDIBits                       PROCEDURE(TBitmap hbmp, UNSIGNED uStartScan, UNSIGNED cScanLines, LONG lpvBits, LONG lpbi, UNSIGNED uUsage), SIGNED
+
+StretchDIBits                   PROCEDURE(SIGNED pDestX, SIGNED pDestY, SIGNED pDestW, SIGNED pDestH, SIGNED pSrcX, SIGNED pSrcY, SIGNED pSrcW, SIGNED pSrcH, LONG lpBits, LONG lpbmi, UNSIGNED iUsage, ULONG rop), SIGNED, PROC
+StretchDIBits                   PROCEDURE(TRect rcDest, TRect rcSrc, LONG lpBits, LONG lpbmi, UNSIGNED iUsage, ULONG rop), SIGNED, PROC
+GetStretchBltMode               PROCEDURE(), LONG
+SetStretchBltMode               PROCEDURE(LONG pMode), LONG, PROC
 
 !!!<summary>
 !!!Retrieves a handle to an object of the specified type that has been selected into the specified device context (DC).
