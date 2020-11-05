@@ -1,3 +1,6 @@
+06.11.2020
+- TDC: DrawText now can draw not clipped text.
+
 10.10.2020
 - TDC: new methods StretchDIBits, GetStretchBltMode, SetStretchBltMode;  
 overloaded methods StretchBlt, BitBlt.

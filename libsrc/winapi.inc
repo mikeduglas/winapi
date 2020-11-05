@@ -1,5 +1,5 @@
 !Base Windows classes
-!10.10.2020 revision
+!24.10.2020 revision
 !mikeduglas (c) 2019-2020
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -278,8 +278,8 @@ SetBkColor                      PROCEDURE(LONG pClaColor)
 !!!</returns>
 SetBkMode                       PROCEDURE(LONG pMode), LONG, PROC
 
-DrawText                        PROCEDURE(STRING pText, *_RECT_ pRect, LONG pFormat), LONG, PROC
-DrawText                        PROCEDURE(STRING pText, *TRect pRect, LONG pFormat), LONG, PROC
+DrawText                        PROCEDURE(STRING pText, *_RECT_ pRect, LONG pFormat, BOOL pNoClip = FALSE), LONG, PROC
+DrawText                        PROCEDURE(STRING pText, *TRect pRect, LONG pFormat, BOOL pNoClip = FALSE), LONG, PROC
 DrawTextW                       PROCEDURE(STRINGW pText, *_RECT_ pRect, LONG pFormat), LONG, PROC
 DrawTextW                       PROCEDURE(STRINGW pText, *TRect pRect, LONG pFormat), LONG, PROC
 TextOut                         PROCEDURE(LONG pX, LONG pY, STRING pText), BOOL, PROC

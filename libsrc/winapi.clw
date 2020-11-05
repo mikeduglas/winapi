@@ -1,5 +1,5 @@
 !Base Windows classes
-!10.10.2020 revision
+!24.10.2020 revision
 !mikeduglas (c) 2019-2020
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -1237,25 +1237,28 @@ TDC.SetBkMode                 PROCEDURE(LONG pMode)
   CODE
   RETURN winapi::SetBkMode(SELF.handle, pMode)
 
-TDC.DrawText                  PROCEDURE(STRING pText, *_RECT_ pRect, LONG pFormat)
-szText                          CSTRING(LEN(CLIP(pText)) + 1 + 4) !- 4 extra chars if DT_END_ELLIPSIS or DT_PATH_ELLIPSIS flags are specified
+TDC.DrawText                  PROCEDURE(STRING pText, *_RECT_ pRect, LONG pFormat, BOOL pNoClip = FALSE)
+szText                          CSTRING(LEN(pText) + 1 + 4) !- 4 extra chars if DT_END_ELLIPSIS or DT_PATH_ELLIPSIS flags are specified
 iTextHeight                     LONG, AUTO
   CODE
-  IF BAND(pFormat, DT_END_ELLIPSIS) OR BAND(pFormat, DT_PATH_ELLIPSIS)
-    szText = CLIP(pText) &'    '
-  ELSE
+  IF NOT pNoClip
     szText = CLIP(pText)
+  ELSE
+    szText = pText
+  END
+  IF BAND(pFormat, DT_END_ELLIPSIS) OR BAND(pFormat, DT_PATH_ELLIPSIS)
+    szText = szText &'    '
   END
   
   iTextHeight = winapi::DrawText(SELF.handle, ADDRESS(szText), -1, pRect, pFormat)
   RETURN iTextHeight
   
-TDC.DrawText                  PROCEDURE(STRING pText, *TRect pRect, LONG pFormat)
+TDC.DrawText                  PROCEDURE(STRING pText, *TRect pRect, LONG pFormat, BOOL pNoClip = FALSE)
 rc                              LIKE(_RECT_), AUTO
 iTextHeight                     LONG, AUTO
   CODE
   pRect.AssignTo(rc)
-  iTextHeight = SELF.DrawText(pText, rc, pFormat)
+  iTextHeight = SELF.DrawText(pText, rc, pFormat, pNoClip)
   pRect.Assign(rc)
   RETURN iTextHeight
   
