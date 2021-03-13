@@ -1,3 +1,7 @@
+13.03.2021
+- TIODevice: SetFilePointer.
+- TDiskFile: AppendFile.
+
 06.11.2020
 - TDC: DrawText now can draw not clipped text.
 

@@ -1,6 +1,6 @@
 !Base Windows classes
 !24.10.2020 revision
-!mikeduglas (c) 2019-2020
+!mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
   MEMBER
@@ -107,6 +107,7 @@
       winapi::WriteFile(HANDLE hFile, LONG lpBuffer, LONG dwBytes, *LONG dwBytesWritten, LONG lpOverlapped),BOOL,RAW,PASCAL,PROC,NAME('WriteFile')
       winapi::CloseHandle(HANDLE hFile),BOOL,PASCAL,PROC,NAME('CloseHandle')
       winapi::GetFileSize(HANDLE hFile, LONG pFileSizeHigh),LONG,RAW,PASCAL,NAME('GetFileSize')
+      winapi::SetFilePointer(HANDLE hFile, LONG lDistanceToMove, LONG lpDistanceToMoveHigh, ULONG dwMoveMethod),ULONG,RAW,PASCAL,NAME('SetFilePointer')
 
       winapi::GetTempPath(UNSIGNED nBufferLength, *CSTRING lpBuffer), UNSIGNED, PASCAL, RAW, PROC, NAME('GetTempPathA')
       winapi::GetTempFileName(*CSTRING lpPathName, *CSTRING lpPrefixString, UNSIGNED uUnique, *CSTRING lpTempFileName), UNSIGNED, PASCAL, RAW, PROC, NAME('GetTempFileNameA')
@@ -160,6 +161,7 @@
   END
 
 winapi::OS_INVALID_HANDLE_VALUE   EQUATE(-1)
+winapi::INVALID_SET_FILE_POINTER  EQUATE(-1)
 DWORD                         EQUATE(ULONG)
 GDI_ERROR                     EQUATE(0FFFFFFFFh)
 
@@ -1774,6 +1776,14 @@ lpFileSizeHi                    LONG, AUTO
     END
     RETURN 0
   END
+  
+TIODevice.SetFilePointer      PROCEDURE(LONG plDistanceToMove, ULONG pdwMoveMethod)
+  CODE
+  IF SELF.handle
+    RETURN winapi::SetFilePointer(SELF.handle, plDistanceToMove, 0, pdwMoveMethod)
+  ELSE
+    RETURN winapi::INVALID_SET_FILE_POINTER
+  END
 !!!endregion
   
 !!!region TDiskFile
@@ -1795,7 +1805,6 @@ dwBytesRead                     LONG
 
 TDiskFile.SaveFile            PROCEDURE(STRING pFilename, LONG pData, LONG pDataLen, ULONG dwDesiredAccess=GENERIC_WRITE, ULONG dwCreationDisposition=CREATE_ALWAYS)
 dwBytesWritten                  LONG
-bRC                             LONG, AUTO
   CODE
   IF SELF.CreateFile(pFilename, dwDesiredAccess, 0, 0, dwCreationDisposition, 0, 0)
     IF SELF.WriteFile(pData, pDataLen, dwBytesWritten, 0)
@@ -1813,6 +1822,24 @@ TDiskFile.SaveFile            PROCEDURE(STRING pFilename, *STRING pData, ULONG d
 TDiskFile.SaveFile            PROCEDURE(STRING pFilename, STRING pData, ULONG dwDesiredAccess=GENERIC_WRITE, ULONG dwCreationDisposition=CREATE_ALWAYS)
   CODE
   RETURN SELF.SaveFile(pFilename, pData, dwDesiredAccess, dwCreationDisposition)
+  
+TDiskFile.AppendFile          PROCEDURE(STRING pFilename, *STRING pData)
+dwBytesWritten                  LONG
+bRC                             LONG(FALSE)
+  CODE
+  IF SELF.CreateFile(pFilename, GENERIC_WRITE, FILE_SHARE_READ, 0, OPEN_ALWAYS, 0, 0)
+    IF SELF.SetFilePointer(0, FILE_END) <> winapi::INVALID_SET_FILE_POINTER
+      IF SELF.WriteFile(ADDRESS(pData), LEN(pData), dwBytesWritten, 0)
+        bRC = TRUE
+      END
+    END
+    SELF.CloseHandle()
+  END
+  RETURN bRC
+  
+TDiskFile.AppendFile          PROCEDURE(STRING pFilename, STRING pData)
+  CODE
+  RETURN SELF.AppendFile(pFilename, pData)
 !!!endregion
   
 !!!region TTempFile

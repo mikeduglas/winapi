@@ -1,6 +1,6 @@
 !Base Windows classes
 !24.10.2020 revision
-!mikeduglas (c) 2019-2020
+!mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
   INCLUDE('svapi.inc'), ONCE
@@ -450,6 +450,15 @@ WriteLong                       PROCEDURE(LONG pVal), BOOL, PROC
 WriteReal                       PROCEDURE(REAL pVal), BOOL, PROC
 CloseHandle                     PROCEDURE(), BOOL, PROC
 GetFileSize                     PROCEDURE(<*LONG pFileSizeHigh>), LONG
+!!!<summary>Moves the file pointer of the specified file.</summary>
+!!!<param name="plDistanceToMove">A number of bytes to move the file pointer.</param>
+!!!<param name="pdwMoveMethod">The starting point for the file pointer move. 
+!!!This parameter can be one of the following values:
+!!!FILE_BEGIN (0) - The starting point is zero or the beginning of the file.
+!!!FILE_CURRENT (1) - The starting point is the current value of the file pointer.
+!!!FILE_END (2) - The starting point is the current end-of-file position.
+!!!</param>
+SetFilePointer                  PROCEDURE(LONG plDistanceToMove, ULONG pdwMoveMethod), ULONG
                               END
 
 !- File
@@ -458,6 +467,8 @@ LoadFile                        PROCEDURE(STRING pFilename, ULONG dwDesiredAcces
 SaveFile                        PROCEDURE(STRING pFilename, LONG pData, LONG pDataLen, ULONG dwDesiredAccess=GENERIC_WRITE, ULONG dwCreationDisposition=CREATE_ALWAYS), BOOL, PROC
 SaveFile                        PROCEDURE(STRING pFilename, *STRING pData, ULONG dwDesiredAccess=GENERIC_WRITE, ULONG dwCreationDisposition=CREATE_ALWAYS), BOOL, PROC
 SaveFile                        PROCEDURE(STRING pFilename, STRING pData, ULONG dwDesiredAccess=GENERIC_WRITE, ULONG dwCreationDisposition=CREATE_ALWAYS), BOOL, PROC
+AppendFile                      PROCEDURE(STRING pFilename, *STRING pData), BOOL, PROC
+AppendFile                      PROCEDURE(STRING pFilename, STRING pData), BOOL, PROC
                               END
 
 !- Temp files
