@@ -54,6 +54,7 @@
       winapi::WindowFromDC(HDC hdc),HWND,PASCAL,NAME('WindowFromDC')
       winapi::GetCurrentObject(HDC hdc,UNSIGNED pObjType),HGDIOBJ,PASCAL,NAME('GetCurrentObject')
       winapi::FillRect(HDC hdc, *_RECT_ lprc, HBRUSH hbr), BOOL, RAW, PASCAL, PROC, NAME('FillRect')
+      winapi::FrameRect(HDC hdc, *_RECT_ lprc, HBRUSH hbr), BOOL, RAW, PASCAL, PROC, NAME('FrameRect')
       winapi::CreateCompatibleDC(HDC hdc), HDC, PASCAL, NAME('CreateCompatibleDC')
       winapi::SelectObject(HDC hdc, HGDIOBJ hgdiobj), HGDIOBJ, PASCAL, PROC, NAME('SelectObject')
       winapi::GetObject(HGDIOBJ hgdiobj, LONG cbBuffer, LONG lpvObject), LONG, PASCAL, NAME('GetObjectA'),PROC
@@ -1164,7 +1165,17 @@ rc                              LIKE(_RECT_), AUTO
   CODE
   r.AssignTo(rc)
   RETURN SELF.FillRect(rc, br)
+    
+TDC.FrameRect                 PROCEDURE(*_RECT_ r, TBrush br)
+  CODE
+  RETURN winapi::FrameRect(SELF.handle, r, br.GetHandle())
   
+TDC.FrameRect                 PROCEDURE(*TRect r, TBrush br)
+rc                              LIKE(_RECT_), AUTO
+  CODE
+  r.AssignTo(rc)
+  RETURN SELF.FrameRect(rc, br)
+
 TDC.MoveTo                    PROCEDURE(SIGNED x, SIGNED y, <*POINT lpPoint>)
 pt                              LIKE(POINT), AUTO
   CODE

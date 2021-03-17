@@ -1,3 +1,6 @@
+17.03.2021
+- TDC: FrameRect.
+
 13.03.2021
 - TIODevice: SetFilePointer.
 - TDiskFile: AppendFile.

@@ -243,6 +243,12 @@ CreateCompatibleDC              PROCEDURE(*TDC pDC), HDC, PROC
 CreateCompatibleDC              PROCEDURE(HDC hdc), HDC, PROC
 FillRect                        PROCEDURE(*_RECT_ r, TBrush br), BOOL, PROC
 FillRect                        PROCEDURE(*TRect r, TBrush br), BOOL, PROC
+!!!<summary>Draws a border around the specified rectangle by using the specified brush.
+!!! The width and height of the border are always one logical unit.</summary>
+FrameRect                       PROCEDURE(*_RECT_ r, TBrush br), BOOL, PROC
+!!!<summary>Draws a border around the specified rectangle by using the specified brush.
+!!! The width and height of the border are always one logical unit.</summary>
+FrameRect                       PROCEDURE(*TRect r, TBrush br), BOOL, PROC
 MoveTo                          PROCEDURE(SIGNED x, SIGNED y, <*POINT lpPoint>)
 LineTo                          PROCEDURE(SIGNED x, SIGNED y)
 StretchBlt                      PROCEDURE(_RECT_ rcDest, *TDC dcSrc, _RECT_ rcSrc, LONG dwRop = SRCCOPY), BOOL, PROC
