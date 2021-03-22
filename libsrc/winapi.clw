@@ -1053,6 +1053,12 @@ TRect.AssignTo                PROCEDURE(*TRect rc)
   CODE
   rc.Assign(SELF.left, SELF.top, SELF.right, SELF.bottom)
 
+TRect.AssignPtr               PROCEDURE(LONG rcAddr)
+rc                              &_RECT_
+  CODE
+  rc &= (rcAddr)
+  SELF.Assign(rc)
+  
 TRect.Equal                   PROCEDURE(_RECT_ rc)
   CODE
   IF SELF.left = rc.left AND SELF.top = rc.top AND SELF.right = rc.right AND SELF.bottom = rc.bottom

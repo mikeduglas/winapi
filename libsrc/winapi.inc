@@ -210,6 +210,9 @@ Assign                          PROCEDURE(SIGNED left, SIGNED top, SIGNED right,
 AssignTo                        PROCEDURE(*_RECT_ rc)
 AssignTo                        PROCEDURE(*TRect rc)
 
+!- assign a rect by the address (win api may pass a rect address in wParam/lParam)
+AssignPtr                       PROCEDURE(LONG rcAddr)
+
 Equal                           PROCEDURE(_RECT_ rc), BOOL
 Equal                           PROCEDURE(*TRect rc), BOOL
 

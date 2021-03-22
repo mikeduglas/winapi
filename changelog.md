@@ -1,3 +1,6 @@
+22.03.2021
+- TRect: AssignPtr.
+
 17.03.2021
 - TDC: FrameRect.
 
