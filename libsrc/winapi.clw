@@ -1,5 +1,5 @@
 !Base Windows classes
-!22.03.2021 revision
+!23.03.2021 revision
 !mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -282,6 +282,13 @@ SM_XVIRTUALSCREEN             EQUATE(76)
   OMIT('** SM_YVIRTUALSCREEN **', SM_YVIRTUALSCREEN=77)
 SM_YVIRTUALSCREEN             EQUATE(76)
 !'** SM_YVIRTUALSCREEN **'
+
+  OMIT('** LOGPIXELSX **', LOGPIXELSX=88)
+LOGPIXELSX                    EQUATE(88)
+!'** LOGPIXELSX **'
+  OMIT('** LOGPIXELSY **', LOGPIXELSY=90)
+LOGPIXELSY                    EQUATE(90)
+!'** LOGPIXELSY **'
 
 !!!region static functions
 COLORREF::FromRGB             PROCEDURE(BYTE r, BYTE g, BYTE b)
@@ -1476,6 +1483,10 @@ hdcImg                          TDC
 TDC.DrawImage                 PROCEDURE(STRING pImageFile, *TRect rc)
   CODE
   RETURN SELF.DrawImage(pImageFile, rc.Width(), rc.Height())
+  
+TDC.GetDeviceCaps             PROCEDURE(LONG pIndex)
+  CODE
+  RETURN winapi::GetDeviceCaps(SELF.handle, pIndex)
 !!!endregion
   
 !!!region TGdiObj
@@ -1646,7 +1657,7 @@ bUnderline                      UNSIGNED(FALSE)
 bStrikeout                      UNSIGNED(FALSE)
 szFace                          CSTRING(LEN(CLIP(pTypeface)) + 1), AUTO
   CODE
-  nHeight = -winapi::MulDiv(pSize, winapi::GetDeviceCaps(pDC, 90), 72)  !LOGPIXELSY = 90 Logical pixels inch in Y
+  nHeight = -winapi::MulDiv(pSize, winapi::GetDeviceCaps(pDC, LOGPIXELSY), 72)  !LOGPIXELSY = 90 Logical pixels inch in Y
   
   IF BAND(pStyle, FONT:bold) = FONT:bold
     nWeight = FONT:bold

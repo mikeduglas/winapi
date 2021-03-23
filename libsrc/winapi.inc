@@ -1,5 +1,5 @@
 !Base Windows classes
-!22.03.2021 revision
+!23.03.2021 revision
 !mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -374,6 +374,8 @@ DrawIconEx                      PROCEDURE(SIGNED xLeft,SIGNED yTop,HICON hIcon,S
 
 DrawImage                       PROCEDURE(STRING pImageFile, *TRect rc), BOOL, PROC
 DrawImage                       PROCEDURE(STRING pImageFile, UNSIGNED pW, UNSIGNED pH), BOOL, PROC
+
+GetDeviceCaps                   PROCEDURE(LONG pIndex), LONG
                               END
 
 !- GDI object
