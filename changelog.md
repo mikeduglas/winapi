@@ -1,5 +1,5 @@
 23.03.2021
--TDC: GetDeviceCaps.
+- TDC: GetDeviceCaps.
 
 22.03.2021
 - TRect: AssignPtr.
