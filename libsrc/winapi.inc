@@ -1,5 +1,5 @@
 !Base Windows classes
-!23.03.2021 revision
+!30.03.2021 revision
 !mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -580,12 +580,13 @@ SetBalance                      PROCEDURE(LONG pBalance), BOOL, PROC
 
 !https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getsystemmetrics
 TSystemMetrics                CLASS, TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
-GetSystemMetrics                PROCEDURE(LONG nIndex), LONG
+GetSystemMetrics                PROCEDURE(LONG nIndex, UNSIGNED pDpi=0), LONG
+GetSystemMetricsForDpi          PROCEDURE(LONG nIndex, UNSIGNED pDpi), LONG
 
 !!!<summary>
 !!!The flags that specify how the system arranged minimized windows.
 !!!</summary>
-Arrange                         PROCEDURE(), LONG
+Arrange                         PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The value that specifies how the system is started:
 !!! 0 Normal boot
@@ -593,385 +594,385 @@ Arrange                         PROCEDURE(), LONG
 !!! 2 Fail-safe with network boot
 !!!A fail-safe boot (also called SafeBoot, Safe Mode, or Clean Boot) bypasses the user startup files.
 !!!</summary>
-CleanBoot                       PROCEDURE(), LONG
+CleanBoot                       PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The number of display monitors on a desktop.
 !!!</summary>
-CMonitors                       PROCEDURE(), LONG
+CMonitors                       PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The number of buttons on a mouse, or zero if no mouse is installed.
 !!!</summary>
-CMouseButtons                   PROCEDURE(), LONG
+CMouseButtons                   PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!Reflects the state of the laptop or slate mode, 0 for Slate Mode and non-zero otherwise.
 !!!</summary>
-ConvertibleSlateMode            PROCEDURE(), LONG
+ConvertibleSlateMode            PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The width of a window border, in pixels. This is equivalent to the SM_CXEDGE value for windows with the 3-D look.
 !!!</summary>
-CxBorder                        PROCEDURE(), LONG
+CxBorder                        PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The width of a cursor, in pixels. The system cannot create cursors of other sizes.
 !!!</summary>
-CxCursor                        PROCEDURE(), LONG
+CxCursor                        PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!This value is the same as SM_CXFIXEDFRAME.
 !!!</summary>
-CxDlgFrame                      PROCEDURE(), LONG
+CxDlgFrame                      PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The width of the rectangle around the location of a first click in a double-click sequence, in pixels.
 !!!The second click must occur within the rectangle that is defined by SM_CXDOUBLECLK and SM_CYDOUBLECLK for the system to consider the two clicks a double-click. The two clicks must also occur within a specified time.
 !!!</summary>
-CxDoubleClk                     PROCEDURE(), LONG
+CxDoubleClk                     PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The number of pixels on either side of a mouse-down point that the mouse pointer can move before a drag operation begins.
 !!!This allows the user to click and release the mouse button easily without unintentionally starting a drag operation.
 !!!If this value is negative, it is subtracted from the left of the mouse-down point and added to the right of it.
 !!!</summary>
-CxDrag                          PROCEDURE(), LONG
+CxDrag                          PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The width of a 3-D border, in pixels. This metric is the 3-D counterpart of SM_CXBORDER.
 !!!</summary>
-CxEdge                          PROCEDURE(), LONG
+CxEdge                          PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The thickness of the frame around the perimeter of a window that has a caption but is not sizable, in pixels. SM_CXFIXEDFRAME is the height of the horizontal border, and SM_CYFIXEDFRAME is the width of the vertical border.
 !!!This value is the same as SM_CXDLGFRAME.
 !!!</summary>
-CxFixedFrame                    PROCEDURE(), LONG
+CxFixedFrame                    PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The width of the left and right edges of the focus rectangle that the DrawFocusRect draws. This value is in pixels.
 !!!</summary>
-CxFocusBorder                   PROCEDURE(), LONG
+CxFocusBorder                   PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!This value is the same as SM_CXSIZEFRAME.
 !!!</summary>
-CxFrame                         PROCEDURE(), LONG
+CxFrame                         PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The width of the client area for a full-screen window on the primary display monitor, in pixels.
 !!!To get the coordinates of the portion of the screen that is not obscured by the system taskbar or by application desktop toolbars, 
 !!! call the SystemParametersInfo function with the SPI_GETWORKAREA value.
 !!!</summary>
-CxFullScreen                    PROCEDURE(), LONG
+CxFullScreen                    PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The width of the arrow bitmap on a horizontal scroll bar, in pixels.
 !!!</summary>
-CxHScroll                       PROCEDURE(), LONG
+CxHScroll                       PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The width of the thumb box in a horizontal scroll bar, in pixels.
 !!!</summary>
-CxHThumb                        PROCEDURE(), LONG
+CxHThumb                        PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The default width of an icon, in pixels. 
 !!!The LoadIcon function can load only icons with the dimensions that SM_CXICON and SM_CYICON specifies.
 !!!</summary>
-CxIcon                          PROCEDURE(), LONG
+CxIcon                          PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The width of a grid cell for items in large icon view, in pixels.
 !!!</summary>
-CxIconSpacing                   PROCEDURE(), LONG
+CxIconSpacing                   PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The default width, in pixels, of a maximized top-level window on the primary display monitor.
 !!!</summary>
-CxMaximized                     PROCEDURE(), LONG
+CxMaximized                     PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The default maximum width of a window that has a caption and sizing borders, in pixels.
 !!!</summary>
-CxMaxTrack                      PROCEDURE(), LONG
+CxMaxTrack                      PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The width of the default menu check-mark bitmap, in pixels.
 !!!</summary>
-CxMenuCheck                     PROCEDURE(), LONG
+CxMenuCheck                     PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The width of menu bar buttons, such as the child window close button that is used in the multiple document interface, in pixels.
 !!!</summary>
-CxMenuSize                      PROCEDURE(), LONG
+CxMenuSize                      PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The minimum width of a window, in pixels.
 !!!</summary>
-CxMin                           PROCEDURE(), LONG
+CxMin                           PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The width of a minimized window, in pixels.
 !!!</summary>
-CxMinimized                     PROCEDURE(), LONG
+CxMinimized                     PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The width of a grid cell for a minimized window, in pixels.
 !!!</summary>
-CxMinSpacing                    PROCEDURE(), LONG
+CxMinSpacing                    PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The minimum tracking width of a window, in pixels.
 !!!</summary>
-CxMinTrack                      PROCEDURE(), LONG
+CxMinTrack                      PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The amount of border padding for captioned windows, in pixels.
 !!!</summary>
-CxPaddedBorder                  PROCEDURE(), LONG
+CxPaddedBorder                  PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The width of the screen of the primary display monitor, in pixels.
 !!!</summary>
-CxScreen                        PROCEDURE(), LONG
+CxScreen                        PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The width of a button in a window caption or title bar, in pixels.
 !!!</summary>
-CxSize                          PROCEDURE(), LONG
+CxSize                          PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The thickness of the sizing border around the perimeter of a window that can be resized, in pixels.
 !!!</summary>
-CxSizeFrame                     PROCEDURE(), LONG
+CxSizeFrame                     PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The recommended width of a small icon, in pixels.
 !!!</summary>
-CxSMIcon                        PROCEDURE(), LONG
+CxSMIcon                        PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The width of small caption buttons, in pixels.
 !!!</summary>
-CxSMSize                        PROCEDURE(), LONG
+CxSMSize                        PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The width of the virtual screen, in pixels.
 !!!</summary>
-CxVirtualScreen                 PROCEDURE(), LONG
+CxVirtualScreen                 PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The width of a vertical scroll bar, in pixels.
 !!!</summary>
-CxVScroll                       PROCEDURE(), LONG
+CxVScroll                       PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The height of a window border, in pixels.
 !!!</summary>
-CyBorder                        PROCEDURE(), LONG
+CyBorder                        PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The height of a caption area, in pixels.
 !!!</summary>
-CyCaption                       PROCEDURE(), LONG
+CyCaption                       PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The height of a cursor, in pixels. The system cannot create cursors of other sizes.
 !!!</summary>
-CyCursor                        PROCEDURE(), LONG
+CyCursor                        PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!This value is the same as SM_CYFIXEDFRAME.
 !!!</summary>
-CyDlgFrame                      PROCEDURE(), LONG
+CyDlgFrame                      PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The height of the rectangle around the location of a first click in a double-click sequence, in pixels.
 !!!</summary>
-CyDoubleClk                     PROCEDURE(), LONG
+CyDoubleClk                     PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The number of pixels above and below a mouse-down point that the mouse pointer can move before a drag operation begins.
 !!!</summary>
-CyDrag                          PROCEDURE(), LONG
+CyDrag                          PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The height of a 3-D border, in pixels. This is the 3-D counterpart of SM_CYBORDER.
 !!!</summary>
-CyEdge                          PROCEDURE(), LONG
+CyEdge                          PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The thickness of the frame around the perimeter of a window that has a caption but is not sizable, in pixels.
 !!!</summary>
-CyFixedFrame                    PROCEDURE(), LONG
+CyFixedFrame                    PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The height of the top and bottom edges of the focus rectangle drawn by DrawFocusRect. This value is in pixels.
 !!!</summary>
-CyFocusBorder                   PROCEDURE(), LONG
+CyFocusBorder                   PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!This value is the same as SM_CYSIZEFRAME.
 !!!</summary>
-CyFrame                         PROCEDURE(), LONG
+CyFrame                         PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The height of the client area for a full-screen window on the primary display monitor, in pixels.
 !!!</summary>
-CyFullScreen                    PROCEDURE(), LONG
+CyFullScreen                    PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The height of a horizontal scroll bar, in pixels.
 !!!</summary>
-CyHScroll                       PROCEDURE(), LONG
+CyHScroll                       PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The default height of an icon, in pixels.
 !!!</summary>
-CyIcon                          PROCEDURE(), LONG
+CyIcon                          PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The height of a grid cell for items in large icon view, in pixels.
 !!!</summary>
-CyIconSpacing                   PROCEDURE(), LONG
+CyIconSpacing                   PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!For double byte character set versions of the system, this is the height of the Kanji window at the bottom of the screen, in pixels.
 !!!</summary>
-CyKanjiWindow                   PROCEDURE(), LONG
+CyKanjiWindow                   PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The default height, in pixels, of a maximized top-level window on the primary display monitor.
 !!!</summary>
-CyMaximized                     PROCEDURE(), LONG
+CyMaximized                     PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The default maximum height of a window that has a caption and sizing borders, in pixels.
 !!!</summary>
-CyMaxTrack                      PROCEDURE(), LONG
+CyMaxTrack                      PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The height of a single-line menu bar, in pixels.
 !!!</summary>
-CyMenu                          PROCEDURE(), LONG
+CyMenu                          PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The height of the default menu check-mark bitmap, in pixels.
 !!!</summary>
-CyMenuCheck                     PROCEDURE(), LONG
+CyMenuCheck                     PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The height of menu bar buttons, such as the child window close button that is used in the multiple document interface, in pixels.
 !!!</summary>
-CyMenuSize                      PROCEDURE(), LONG
+CyMenuSize                      PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The minimum height of a window, in pixels.
 !!!</summary>
-CyMin                           PROCEDURE(), LONG
+CyMin                           PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The height of a minimized window, in pixels.
 !!!</summary>
-CyMinimized                     PROCEDURE(), LONG
+CyMinimized                     PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The height of a grid cell for a minimized window, in pixels.
 !!!</summary>
-CyMinSpacing                    PROCEDURE(), LONG
+CyMinSpacing                    PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The minimum tracking height of a window, in pixels.
 !!!</summary>
-CyMinTrack                      PROCEDURE(), LONG
+CyMinTrack                      PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The height of the screen of the primary display monitor, in pixels.
 !!!</summary>
-CyScreen                        PROCEDURE(), LONG
+CyScreen                        PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The height of a button in a window caption or title bar, in pixels.
 !!!</summary>
-CySize                          PROCEDURE(), LONG
+CySize                          PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The thickness of the sizing border around the perimeter of a window that can be resized, in pixels.
 !!!</summary>
-CySizeFrame                     PROCEDURE(), LONG
+CySizeFrame                     PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The height of a small caption, in pixels.
 !!!</summary>
-CySMCaption                     PROCEDURE(), LONG
+CySMCaption                     PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The recommended height of a small icon, in pixels.
 !!!</summary>
-CySMIcon                        PROCEDURE(), LONG
+CySMIcon                        PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The height of small caption buttons, in pixels.
 !!!</summary>
-CySMSize                        PROCEDURE(), LONG
+CySMSize                        PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The height of the virtual screen, in pixels.
 !!!</summary>
-CyVirtualScreen                 PROCEDURE(), LONG
+CyVirtualScreen                 PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The height of the arrow bitmap on a vertical scroll bar, in pixels.
 !!!</summary>
-CyVScroll                       PROCEDURE(), LONG
+CyVScroll                       PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The height of the thumb box in a vertical scroll bar, in pixels.
 !!!</summary>
-CyVThumb                        PROCEDURE(), LONG
+CyVThumb                        PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!Nonzero if User32.dll supports DBCS; otherwise, 0.
 !!!</summary>
-DBCSEnabled                     PROCEDURE(), LONG
+DBCSEnabled                     PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!Nonzero if the debug version of User.exe is installed; otherwise, 0.
 !!!</summary>
-Debug                           PROCEDURE(), LONG
+Debug                           PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!Nonzero if the current operating system is Windows 7 or Windows Server 2008 R2 and the Tablet PC Input service is started; otherwise, 0. 
 !!!</summary>
-Digitizer                       PROCEDURE(), LONG
+Digitizer                       PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!Nonzero if Input Method Manager/Input Method Editor features are enabled; otherwise, 0.
 !!!</summary>
-IMMEnabled                      PROCEDURE(), LONG
+IMMEnabled                      PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!Nonzero if there are digitizers in the system; otherwise, 0.
 !!!</summary>
-MaximumTouches                  PROCEDURE(), LONG
+MaximumTouches                  PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!Nonzero if the current operating system is the Windows XP, Media Center Edition, 0 if not.
 !!!</summary>
-MediaCenter                     PROCEDURE(), LONG
+MediaCenter                     PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!Nonzero if drop-down menus are right-aligned with the corresponding menu-bar item; 0 if the menus are left-aligned.
 !!!</summary>
-MenuDropAlignment               PROCEDURE(), LONG
+MenuDropAlignment               PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!Nonzero if the system is enabled for Hebrew and Arabic languages, 0 if not.
 !!!</summary>
-MidEastEnabled                  PROCEDURE(), LONG
+MidEastEnabled                  PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!Nonzero if a mouse is installed; otherwise, 0.
 !!!</summary>
-MousePresent                    PROCEDURE(), LONG
+MousePresent                    PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!Nonzero if a mouse with a horizontal scroll wheel is installed; otherwise 0.
 !!!</summary>
-MouseHorizontalWheelPresent     PROCEDURE(), LONG
+MouseHorizontalWheelPresent     PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!Nonzero if a mouse with a vertical scroll wheel is installed; otherwise 0.
 !!!</summary>
-MouseWheelPresent               PROCEDURE(), LONG
+MouseWheelPresent               PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The least significant bit is set if a network is present; otherwise, it is cleared. The other bits are reserved for future use.
 !!!</summary>
-Network                         PROCEDURE(), LONG
+Network                         PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!Nonzero if the Microsoft Windows for Pen computing extensions are installed; zero otherwise.
 !!!</summary>
-PenWindows                      PROCEDURE(), LONG
+PenWindows                      PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!This system metric is used in a Terminal Services environment to determine if the current Terminal Server session is being remotely controlled. 
 !!!Its value is nonzero if the current session is remotely controlled; otherwise, 0.
 !!!</summary>
-RemoteControl                   PROCEDURE(), LONG
+RemoteControl                   PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!This system metric is used in a Terminal Services environment. 
 !!!If the calling process is associated with a Terminal Services client session, the return value is nonzero. 
 !!!If the calling process is associated with the Terminal Services console session, the return value is 0. 
 !!!</summary>
-RemoteSession                   PROCEDURE(), LONG
+RemoteSession                   PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!Nonzero if all the display monitors have the same color format, otherwise, 0. 
 !!!</summary>
-SameDisplayFormat               PROCEDURE(), LONG
+SameDisplayFormat               PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The build number if the system is Windows Server 2003 R2; otherwise, 0.
 !!!</summary>
-ServerR2                        PROCEDURE(), LONG
+ServerR2                        PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!Nonzero if the user requires an application to present information visually in situations where it would otherwise present the information only in audible form; otherwise, 0.
 !!!</summary>
-ShowSounds                      PROCEDURE(), LONG
+ShowSounds                      PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!Nonzero if the current session is shutting down; otherwise, 0.
 !!!</summary>
-ShuttingDown                    PROCEDURE(), LONG
+ShuttingDown                    PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!Nonzero if the computer has a low-end (slow) processor; otherwise, 0.
 !!!</summary>
-SlowMachine                     PROCEDURE(), LONG
+SlowMachine                     PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!Nonzero if the current operating system is Windows 7 Starter Edition, Windows Vista Starter, or Windows XP Starter Edition; otherwise, 0.
 !!!</summary>
-Starter                         PROCEDURE(), LONG
+Starter                         PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!Nonzero if the meanings of the left and right mouse buttons are swapped; otherwise, 0.
 !!!</summary>
-SwapButton                      PROCEDURE(), LONG
+SwapButton                      PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!Reflects the state of the docking mode, 0 for Undocked Mode and non-zero otherwise. 
 !!!</summary>
-SystemDocked                    PROCEDURE(), LONG
+SystemDocked                    PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!Nonzero if the current operating system is the Windows XP Tablet PC edition or if the current operating system is Windows Vista or Windows 7 and the Tablet PC Input service is started; otherwise, 0. 
 !!!</summary>
-TabletPC                        PROCEDURE(), LONG
+TabletPC                        PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The coordinates for the left side of the virtual screen.
 !!!</summary>
-XVirtualScreen                  PROCEDURE(), LONG
+XVirtualScreen                  PROCEDURE(UNSIGNED pDpi=0), LONG
 !!!<summary>
 !!!The coordinates for the top of the virtual screen.
 !!!</summary>
-YVirtualScreen                  PROCEDURE(), LONG
+YVirtualScreen                  PROCEDURE(UNSIGNED pDpi=0), LONG
                               END
 
 !- MultiByteToWideChar/WideCharToMultiByte

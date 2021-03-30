@@ -1,3 +1,9 @@
+30.03.2021
+- TSystemMetrics: DPI-aware support.
+
+25.03.2021
+- TWnd: FindWindowEx reported an error if a window was not found.
+
 23.03.2021
 - TDC: GetDeviceCaps.
 

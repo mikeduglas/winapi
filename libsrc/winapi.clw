@@ -1,5 +1,5 @@
 !Base Windows classes
-!23.03.2021 revision
+!30.03.2021 revision
 !mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -938,6 +938,7 @@ aClassName                      LONG, AUTO
 szWindowName                    CSTRING(LEN(CLIP(pWindowName))+1), AUTO
 aWindowName                     LONG, AUTO
 hwnd                            HWND, AUTO
+nErr                            LONG, AUTO
   CODE
   szWindowName = CLIP(pWindowName)
   IF pClassName
@@ -958,7 +959,10 @@ hwnd                            HWND, AUTO
   IF hwnd
     SELF.hwnd = hwnd
   ELSE
-    printd('FindWindowEx(%i, %i, %s, %s) failed, error %i', hWndParent, hWndChildAfter, pClassName, pWindowName, winapi::GetLastError())
+    nErr = winapi::GetLastError()
+    IF nErr
+      printd('FindWindowEx(%i, %i, %s, %s) failed, error %i', hWndParent, hWndChildAfter, pClassName, pWindowName, nErr)
+    END
   END
   RETURN hwnd
 
@@ -2272,385 +2276,406 @@ cmd                             ANY
 !!!endregion
   
 !!!region TSystemMetrics
-TSystemMetrics.GetSystemMetrics   PROCEDURE(LONG nIndex)
+TSystemMetrics.GetSystemMetrics   PROCEDURE(LONG nIndex, UNSIGNED pDpi=0)
   CODE
-  RETURN winapi::GetSystemMetrics(nIndex)
+  IF pDpi = 0
+    RETURN winapi::GetSystemMetrics(nIndex)
+  ELSE
+    RETURN SELF.GetSystemMetricsForDpi(nIndex, pDpi)
+  END
   
-TSystemMetrics.Arrange        PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_ARRANGE)
-  
-TSystemMetrics.CleanBoot      PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CLEANBOOT)
-    
-TSystemMetrics.CMonitors      PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CMONITORS)
-    
-TSystemMetrics.CMouseButtons  PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CMOUSEBUTTONS)
-    
-TSystemMetrics.ConvertibleSlateMode   PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CONVERTIBLESLATEMODE)
-    
-TSystemMetrics.CxBorder       PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXBORDER)
-    
-TSystemMetrics.CxCursor       PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXCURSOR)
-    
-TSystemMetrics.CxDlgFrame     PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXDLGFRAME)
-    
-TSystemMetrics.CxDoubleClk    PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXDOUBLECLK)
-    
-TSystemMetrics.CxDrag         PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXDRAG)
-    
-TSystemMetrics.CxEdge         PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXEDGE)
-    
-TSystemMetrics.CxFixedFrame   PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXFIXEDFRAME)
-    
-TSystemMetrics.CxFocusBorder  PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXFOCUSBORDER)
-    
-TSystemMetrics.CxFrame        PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXFRAME)
-    
-TSystemMetrics.CxFullScreen   PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXFULLSCREEN)
-    
-TSystemMetrics.CxHScroll      PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXHSCROLL)
-    
-TSystemMetrics.CxHThumb       PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXHTHUMB)
-    
-TSystemMetrics.CxIcon         PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXICON)
-    
-TSystemMetrics.CxIconSpacing  PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXICONSPACING)
-    
-TSystemMetrics.CxMaximized    PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXMAXIMIZED)
-    
-TSystemMetrics.CxMaxTrack     PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXMAXTRACK)
-    
-TSystemMetrics.CxMenuCheck    PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXMENUCHECK)
-    
-TSystemMetrics.CxMenuSize     PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXMENUSIZE)
-    
-TSystemMetrics.CxMin          PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXMIN)
-    
-TSystemMetrics.CxMinimized    PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXMINIMIZED)
-    
-TSystemMetrics.CxMinSpacing   PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXMINSPACING)
-    
-TSystemMetrics.CxMinTrack     PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXMINTRACK)
-    
-TSystemMetrics.CxPaddedBorder PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXPADDEDBORDER)
-    
-TSystemMetrics.CxScreen       PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXSCREEN)
-    
-TSystemMetrics.CxSize         PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXSIZE)
-    
-TSystemMetrics.CxSizeFrame    PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXSIZEFRAME)
-    
-TSystemMetrics.CxSMIcon       PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXSMICON)
-    
-TSystemMetrics.CxSMSize       PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXSMSIZE)
-    
-TSystemMetrics.CxVirtualScreen    PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXVIRTUALSCREEN)
-    
-TSystemMetrics.CxVScroll      PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CXVSCROLL)
-    
-TSystemMetrics.CyBorder       PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYBORDER)
-    
-TSystemMetrics.CyCaption      PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYCAPTION)
-    
-TSystemMetrics.CyCursor       PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYCURSOR)
-    
-TSystemMetrics.CyDlgFrame     PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYDLGFRAME)
-    
-TSystemMetrics.CyDoubleClk    PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYDOUBLECLK)
-    
-TSystemMetrics.CyDrag         PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYDRAG)
-    
-TSystemMetrics.CyEdge         PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYEDGE)
-    
-TSystemMetrics.CyFixedFrame   PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYFIXEDFRAME)
-    
-TSystemMetrics.CyFocusBorder  PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYFOCUSBORDER)
-    
-TSystemMetrics.CyFrame        PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYFRAME)
-    
-TSystemMetrics.CyFullScreen   PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYFULLSCREEN)
-    
-TSystemMetrics.CyHScroll      PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYHSCROLL)
-    
-TSystemMetrics.CyIcon         PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYICON)
-    
-TSystemMetrics.CyIconSpacing  PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYICONSPACING)
-    
-TSystemMetrics.CyKanjiWindow  PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYKANJIWINDOW)
-    
-TSystemMetrics.CyMaximized    PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYMAXIMIZED)
-    
-TSystemMetrics.CyMaxTrack     PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYMAXTRACK)
-    
-TSystemMetrics.CyMenu         PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYMENU)
-    
-TSystemMetrics.CyMenuCheck    PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYMENUCHECK)
-    
-TSystemMetrics.CyMenuSize     PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYMENUSIZE)
-    
-TSystemMetrics.CyMin          PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYMIN)
-    
-TSystemMetrics.CyMinimized    PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYMINIMIZED)
-    
-TSystemMetrics.CyMinSpacing   PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYMINSPACING)
-    
-TSystemMetrics.CyMinTrack     PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYMINTRACK)
-    
-TSystemMetrics.CyScreen       PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYSCREEN)
-    
-TSystemMetrics.CySize         PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYSIZE)
-    
-TSystemMetrics.CySizeFrame    PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYSIZEFRAME)
-    
-TSystemMetrics.CySMCaption    PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYSMCAPTION)
-    
-TSystemMetrics.CySMIcon       PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYSMICON)
-    
-TSystemMetrics.CySMSize       PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYSMSIZE)
-    
-TSystemMetrics.CyVirtualScreen    PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYVIRTUALSCREEN)
-    
-TSystemMetrics.CyVScroll      PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYVSCROLL)
-    
-TSystemMetrics.CyVThumb       PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_CYVTHUMB)
-    
-TSystemMetrics.DBCSEnabled    PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_DBCSENABLED)
-    
-TSystemMetrics.Debug          PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_DEBUG)
-    
-TSystemMetrics.Digitizer      PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_DIGITIZER)
-    
-TSystemMetrics.IMMEnabled     PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_IMMENABLED)
-    
-TSystemMetrics.MaximumTouches PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_MAXIMUMTOUCHES)
-    
-TSystemMetrics.MediaCenter    PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_MEDIACENTER)
-    
-TSystemMetrics.MenuDropAlignment  PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_MENUDROPALIGNMENT)
-    
-TSystemMetrics.MidEastEnabled PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_MIDEASTENABLED)
-    
-TSystemMetrics.MousePresent   PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_MOUSEPRESENT)
-    
-TSystemMetrics.MouseHorizontalWheelPresent    PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_MOUSEHORIZONTALWHEELPRESENT)
-    
-TSystemMetrics.MouseWheelPresent  PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_MOUSEWHEELPRESENT)
-    
-TSystemMetrics.Network        PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_NETWORK)
-    
-TSystemMetrics.PenWindows     PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_PENWINDOWS)
-    
-TSystemMetrics.RemoteControl  PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_REMOTECONTROL)
-    
-TSystemMetrics.RemoteSession  PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_REMOTESESSION)
-    
-TSystemMetrics.SameDisplayFormat  PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_SAMEDISPLAYFORMAT)
-    
-TSystemMetrics.ServerR2       PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_SERVERR2)
-    
-TSystemMetrics.ShowSounds     PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_SHOWSOUNDS)
-    
-TSystemMetrics.ShuttingDown   PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_SHUTTINGDOWN)
-    
-TSystemMetrics.SlowMachine    PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_SLOWMACHINE)
-    
-TSystemMetrics.Starter        PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_STARTER)
-    
-TSystemMetrics.SwapButton     PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_SWAPBUTTON)
-    
-TSystemMetrics.SystemDocked   PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_SYSTEMDOCKED)
-    
-TSystemMetrics.TabletPC       PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_TABLETPC)
-    
-TSystemMetrics.XVirtualScreen PROCEDURE()
-  CODE
-  RETURN SELF.GetSystemMetrics(SM_XVIRTUALSCREEN)
+TSystemMetrics.GetSystemMetricsForDpi PROCEDURE(LONG nIndex, UNSIGNED pDpi)
+value                                   LONG, AUTO
+dc                                      TDC
+logPixelY                               LONG, AUTO
+  CODE
+  value = SELF.GetSystemMetrics(nIndex)
 
-TSystemMetrics.YVirtualScreen PROCEDURE()
+  !- LOGPIXELSY is not changed after login, GetSystemMetrics returns same values initialized after boot.
+  dc.GetDC(0)
+  logPixelY = dc.GetDeviceCaps(LOGPIXELSY)
+  dc.ReleaseDC()
+
+  IF pDpi <> logPixelY
+    value = winapi::MulDiv(value, pDpi, logPixelY)
+  END
+  RETURN value
+  
+TSystemMetrics.Arrange        PROCEDURE(UNSIGNED pDpi=0)
   CODE
-  RETURN SELF.GetSystemMetrics(SM_YVIRTUALSCREEN)
+  RETURN SELF.GetSystemMetrics(SM_ARRANGE, pDpi)
+  
+TSystemMetrics.CleanBoot      PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CLEANBOOT, pDpi)
+    
+TSystemMetrics.CMonitors      PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CMONITORS, pDpi)
+    
+TSystemMetrics.CMouseButtons  PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CMOUSEBUTTONS, pDpi)
+    
+TSystemMetrics.ConvertibleSlateMode   PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CONVERTIBLESLATEMODE, pDpi)
+    
+TSystemMetrics.CxBorder       PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXBORDER, pDpi)
+    
+TSystemMetrics.CxCursor       PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXCURSOR, pDpi)
+    
+TSystemMetrics.CxDlgFrame     PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXDLGFRAME, pDpi)
+    
+TSystemMetrics.CxDoubleClk    PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXDOUBLECLK, pDpi)
+    
+TSystemMetrics.CxDrag         PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXDRAG, pDpi)
+    
+TSystemMetrics.CxEdge         PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXEDGE, pDpi)
+    
+TSystemMetrics.CxFixedFrame   PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXFIXEDFRAME, pDpi)
+    
+TSystemMetrics.CxFocusBorder  PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXFOCUSBORDER, pDpi)
+    
+TSystemMetrics.CxFrame        PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXFRAME, pDpi)
+    
+TSystemMetrics.CxFullScreen   PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXFULLSCREEN, pDpi)
+    
+TSystemMetrics.CxHScroll      PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXHSCROLL, pDpi)
+    
+TSystemMetrics.CxHThumb       PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXHTHUMB, pDpi)
+    
+TSystemMetrics.CxIcon         PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXICON, pDpi)
+    
+TSystemMetrics.CxIconSpacing  PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXICONSPACING, pDpi)
+    
+TSystemMetrics.CxMaximized    PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXMAXIMIZED, pDpi)
+    
+TSystemMetrics.CxMaxTrack     PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXMAXTRACK, pDpi)
+    
+TSystemMetrics.CxMenuCheck    PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXMENUCHECK, pDpi)
+    
+TSystemMetrics.CxMenuSize     PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXMENUSIZE, pDpi)
+    
+TSystemMetrics.CxMin          PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXMIN, pDpi)
+    
+TSystemMetrics.CxMinimized    PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXMINIMIZED, pDpi)
+    
+TSystemMetrics.CxMinSpacing   PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXMINSPACING, pDpi)
+    
+TSystemMetrics.CxMinTrack     PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXMINTRACK, pDpi)
+    
+TSystemMetrics.CxPaddedBorder PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXPADDEDBORDER, pDpi)
+    
+TSystemMetrics.CxScreen       PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXSCREEN, pDpi)
+    
+TSystemMetrics.CxSize         PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXSIZE, pDpi)
+    
+TSystemMetrics.CxSizeFrame    PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXSIZEFRAME, pDpi)
+    
+TSystemMetrics.CxSMIcon       PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXSMICON, pDpi)
+    
+TSystemMetrics.CxSMSize       PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXSMSIZE, pDpi)
+    
+TSystemMetrics.CxVirtualScreen    PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXVIRTUALSCREEN, pDpi)
+    
+TSystemMetrics.CxVScroll      PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CXVSCROLL, pDpi)
+    
+TSystemMetrics.CyBorder       PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYBORDER, pDpi)
+    
+TSystemMetrics.CyCaption      PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYCAPTION, pDpi)
+    
+TSystemMetrics.CyCursor       PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYCURSOR, pDpi)
+    
+TSystemMetrics.CyDlgFrame     PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYDLGFRAME, pDpi)
+    
+TSystemMetrics.CyDoubleClk    PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYDOUBLECLK, pDpi)
+    
+TSystemMetrics.CyDrag         PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYDRAG, pDpi)
+    
+TSystemMetrics.CyEdge         PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYEDGE, pDpi)
+    
+TSystemMetrics.CyFixedFrame   PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYFIXEDFRAME, pDpi)
+    
+TSystemMetrics.CyFocusBorder  PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYFOCUSBORDER, pDpi)
+    
+TSystemMetrics.CyFrame        PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYFRAME, pDpi)
+    
+TSystemMetrics.CyFullScreen   PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYFULLSCREEN, pDpi)
+    
+TSystemMetrics.CyHScroll      PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYHSCROLL, pDpi)
+    
+TSystemMetrics.CyIcon         PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYICON, pDpi)
+    
+TSystemMetrics.CyIconSpacing  PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYICONSPACING, pDpi)
+    
+TSystemMetrics.CyKanjiWindow  PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYKANJIWINDOW, pDpi)
+    
+TSystemMetrics.CyMaximized    PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYMAXIMIZED, pDpi)
+    
+TSystemMetrics.CyMaxTrack     PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYMAXTRACK, pDpi)
+    
+TSystemMetrics.CyMenu         PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYMENU, pDpi)
+    
+TSystemMetrics.CyMenuCheck    PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYMENUCHECK, pDpi)
+    
+TSystemMetrics.CyMenuSize     PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYMENUSIZE, pDpi)
+    
+TSystemMetrics.CyMin          PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYMIN, pDpi)
+    
+TSystemMetrics.CyMinimized    PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYMINIMIZED, pDpi)
+    
+TSystemMetrics.CyMinSpacing   PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYMINSPACING, pDpi)
+    
+TSystemMetrics.CyMinTrack     PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYMINTRACK, pDpi)
+    
+TSystemMetrics.CyScreen       PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYSCREEN, pDpi)
+    
+TSystemMetrics.CySize         PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYSIZE, pDpi)
+    
+TSystemMetrics.CySizeFrame    PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYSIZEFRAME, pDpi)
+    
+TSystemMetrics.CySMCaption    PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYSMCAPTION, pDpi)
+    
+TSystemMetrics.CySMIcon       PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYSMICON, pDpi)
+    
+TSystemMetrics.CySMSize       PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYSMSIZE, pDpi)
+    
+TSystemMetrics.CyVirtualScreen    PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYVIRTUALSCREEN, pDpi)
+    
+TSystemMetrics.CyVScroll      PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYVSCROLL, pDpi)
+    
+TSystemMetrics.CyVThumb       PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_CYVTHUMB, pDpi)
+    
+TSystemMetrics.DBCSEnabled    PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_DBCSENABLED, pDpi)
+    
+TSystemMetrics.Debug          PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_DEBUG, pDpi)
+    
+TSystemMetrics.Digitizer      PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_DIGITIZER, pDpi)
+    
+TSystemMetrics.IMMEnabled     PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_IMMENABLED, pDpi)
+    
+TSystemMetrics.MaximumTouches PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_MAXIMUMTOUCHES, pDpi)
+    
+TSystemMetrics.MediaCenter    PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_MEDIACENTER, pDpi)
+    
+TSystemMetrics.MenuDropAlignment  PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_MENUDROPALIGNMENT, pDpi)
+    
+TSystemMetrics.MidEastEnabled PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_MIDEASTENABLED, pDpi)
+    
+TSystemMetrics.MousePresent   PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_MOUSEPRESENT, pDpi)
+    
+TSystemMetrics.MouseHorizontalWheelPresent    PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_MOUSEHORIZONTALWHEELPRESENT, pDpi)
+    
+TSystemMetrics.MouseWheelPresent  PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_MOUSEWHEELPRESENT, pDpi)
+    
+TSystemMetrics.Network        PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_NETWORK, pDpi)
+    
+TSystemMetrics.PenWindows     PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_PENWINDOWS, pDpi)
+    
+TSystemMetrics.RemoteControl  PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_REMOTECONTROL, pDpi)
+    
+TSystemMetrics.RemoteSession  PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_REMOTESESSION, pDpi)
+    
+TSystemMetrics.SameDisplayFormat  PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_SAMEDISPLAYFORMAT, pDpi)
+    
+TSystemMetrics.ServerR2       PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_SERVERR2, pDpi)
+    
+TSystemMetrics.ShowSounds     PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_SHOWSOUNDS, pDpi)
+    
+TSystemMetrics.ShuttingDown   PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_SHUTTINGDOWN, pDpi)
+    
+TSystemMetrics.SlowMachine    PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_SLOWMACHINE, pDpi)
+    
+TSystemMetrics.Starter        PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_STARTER, pDpi)
+    
+TSystemMetrics.SwapButton     PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_SWAPBUTTON, pDpi)
+    
+TSystemMetrics.SystemDocked   PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_SYSTEMDOCKED, pDpi)
+    
+TSystemMetrics.TabletPC       PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_TABLETPC, pDpi)
+    
+TSystemMetrics.XVirtualScreen PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_XVIRTUALSCREEN, pDpi)
+
+TSystemMetrics.YVirtualScreen PROCEDURE(UNSIGNED pDpi=0)
+  CODE
+  RETURN SELF.GetSystemMetrics(SM_YVIRTUALSCREEN, pDpi)
 !!!endregion
 
 !!!region TStringEncoding
