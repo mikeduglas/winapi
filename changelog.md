@@ -1,3 +1,6 @@
+14.04.2021
+- TDC: missing SetHandle method, overloaded FromHDC.
+
 30.03.2021
 - TSystemMetrics: DPI-aware support.
 

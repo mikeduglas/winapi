@@ -1,5 +1,5 @@
 !Base Windows classes
-!30.03.2021 revision
+!14.04.2021 revision
 !mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -1134,6 +1134,12 @@ TDC.FromHDC                   PROCEDURE(HDC pDC)
   SELF.handle = pDC
   SELF.hwnd = SELF.WindowFromDC()
   
+TDC.FromHDC                   PROCEDURE(HDC pDC, HWND hwnd)
+  CODE
+  SELF.ReleaseDC()
+  SELF.handle = pDC
+  SELF.hwnd = hwnd
+
 TDC.GetDC                     PROCEDURE(HWND hwnd)
   CODE
   SELF.ReleaseDC()
@@ -1456,6 +1462,11 @@ TDC.EndPaint                  PROCEDURE(*PAINTSTRUCT lpPaint)
 TDC.GetHandle                 PROCEDURE()
   CODE
   RETURN SELF.handle
+  
+TDC.SetHandle                 PROCEDURE(HDC pDC)
+  CODE
+  SELF.ReleaseDC()
+  SELF.handle = pDC
   
 TDC.WindowFromDC              PROCEDURE()
   CODE

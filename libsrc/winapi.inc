@@ -1,5 +1,5 @@
 !Base Windows classes
-!30.03.2021 revision
+!14.04.2021 revision
 !mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -236,6 +236,7 @@ Construct                       PROCEDURE()
 Destruct                        PROCEDURE(), VIRTUAL
 
 FromHDC                         PROCEDURE(HDC pDC)
+FromHDC                         PROCEDURE(HDC pDC, HWND hwnd)
 GetDC                           PROCEDURE(HWND hwnd), HDC, PROC
 GetDC                           PROCEDURE(TWnd wnd), HDC, PROC
 GetDCEx                         PROCEDURE(HWND hwnd, HRGN hrgn, ULONG flags), HDC, PROC
@@ -367,6 +368,8 @@ BeginPaint                      PROCEDURE(HWND hWnd, *PAINTSTRUCT lpPaint), HDC,
 EndPaint                        PROCEDURE(*PAINTSTRUCT lpPaint)
 
 GetHandle                       PROCEDURE(), HDC
+SetHandle                       PROCEDURE(HDC pDC)
+
 WindowFromDC                    PROCEDURE(), HWND
 
 DrawIconEx                      PROCEDURE(SIGNED xLeft,SIGNED yTop,HICON hIcon,SIGNED cxWidth,SIGNED cyWidth,UNSIGNED iStepIfAniCur,HBRUSH hbrFlickerFreeDraw,UNSIGNED diFlags),BOOL,PROC
