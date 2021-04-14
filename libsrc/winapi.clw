@@ -1465,7 +1465,6 @@ TDC.GetHandle                 PROCEDURE()
   
 TDC.SetHandle                 PROCEDURE(HDC pDC)
   CODE
-  SELF.ReleaseDC()
   SELF.handle = pDC
   
 TDC.WindowFromDC              PROCEDURE()
