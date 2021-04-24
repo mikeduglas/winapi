@@ -1,5 +1,5 @@
 !Base Windows classes
-!14.04.2021 revision
+!22.04.2021 revision
 !mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -20,6 +20,8 @@
       winapi::IsWindow(HWND hwnd),BOOL,PASCAL,NAME('IsWindow')
       winapi::GetParent(HWND hwnd),HWND,PASCAL,NAME('GetParent')
       winapi::SetParent(HWND hWndChild, HWND hWndNewParent),HWND,PASCAL,PROC,NAME('SetParent')
+      winapi::GetDesktopWindow(),HWND,PASCAL,PROC,NAME('GetDesktopWindow')
+      winapi::GetWindow(HWND hWnd,UNSIGNED uCmd),HWND,PASCAL,PROC,NAME('GetWindow')
       winapi::CallWindowProc(LONG lpPrevWndFunc,HWND hWnd, UNSIGNED wMsg, UNSIGNED wParam, LONG lParam), LONG, PASCAL, NAME('CallWindowProcA')
       winapi::DefWindowProc(HWND hWnd, UNSIGNED wMsg, UNSIGNED wParam, LONG lParam),LONG,PASCAL,NAME('DefWindowProcA')
       winapi::SetWindowLong(HWND hWnd, LONG nIndex, LONG dwNewLong), LONG, PASCAL, PROC, NAME('SetWindowLongA')
@@ -62,7 +64,7 @@
       winapi::StretchDIBits(HDC hdc,SIGNED pDestX,SIGNED pDestY,SIGNED pDestW,SIGNED pDestH,SIGNED pSrcX,SIGNED pSrcY,SIGNED pSrcW,SIGNED pSrcH,LONG lpBits,LONG lpbmi,UNSIGNED iUsage,ULONG rop),SIGNED,RAW,PASCAL,NAME('StretchDIBits'),PROC
       winapi::GetStretchBltMode(HDC hdc),LONG,PASCAL,NAME('GetStretchBltMode')
       winapi::SetStretchBltMode(HDC hdc,LONG pMode),LONG,PASCAL,NAME('SetStretchBltMode')
-
+      winapi::CreateDIBSection(HDC hdc,LONG pbmi,UNSIGNED usage,*LONG ppvBits,HANDLE hSection,UNSIGNED offset),HBITMAP,PASCAL,NAME('CreateDIBSection')
       winapi::DrawIconEx(HDC hDC,SIGNED xLeft,SIGNED yTop,HICON hIcon,SIGNED cxWidth,SIGNED cyWidth,UNSIGNED iStepIfAniCur,HBRUSH hbrFlickerFreeDraw,UNSIGNED diFlags),BOOL,PASCAL,PROC,NAME('DrawIconEx')
       winapi::CreateSolidBrush(COLORREF crColor), HBRUSH, PASCAL, NAME('CreateSolidBrush')
       winapi::DeleteObject(HGDIOBJ hObj), BOOL, RAW, PASCAL, NAME('DeleteObject'), PROC
@@ -76,6 +78,7 @@
       winapi::BitBlt(HDC hDcDest, SIGNED nXDest, SIGNED nYDest, SIGNED nWidth, SIGNED nHeight, HDC hDcSrc, SIGNED nXSrc, SIGNED nYSrc, ULONG dwRop), BOOL, RAW, PASCAL, NAME('BitBlt'), PROC
       winapi::UpdateWindow(HWND hWnd),BOOL,PASCAL,PROC,NAME('UpdateWindow')
       winapi::EnableWindow(HWND hWnd,BOOL bEnable),BOOL,PASCAL,PROC,NAME('EnableWindow')
+      winapi::IsWindowVisible(HWND hWnd),BOOL,PASCAL,PROC,NAME('IsWindowVisible')
       winapi::RedrawWindow(HWND hWnd, *_RECT_ lprcUpdate, HRGN hrgnUpdate, UNSIGNED flags), BOOL, RAW, PASCAL, PROC, NAME('RedrawWindow')
       winapi::DrawText(HDC hdc, LONG lpchText, LONG cchText, *_RECT_ lprc, LONG format), LONG, PROC, RAW, PASCAL, NAME('DrawTextA')
       winapi::DrawTextW(HDC hdc, LONG lpchText, LONG cchText, *_RECT_ lprc, LONG format), LONG, PROC, RAW, PASCAL, NAME('DrawTextW')
@@ -91,6 +94,7 @@
         UNSIGNED fdwUnderline, UNSIGNED fdwStrikeOut, UNSIGNED fdwCharSet, UNSIGNED fdwOutputPrecision, UNSIGNED fdwClipPrecision, | 
         UNSIGNED fdwQuality, UNSIGNED fdwPitchAndFamily, *CSTRING lpszFace), HFONT, PASCAL, RAW, NAME('CreateFontA')
       winapi::CreateFontIndirect(*tagLOGFONTA lplf),HFONT, PASCAL, RAW, NAME('CreateFontIndirectA')
+      winapi::CreateFontIndirectW(*tagLOGFONTW lplf),HFONT, PASCAL, RAW, NAME('CreateFontIndirectW')
       winapi::GetDeviceCaps(HANDLE pDC, LONG pIndex), LONG, PASCAL, NAME('GetDeviceCaps')
       winapi::MulDiv(LONG,LONG,LONG), LONG, PASCAL, NAME('MulDiv')
       winapi::ExcludeClipRect(HDC hdc, LONG left, LONG top, LONG right, LONG bottom), LONG, PROC, PASCAL, NAME('ExcludeClipRect')
@@ -156,8 +160,14 @@
         ULONG lpMultuByteStr, LONG cbMultiByte, ULONG LpDefalutChar, ULONG lpUsedDefalutChar), RAW, ULONG, PASCAL, PROC, NAME('WideCharToMultiByte')
 
       winapi::GetWindowTextLength(HWND hwnd),LONG,PASCAL,NAME('GetWindowTextLengthA')
+      winapi::GetWindowTextLengthW(HWND hwnd),LONG,PASCAL,NAME('GetWindowTextLengthW')
+      winapi::GetWindowText(HWND hwnd,LONG lpString,LONG nMaxCount),LONG,PROC,PASCAL,NAME('GetWindowTextA')
+      winapi::GetWindowTextW(HWND hwnd,LONG lpString,LONG nMaxCount),LONG,PROC,PASCAL,NAME('GetWindowTextW')
+
       winapi::ShowCaret(HWND hWnd),BOOL,PASCAL,PROC,NAME('ShowCaret')
       winapi::HideCaret(HWND hWnd),BOOL,PASCAL,PROC,NAME('HideCaret')
+
+      winapi::GetWindowPlacement(HWND HWND,LONG lpwndpl),BOOL,PASCAL,PROC,NAME('GetWindowPlacement')
     END
   END
 
@@ -457,6 +467,15 @@ TWnd.SetParent                PROCEDURE(HWND hWndNewParent)
   CODE
   RETURN winapi::SetParent(SELF.hwnd, hWndNewParent)
   
+TWnd.GetDesktopWindow         PROCEDURE()
+  CODE
+  SELF.hwnd = winapi::GetDesktopWindow()
+  RETURN SELF.hwnd
+  
+TWnd.GetWindow                PROCEDURE(UNSIGNED uCmd)
+  CODE
+  RETURN winapi::GetWindow(SELF.hwnd, uCmd)
+  
 TWnd.SetParent                PROCEDURE(TWnd hWndNewParent)
   CODE
   RETURN SELF.SetParent(hWndNewParent.GetHandle())
@@ -665,6 +684,10 @@ TWnd.UpdateWindow             PROCEDURE()
 TWnd.EnableWindow             PROCEDURE(BOOL pEnable)
   CODE
   RETURN winapi::EnableWindow(SELF.hwnd, pEnable)
+  
+TWnd.IsWindowVisible          PROCEDURE()
+  CODE
+  RETURN winapi::IsWindowVisible(SELF.hwnd)
 
 TWnd.RedrawWindow             PROCEDURE(_RECT_ rc, HRGN hrgnUpdate, UNSIGNED pFlags)
   CODE
@@ -873,7 +896,57 @@ TWnd.Focused                  PROCEDURE()
 TWnd.GetWindowTextLength      PROCEDURE()
   CODE
   RETURN winapi::GetWindowTextLength(SELF.hwnd)
+    
+TWnd.GetWindowTextLengthW     PROCEDURE()
+  CODE
+  RETURN winapi::GetWindowTextLengthW(SELF.hwnd)
+
+TWnd.GetWindowText            PROCEDURE()
+nLen                            LONG, AUTO
+sText                           &STRING, AUTO
+aText                           ANY
+rc                              LONG, AUTO
+nErr                            LONG, AUTO
+  CODE
+  nLen = SELF.GetWindowTextLength()
+  IF nLen
+    sText &= NEW STRING(nLen+1)
+    rc = winapi::GetWindowText(SELF.hwnd, ADDRESS(sText), nLen+1)
+    IF rc <> 0
+      aText = sText
+      DISPOSE(sText)
+    ELSE
+      nErr = winapi::GetLastError()
+      IF nErr
+        printd('GetWindowText failed, error %i', nErr)
+      END
+    END
+  END
+  RETURN CLIP(aText)
   
+TWnd.GetWindowTextW           PROCEDURE()
+nLen                            LONG, AUTO
+sText                           &STRING, AUTO
+aText                           ANY
+rc                              LONG, AUTO
+nErr                            LONG, AUTO
+  CODE
+  nLen = SELF.GetWindowTextLengthW()
+  IF nLen
+    sText &= NEW STRING((nLen+1)*2)
+    rc = winapi::GetWindowTextW(SELF.hwnd, ADDRESS(sText), nLen+1)
+    IF rc <> 0
+      aText = sText
+      DISPOSE(sText)
+    ELSE
+      nErr = winapi::GetLastError()
+      IF nErr
+        printd('GetWindowText failed, error %i', nErr)
+      END
+    END
+  END
+  RETURN CLIP(aText)
+
 TWnd.GetWindowSubclass        PROCEDURE(LONG pfnSubclass, ULONG uIdSubclass, *UNSIGNED dwRefData)
   CODE
   RETURN winapi::GetWindowSubclass(SELF.hwnd, pfnSubclass, uIdSubclass, dwRefData)
@@ -904,6 +977,7 @@ aClassName                      LONG, AUTO
 szWindowName                    CSTRING(LEN(CLIP(pWindowName))+1), AUTO
 aWindowName                     LONG, AUTO
 hwnd                            HWND, AUTO
+nErr                            LONG, AUTO
   CODE
   szWindowName = CLIP(pWindowName)
   IF pClassName
@@ -920,12 +994,15 @@ hwnd                            HWND, AUTO
   END
 
   hwnd = winapi::FindWindow(aClassName, aWindowName)
-
   IF hwnd
     SELF.hwnd = hwnd
   ELSE
-    printd('FindWindow(%s, %s) failed, error %i', pClassName, pWindowName, winapi::GetLastError())
+    nErr = winapi::GetLastError()
+    IF nErr
+      printd('FindWindow(%s, %s) failed, error %i', pClassName, pWindowName, winapi::GetLastError())
+    END
   END
+
   RETURN hwnd
   
 TWnd.FindWindow               PROCEDURE(STRING pWindowName)
@@ -955,7 +1032,6 @@ nErr                            LONG, AUTO
   END
 
   hwnd = winapi::FindWindowEx(hWndParent, hWndChildAfter, aClassName, aWindowName)
-
   IF hwnd
     SELF.hwnd = hwnd
   ELSE
@@ -964,11 +1040,21 @@ nErr                            LONG, AUTO
       printd('FindWindowEx(%i, %i, %s, %s) failed, error %i', hWndParent, hWndChildAfter, pClassName, pWindowName, nErr)
     END
   END
+
   RETURN hwnd
 
 TWnd.FindWindowEx             PROCEDURE(HWND hWndParent, HWND hWndChildAfter, STRING pWindowName)
   CODE
   RETURN SELF.FindWindowEx(hWndParent, hWndChildAfter, '', pWindowName)
+  
+TWnd.GetWindowPlacement       PROCEDURE(*tagWINDOWPLACEMENT pwndpl)
+ret                             BOOL, AUTO
+  CODE
+  ret = winapi::GetWindowPlacement(SELF.hwnd, ADDRESS(pwndpl))
+  IF NOT ret
+    printd('GetWindowPlacement(%i) failed, error %i', SELF.hwnd, winapi::GetLastError())
+  END
+  RETURN ret
 !!!endregion
 
 !!!region TCWnd
@@ -1650,6 +1736,11 @@ bmih                                GROUP(BITMAPINFOHEADER).
   
   RETURN pbmi
 
+TBitmap.CreateDIBSection      PROCEDURE(HDC pDC, *BITMAPINFO bmi, UNSIGNED usage, <*LONG ppvBits>, <HANDLE hSection>, <UNSIGNED offset>)
+  CODE
+  SELF.handle = winapi::CreateDIBSection(pDC, ADDRESS(bmi), usage, ppvBits, hSection, offset)
+  RETURN SELF.handle
+  
 TBitmap.LoadImage             PROCEDURE(HINSTANCE hInst, STRING pImage, UNSIGNED uType=IMAGE_BITMAP, SIGNED cxDesired=0, SIGNED cyDesired=0, UNSIGNED fuLoad=LR_LOADFROMFILE)
 szImage                         CSTRING(LEN(CLIP(pImage))+1)
   CODE
@@ -1701,10 +1792,19 @@ TLogicalFont.CreateFontIndirect   PROCEDURE(*tagLOGFONTA lplf)
   CODE
   SELF.SetHandle(winapi::CreateFontIndirect(lplf))
   RETURN SELF.handle
+  
+TLogicalFont.CreateFontIndirectW  PROCEDURE(*tagLOGFONTW lplf)
+  CODE
+  SELF.SetHandle(winapi::CreateFontIndirectW(lplf))
+  RETURN SELF.handle
 
 TLogicalFont.GetProperties    PROCEDURE(*tagLOGFONTA lplf)
   CODE
   RETURN CHOOSE(SELF.GetObject(SIZE(tagLOGFONTA), ADDRESS(lplf)) <> 0)
+
+TLogicalFont.GetPropertiesW   PROCEDURE(*tagLOGFONTW lplf)
+  CODE
+  RETURN CHOOSE(SELF.GetObject(SIZE(tagLOGFONTW), ADDRESS(lplf)) <> 0)
 !!!endregion
   
 !!!region TIODevice

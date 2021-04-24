@@ -1,3 +1,8 @@
+22.04.2021
+- TLogicalFont: CreateFontIndirectW, GetPropertiesW.
+- TBitmap: CreateDIBSection.
+- TWnd: GetWindowTextLengthW, GetWindowText, GetWindowTextW, IsWindowVisible, GetDesktopWindow, GetWindowPlacement.
+
 14.04.2021
 - TDC: missing SetHandle method, overloaded FromHDC.
 

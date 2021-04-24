@@ -20,7 +20,7 @@ A set of helper classes:
 - TMpegVideo (MP3)
 - TSystemMetrics (GetSystemMetrics api)
 - TStringEncoding (MultiByteToWideChar, WideCharToMultiByte api)
-
+- TUxTheme
 
 See [change log](https://github.com/mikeduglas/winapi/blob/master/changelog.md).
 
@@ -36,3 +36,5 @@ See [change log](https://github.com/mikeduglas/winapi/blob/master/changelog.md).
 - [Cue Banner](https://github.com/mikeduglas/Cue-Banner)
 - [XEdit - edit controls extender](https://github.com/mikeduglas/XEdit)
 - [Updown control](https://github.com/mikeduglas/Updown-Control)
+- [Live thumbnails](https://clarionhub.com/t/ann-live-thumbnails/4067)
+

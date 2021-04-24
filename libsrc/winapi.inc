@@ -1,5 +1,5 @@
 !Base Windows classes
-!14.04.2021 revision
+!22.04.2021 revision
 !mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -17,6 +17,17 @@ STRINGW                       EQUATE(STRING)
     END
   END
 
+tagWINDOWPLACEMENT            GROUP, TYPE
+length                          UNSIGNED
+flags                           UNSIGNED
+showCmd                         UNSIGNED
+ptMinPosition                   LIKE(POINT)
+ptMaxPosition                   LIKE(POINT)
+rcNormalPosition                LIKE(_RECT_)
+rcDevice                        LIKE(_RECT_)
+                              END
+
+
 !- Window{PROP:Handle}
 TWnd                          CLASS, TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
 W                               &WINDOW, PROTECTED
@@ -32,7 +43,7 @@ Init                            PROCEDURE(<*WINDOW w>), VIRTUAL
 Init                            PROCEDURE(SIGNED pFeq), VIRTUAL
 GetHandle                       PROCEDURE(), HWND
 SetHandle                       PROCEDURE(HWND hwnd)
-GetWindow                       PROCEDURE(), *WINDOW
+GetWindow                       PROCEDURE(), *WINDOW  !- returns a WINDOW passed as an argument to Init.
 GetClassName                    PROCEDURE(), STRING
 !!!<summary>Determines whether the specified window handle identifies an existing window.</summary>
 IsWindow                        PROCEDURE(), BOOL
@@ -48,6 +59,9 @@ GetFEQ                          PROCEDURE(), SIGNED
 GetParent                       PROCEDURE(), HWND
 SetParent                       PROCEDURE(HWND hWndNewParent), HWND, PROC
 SetParent                       PROCEDURE(TWnd hWndNewParent), HWND, PROC
+
+GetDesktopWindow                PROCEDURE(), HWND, PROC   !- sets hwnd to desktop window and returns it.
+GetWindow                       PROCEDURE(UNSIGNED uCmd), HWND    !- winapi call
 
 !!!<summary>Gets Clarion property value</summary>
 GetProp                         PROCEDURE(LONG prop), ?
@@ -110,6 +124,8 @@ SetForegroundWindow             PROCEDURE(), BOOL, PROC
 UpdateWindow                    PROCEDURE(), BOOL, PROC
 EnableWindow                    PROCEDURE(BOOL pEnable), BOOL, PROC
 
+IsWindowVisible                 PROCEDURE(), BOOL
+
 RedrawWindow                    PROCEDURE(_RECT_ rc, HRGN hrgnUpdate, UNSIGNED pFlags), BOOL, PROC
 RedrawWindow                    PROCEDURE(TRect rc, HRGN hrgnUpdate, UNSIGNED pFlags), BOOL, PROC
 
@@ -154,6 +170,9 @@ Focused                         PROCEDURE(), BOOL
 
 !!!<summary>Retrieves the length, in characters, of the specified window's title bar text (if the window has a title bar). If the specified window is a control, the function retrieves the length of the text within the control. However, GetWindowTextLength cannot retrieve the length of the text of an edit control in another application.</summary>
 GetWindowTextLength             PROCEDURE(), LONG
+GetWindowTextLengthW            PROCEDURE(), LONG
+GetWindowText                   PROCEDURE(), STRING
+GetWindowTextW                  PROCEDURE(), STRING
 
 !- GetWindowSubclass requires Comctl32.dll version 6.0 or later
 GetWindowSubclass               PROCEDURE(LONG pfnSubclass, ULONG uIdSubclass, *UNSIGNED dwRefData), BOOL, PROC
@@ -176,6 +195,8 @@ FindWindow                      PROCEDURE(STRING pClassName, STRING pWindowName)
 FindWindow                      PROCEDURE(STRING pWindowName), HWND, PROC
 FindWindowEx                    PROCEDURE(HWND hWndParent, HWND hWndChildAfter, STRING pClassName, STRING pWindowName), HWND, PROC
 FindWindowEx                    PROCEDURE(HWND hWndParent, HWND hWndChildAfter, STRING pWindowName), HWND, PROC
+
+GetWindowPlacement              PROCEDURE(*tagWINDOWPLACEMENT pwndpl), BOOL, PROC
                               END
 
 !- Window{PROP:ClientHandle}
@@ -413,6 +434,7 @@ TBitmap                       CLASS(TGdiObj), TYPE, MODULE('winapi.clw'), LINK('
 CreateCompatibleBitmap          PROCEDURE(HDC pDC, SIGNED cx, SIGNED cy), HBITMAP, PROC
 CreateCompatibleBitmap          PROCEDURE(*TDC pDC, SIGNED cx, SIGNED cy), HBITMAP, PROC
 CreateBitmapInfoStruct          PROCEDURE(), *STRING !returns a reference to BITMAPINFO
+CreateDIBSection                PROCEDURE(HDC pDC, *BITMAPINFO bmi, UNSIGNED usage, <*LONG ppvBits>, <HANDLE hSection>, <UNSIGNED offset>), HBITMAP, PROC
 
 LoadImage                       PROCEDURE(HINSTANCE hInst, STRING pImage, UNSIGNED uType=IMAGE_BITMAP, SIGNED cxDesired=0, SIGNED cyDesired=0, UNSIGNED fuLoad=LR_LOADFROMFILE), HBITMAP, PROC
 LoadImage                       PROCEDURE(STRING pImage, UNSIGNED uType=IMAGE_BITMAP, SIGNED cxDesired=0, SIGNED cyDesired=0, UNSIGNED fuLoad=LR_LOADFROMFILE), HBITMAP, PROC
@@ -435,11 +457,29 @@ lfQuality                       BYTE
 lfPitchAndFamily                BYTE
 lfFaceName                      CSTRING(32)
                               END
+tagLOGFONTW                   GROUP, TYPE
+lfHeight                        LONG
+lfWidth                         LONG
+lfEscapement                    LONG
+lfOrientation                   LONG
+lfWeight                        LONG
+lfItalic                        BYTE
+lfUnderline                     BYTE
+lfStrikeOut                     BYTE
+lfCharSet                       BYTE
+lfOutPrecision                  BYTE
+lfClipPrecision                 BYTE
+lfQuality                       BYTE
+lfPitchAndFamily                BYTE
+lfFaceName                      STRING(64)  !- 32 WCHARs including the terminating NULL
+                              END
 TLogicalFont                  CLASS(TGdiObj), TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
 CreateFont                      PROCEDURE(HDC pDC, STRING pTypeface, UNSIGNED pSize, UNSIGNED pStyle = FONT:regular, LONG pCharset = CHARSET:DEFAULT), HFONT, PROC
 CreateFont                      PROCEDURE(*TDC pDC, STRING pTypeface, UNSIGNED pSize, UNSIGNED pStyle = FONT:regular, LONG pCharset = CHARSET:DEFAULT), HFONT, PROC
 CreateFontIndirect              PROCEDURE(*tagLOGFONTA lplf), HFONT, PROC
+CreateFontIndirectW              PROCEDURE(*tagLOGFONTW lplf), HFONT, PROC
 GetProperties                   PROCEDURE(*tagLOGFONTA lplf), BOOL, PROC
+GetPropertiesW                   PROCEDURE(*tagLOGFONTW lplf), BOOL, PROC
                               END
 
 !- I/O device
