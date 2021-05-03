@@ -1,5 +1,5 @@
 !Base Windows classes
-!22.04.2021 revision
+!03.05.2021 revision
 !mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -195,6 +195,7 @@ FindWindow                      PROCEDURE(STRING pClassName, STRING pWindowName)
 FindWindow                      PROCEDURE(STRING pWindowName), HWND, PROC
 FindWindowEx                    PROCEDURE(HWND hWndParent, HWND hWndChildAfter, STRING pClassName, STRING pWindowName), HWND, PROC
 FindWindowEx                    PROCEDURE(HWND hWndParent, HWND hWndChildAfter, STRING pWindowName), HWND, PROC
+FindWindowEx                    PROCEDURE(HWND hWndChildAfter, STRING pWindowName), HWND, PROC
 
 GetWindowPlacement              PROCEDURE(*tagWINDOWPLACEMENT pwndpl), BOOL, PROC
                               END
@@ -1040,7 +1041,11 @@ ToUtf8                          PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP
 !!!<summary>Converts input string from utf-16.</summary>
 FromUtf16                       PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_ACP), STRING
 !!!<summary>Converts input string to utf-16.</summary>
+!!!<returns>utf-16 encoded string without null terminator <0,0>.
 ToUtf16                          PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_ACP), STRING
+!!!<summary>Converts input string to utf-16.</summary>
+!!!<returns>utf-16 encoded string with null terminator <0,0>.
+ToCWStr                         PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_ACP), STRING
                               END
 
 

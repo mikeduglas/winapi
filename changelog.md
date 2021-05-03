@@ -1,3 +1,6 @@
+03.05.2021
+- TStringEncoding: ToCWStr returns null terminated string.
+
 22.04.2021
 - TLogicalFont: CreateFontIndirectW, GetPropertiesW.
 - TBitmap: CreateDIBSection.

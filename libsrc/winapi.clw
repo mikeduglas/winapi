@@ -1,5 +1,5 @@
 !Base Windows classes
-!22.04.2021 revision
+!03.05.2021 revision
 !mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -1046,6 +1046,10 @@ nErr                            LONG, AUTO
 TWnd.FindWindowEx             PROCEDURE(HWND hWndParent, HWND hWndChildAfter, STRING pWindowName)
   CODE
   RETURN SELF.FindWindowEx(hWndParent, hWndChildAfter, '', pWindowName)
+  
+TWnd.FindWindowEx             PROCEDURE(HWND hWndChildAfter, STRING pWindowName)
+  CODE
+  RETURN SELF.FindWindowEx(SELF.hwnd, hWndChildAfter, pWindowName)
   
 TWnd.GetWindowPlacement       PROCEDURE(*tagWINDOWPLACEMENT pwndpl)
 ret                             BOOL, AUTO
@@ -2853,4 +2857,7 @@ TStringEncoding.ToUtf16        PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_
   CODE
   RETURN SELF.Convert(pInput, pCodepage, CP_UTF16)
 
+TStringEncoding.ToCWStr       PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_ACP)
+  CODE
+  RETURN SELF.ToUtf16(pInput, pCodepage) &'<0,0>'
 !!!endregion
