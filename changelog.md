@@ -1,3 +1,9 @@
+10.05.2021
+- TWnd: IsZoomed.
+
+07.05.2021
+- TWnd: DestroyWindow.
+
 03.05.2021
 - TStringEncoding: ToCWStr returns null terminated string.
 

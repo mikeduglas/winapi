@@ -1,5 +1,5 @@
 !Base Windows classes
-!03.05.2021 revision
+!10.05.2021 revision
 !mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -47,6 +47,8 @@
       winapi::FindWindow(LONG lpszClass,LONG lpszWindow),HWND,PASCAL,NAME('FindWindowA')
       winapi::FindWindowW(LONG lpszClass,LONG lpszWindow),HWND,PASCAL,NAME('FindWindowW')
       winapi::FindWindowEx(HWND hWndParent,HWND hWndChildAfter,LONG lpszClass,LONG lpszWindow),HWND,PASCAL,NAME('FindWindowExA')
+      winapi::DestroyWindow(HWND hWnd),BOOL,PROC,PASCAL,NAME('DestroyWindow')
+      winapi::IsZoomed(HWND hWnd),BOOL,PASCAL,NAME('IsZoomed')
       winapi::ScreenToClient(HWND hWnd, *POINT ppt), BOOL, RAW, PASCAL, PROC, NAME('ScreenToClient')
       winapi::ClientToScreen(HWND hWnd, *POINT ppt), BOOL, RAW, PASCAL, PROC, NAME('ClientToScreen')
       winapi::GetDC(HWND hwnd), HDC, PASCAL, NAME('GetDC')
@@ -65,6 +67,7 @@
       winapi::GetStretchBltMode(HDC hdc),LONG,PASCAL,NAME('GetStretchBltMode')
       winapi::SetStretchBltMode(HDC hdc,LONG pMode),LONG,PASCAL,NAME('SetStretchBltMode')
       winapi::CreateDIBSection(HDC hdc,LONG pbmi,UNSIGNED usage,*LONG ppvBits,HANDLE hSection,UNSIGNED offset),HBITMAP,PASCAL,NAME('CreateDIBSection')
+      winapi::CreateDIBSection(HDC hdc,LONG pbmi,UNSIGNED usage,LONG ppvBits,HANDLE hSection,UNSIGNED offset),HBITMAP,PASCAL,NAME('CreateDIBSection')
       winapi::DrawIconEx(HDC hDC,SIGNED xLeft,SIGNED yTop,HICON hIcon,SIGNED cxWidth,SIGNED cyWidth,UNSIGNED iStepIfAniCur,HBRUSH hbrFlickerFreeDraw,UNSIGNED diFlags),BOOL,PASCAL,PROC,NAME('DrawIconEx')
       winapi::CreateSolidBrush(COLORREF crColor), HBRUSH, PASCAL, NAME('CreateSolidBrush')
       winapi::DeleteObject(HGDIOBJ hObj), BOOL, RAW, PASCAL, NAME('DeleteObject'), PROC
@@ -595,6 +598,14 @@ TWnd.SetWindowPos             PROCEDURE(HWND hWndInsertAfter, LONG x, LONG y, LO
 TWnd.MoveWindow               PROCEDURE(LONG x, LONG y, LONG nWidth, LONG nHeight, BOOL bRepaint)
   CODE
   RETURN winapi::MoveWindow(SELF.hwnd, x, y, nWidth, nHeight, bRepaint)
+  
+TWnd.DestroyWindow            PROCEDURE()
+  CODE
+  RETURN winapi::DestroyWindow(SELF.hwnd)
+  
+TWnd.IsZoomed                 PROCEDURE()
+  CODE
+  RETURN winapi::IsZoomed(SELF.hwnd)
   
 TWnd.ScreenToClient           PROCEDURE(*POINT ppt)
   CODE

@@ -1,5 +1,5 @@
 !Base Windows classes
-!03.05.2021 revision
+!10.05.2021 revision
 !mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -106,6 +106,8 @@ SetWindowPos                    PROCEDURE(HWND hWndInsertAfter, LONG x, LONG y, 
 !!!If the parameter is FALSE, no repainting of any kind occurs. This applies to the client area, the nonclient area (including the title bar and scroll bars), and any part of the parent window uncovered as a result of moving a child window.
 !!!</param>
 MoveWindow                      PROCEDURE(LONG x, LONG y, LONG nWidth, LONG nHeight, BOOL bRepaint), BOOL, PROC
+DestroyWindow                   PROCEDURE(), BOOL, PROC
+IsZoomed                        PROCEDURE(), BOOL
 
 ScreenToClient                  PROCEDURE(*POINT ppt)
 ScreenToClient                  PROCEDURE(*TPoint ppt)
