@@ -1,5 +1,5 @@
 !Base Windows classes
-!10.05.2021 revision
+!18.05.2021 revision
 !mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 

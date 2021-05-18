@@ -1,3 +1,6 @@
+18.05.2021
+- TStringEncoding.ToCWStr does CLIP(pInput).
+
 10.05.2021
 - TWnd: IsZoomed.
 

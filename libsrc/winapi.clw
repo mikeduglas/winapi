@@ -1,5 +1,5 @@
 !Base Windows classes
-!10.05.2021 revision
+!18.05.2021 revision
 !mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -2870,5 +2870,5 @@ TStringEncoding.ToUtf16        PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_
 
 TStringEncoding.ToCWStr       PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_ACP)
   CODE
-  RETURN SELF.ToUtf16(pInput, pCodepage) &'<0,0>'
+  RETURN SELF.ToUtf16(CLIP(pInput), pCodepage) &'<0,0>'
 !!!endregion
