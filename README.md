@@ -37,4 +37,4 @@ See [change log](https://github.com/mikeduglas/winapi/blob/master/changelog.md).
 - [XEdit - edit controls extender](https://github.com/mikeduglas/XEdit)
 - [Updown control](https://github.com/mikeduglas/Updown-Control)
 - [Live thumbnails](https://clarionhub.com/t/ann-live-thumbnails/4067)
-
+- [Empty List Message](https://github.com/mikeduglas/Empty-List-message)
