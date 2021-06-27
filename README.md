@@ -24,8 +24,10 @@ A set of helper classes:
 
 See [change log](https://github.com/mikeduglas/winapi/blob/master/changelog.md).
 
-## Related projects
+## Depend on projects
 - [printf](https://github.com/mikeduglas/printf)
+
+## The projects based on winapi
 - [Smart Zoom](https://github.com/mikeduglas/Smart-Zoom)
 - [Embedded Screensaver](https://github.com/mikeduglas/Embedded-Screensaver)
 - [Resizable controls](https://github.com/mikeduglas/Resizable_Controls)
@@ -36,5 +38,5 @@ See [change log](https://github.com/mikeduglas/winapi/blob/master/changelog.md).
 - [Cue Banner](https://github.com/mikeduglas/Cue-Banner)
 - [XEdit - edit controls extender](https://github.com/mikeduglas/XEdit)
 - [Updown control](https://github.com/mikeduglas/Updown-Control)
-- [Live thumbnails](https://clarionhub.com/t/ann-live-thumbnails/4067)
+- [Live thumbnails](https://github.com/mikeduglas/Live-thumbnails)
 - [Empty List Message](https://github.com/mikeduglas/Empty-List-message)
