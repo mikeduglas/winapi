@@ -20,7 +20,7 @@ A set of helper classes:
 - TMpegVideo (MP3)
 - TSystemMetrics (GetSystemMetrics api)
 - TStringEncoding (MultiByteToWideChar, WideCharToMultiByte api)
-- TUxTheme
+- TProcessEnvironment
 
 See [change log](https://github.com/mikeduglas/winapi/blob/master/changelog.md).
 

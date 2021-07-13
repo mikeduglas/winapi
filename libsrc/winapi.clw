@@ -1,5 +1,5 @@
 !Base Windows classes
-!18.05.2021 revision
+!13.07.2021 revision
 !mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -171,6 +171,9 @@
       winapi::HideCaret(HWND hWnd),BOOL,PASCAL,PROC,NAME('HideCaret')
 
       winapi::GetWindowPlacement(HWND HWND,LONG lpwndpl),BOOL,PASCAL,PROC,NAME('GetWindowPlacement')
+
+      winapi::GetEnvironmentVariable(*CSTRING lpName,*CSTRING lpBuffer,ULONG nSize),ULONG,RAW,PASCAL,PROC,NAME('GetEnvironmentVariableA')
+      winapi::SetEnvironmentVariable(*CSTRING lpName,*CSTRING lpValue),BOOL,RAW,PASCAL,PROC,NAME('SetEnvironmentVariableA')
     END
   END
 
@@ -2871,4 +2874,28 @@ TStringEncoding.ToUtf16        PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_
 TStringEncoding.ToCWStr       PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_ACP)
   CODE
   RETURN SELF.ToUtf16(CLIP(pInput), pCodepage) &'<0,0>'
+!!!endregion
+  
+!!!region TProcessEnvironment
+TProcessEnvironment.GetEnvironmentVariable    PROCEDURE(STRING pName)
+szName                                          CSTRING(LEN(CLIP(pName))+1), AUTO
+nBufSize                                        ULONG(32767)
+szValue                                         CSTRING(nBufSize), AUTO
+  CODE
+  szName = CLIP(pName)
+  nBufSize = winapi::GetEnvironmentVariable(szName, szValue, nBufSize)
+  IF nBufSize
+    RETURN szValue[1 : nBufSize]
+  ELSE
+    printd('GetEnvironmentVariable(%Z) error %i', szName, winapi::GetLastError())
+    RETURN ''
+  END
+  
+TProcessEnvironment.SetEnvironmentVariable    PROCEDURE(STRING pName, STRING pValue)
+szName                                          CSTRING(LEN(CLIP(pName))+1), AUTO
+szValue                                         CSTRING(LEN(CLIP(pValue))+1), AUTO
+  CODE
+  szName = CLIP(pName)
+  szValue = CLIP(pValue)
+  RETURN winapi::SetEnvironmentVariable(szName, szValue)
 !!!endregion

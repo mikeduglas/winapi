@@ -1,3 +1,6 @@
+13.07.2021
+- TProcessEnvironment class, GetEnvironmentVariable and SetEnvironmentVariable methods.
+
 18.05.2021
 - TStringEncoding.ToCWStr does CLIP(pInput).
 

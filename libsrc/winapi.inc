@@ -1,5 +1,5 @@
 !Base Windows classes
-!18.05.2021 revision
+!13.07.2021 revision
 !mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -1043,11 +1043,26 @@ ToUtf8                          PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP
 !!!<summary>Converts input string from utf-16.</summary>
 FromUtf16                       PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_ACP), STRING
 !!!<summary>Converts input string to utf-16.</summary>
-!!!<returns>utf-16 encoded string without null terminator <0,0>.
+!!!<returns>utf-16 encoded string without null terminator <0,0>.</returns>
 ToUtf16                          PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_ACP), STRING
 !!!<summary>Converts input string to utf-16.</summary>
-!!!<returns>utf-16 encoded string with null terminator <0,0>.
+!!!<returns>utf-16 encoded string with null terminator <0,0>.</returns>
 ToCWStr                         PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_ACP), STRING
+                              END
+
+TProcessEnvironment           CLASS, TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+!!!<summary>Retrieves the contents of the specified variable from the environment block of the calling process.
+!!!</summary>
+!!!<param name="pName">The name of the environment variable.</param>
+!!!<returns>the contents of the specified environment variable.</returns>
+!!!<remarks>This function can retrieve either a system environment variable or a user environment variable.</remarks>
+GetEnvironmentVariable          PROCEDURE(STRING pName), STRING
+!!!<summary>Sets the contents of the specified environment variable for the current process.</summary>
+!!!<param name="pName">The name of the environment variable. The operating system creates the environment variable if it does not exist and lpValue is not NULL.</param>
+!!!<param name="pValue">The contents of the environment variable. The maximum size of a user-defined environment variable is 32,767 characters.</param>
+!!!<returns>If the function succeeds, the return value is true. If the function fails, the return value is false. To get extended error information, call GetLastError.</returns>
+!!!<remarks>This function has no effect on the system environment variables or the environment variables of other processes.</remarks>
+SetEnvironmentVariable          PROCEDURE(STRING pName, STRING pValue), BOOL, PROC
                               END
 
 
