@@ -1,5 +1,5 @@
 !Base Windows classes
-!13.07.2021 revision
+!24.07.2021 revision
 !mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -62,6 +62,7 @@
       winapi::CreateCompatibleDC(HDC hdc), HDC, PASCAL, NAME('CreateCompatibleDC')
       winapi::SelectObject(HDC hdc, HGDIOBJ hgdiobj), HGDIOBJ, PASCAL, PROC, NAME('SelectObject')
       winapi::GetObject(HGDIOBJ hgdiobj, LONG cbBuffer, LONG lpvObject), LONG, PASCAL, NAME('GetObjectA'),PROC
+      winapi::GetStockObject(LONG fnObject),HGDIOBJ,PASCAL,NAME('GetStockObject')
       winapi::GetDIBits(HDC hdc, HBITMAP hbmp, UNSIGNED uStartScan, UNSIGNED cScanLines, LONG lpvBits, LONG lpbi, UNSIGNED uUsage),SIGNED,RAW,PASCAL,NAME('GetDIBits'),PROC
       winapi::StretchDIBits(HDC hdc,SIGNED pDestX,SIGNED pDestY,SIGNED pDestW,SIGNED pDestH,SIGNED pSrcX,SIGNED pSrcY,SIGNED pSrcW,SIGNED pSrcH,LONG lpBits,LONG lpbmi,UNSIGNED iUsage,ULONG rop),SIGNED,RAW,PASCAL,NAME('StretchDIBits'),PROC
       winapi::GetStretchBltMode(HDC hdc),LONG,PASCAL,NAME('GetStretchBltMode')
@@ -79,6 +80,7 @@
       winapi::StretchBlt(HDC hdcDest, SIGNED nXDest, SIGNED nYDest, SIGNED nWidthDest, SIGNED |
         nHeightDest, HDC hdcSrc, SIGNED nXSrc, SIGNED nYSrc, SIGNED nWSrc, SIGNED nHSrc, LONG dwRop), BOOL, PASCAL, PROC, NAME('StretchBlt')
       winapi::BitBlt(HDC hDcDest, SIGNED nXDest, SIGNED nYDest, SIGNED nWidth, SIGNED nHeight, HDC hDcSrc, SIGNED nXSrc, SIGNED nYSrc, ULONG dwRop), BOOL, RAW, PASCAL, NAME('BitBlt'), PROC
+      winapi::PatBlt(HDC HDC, SIGNED pX, SIGNED pY, SIGNED pW, SIGNED pH, LONG dwRop), BOOL, PASCAL, PROC, NAME('PatBlt')
       winapi::UpdateWindow(HWND hWnd),BOOL,PASCAL,PROC,NAME('UpdateWindow')
       winapi::EnableWindow(HWND hWnd,BOOL bEnable),BOOL,PASCAL,PROC,NAME('EnableWindow')
       winapi::IsWindowVisible(HWND hWnd),BOOL,PASCAL,PROC,NAME('IsWindowVisible')
@@ -98,7 +100,11 @@
         UNSIGNED fdwQuality, UNSIGNED fdwPitchAndFamily, *CSTRING lpszFace), HFONT, PASCAL, RAW, NAME('CreateFontA')
       winapi::CreateFontIndirect(*tagLOGFONTA lplf),HFONT, PASCAL, RAW, NAME('CreateFontIndirectA')
       winapi::CreateFontIndirectW(*tagLOGFONTW lplf),HFONT, PASCAL, RAW, NAME('CreateFontIndirectW')
-      winapi::GetDeviceCaps(HANDLE pDC, LONG pIndex), LONG, PASCAL, NAME('GetDeviceCaps')
+      winapi::GetDeviceCaps(HDC pDC, LONG pIndex), LONG, PASCAL, NAME('GetDeviceCaps')
+      winapi::SetGraphicsMode(HDC pDC, LONG pMode), LONG, PROC, PASCAL, NAME('SetGraphicsMode')
+      winapi::SetMapMode(HDC pDC, LONG pMode), LONG, PROC, PASCAL, NAME('SetMapMode')
+      winapi::SetWorldTransform(HDC pDC, LONG lpxf), BOOL, PROC, PASCAL, NAME('SetWorldTransform')
+      winapi::DPtoLP(HDC pDC, LONG lppt, LONG pNumPoints), BOOL, PROC, PASCAL, NAME('DPtoLP')
       winapi::MulDiv(LONG,LONG,LONG), LONG, PASCAL, NAME('MulDiv')
       winapi::ExcludeClipRect(HDC hdc, LONG left, LONG top, LONG right, LONG bottom), LONG, PROC, PASCAL, NAME('ExcludeClipRect')
       winapi::SetCapture(HWND hwnd), HWND, PASCAL, PROC, NAME('SetCapture')
@@ -189,17 +195,6 @@ bfSize                          DWORD
 bfReserved1                     USHORT
 bfReserved2                     USHORT
 bfOffBits                       DWORD
-                              END
-
-!-- In Clarion 6 BITMAP declaration has a bug
-winBITMAP                     GROUP, TYPE
-bmType                          LONG
-bmWidth                         LONG
-bmHeight                        LONG
-bmWidthBytes                    LONG
-bmPlanes                        USHORT
-bmBitsPixel                     USHORT
-bmBits                          LONG
                               END
 
 !-- PlaySound flags
@@ -829,6 +824,7 @@ rc                              BOOL(FALSE)
   IF NOT sBits &= NULL
     rc = bmpFile.SaveFile(pFIleName, sBits)
     DISPOSE(sBits)
+    RETURN rc
   ELSE
     RETURN FALSE
   END
@@ -1333,6 +1329,14 @@ TDC.BitBlt                    PROCEDURE(*TRect rcDest, *TDC dcSrc, SIGNED srcX, 
   CODE
   RETURN SELF.BitBlt(rcDest.left, rcDest.top, rcDest.Width(), rcDest.Height(), dcSrc, srcX, srcY, dwRop)
 
+TDC.PatBlt                    PROCEDURE(SIGNED pX, SIGNED pY, SIGNED pW, SIGNED pH, LONG dwRop)
+  CODE
+  RETURN winapi::PatBlt(SELF.handle, pX, pY, pW, pH, dwRop)
+  
+TDC.PatBlt                    PROCEDURE(TRect rcSrc, LONG dwRop)
+  CODE
+  RETURN SELF.PatBlt(rcSrc.left, rcSrc.top, rcSrc.Width(), rcSrc.Height(), dwRop)
+
 TDC.GetDIBits                 PROCEDURE(TBitmap hbmp, UNSIGNED uStartScan, UNSIGNED cScanLines, LONG lpvBits, LONG lpbi, UNSIGNED uUsage)
   CODE
   RETURN winapi::GetDIBits(SELF.handle, hbmp.GetHandle(), uStartScan, cScanLines, lpvBits, lpbi, uUsage)
@@ -1605,6 +1609,33 @@ TDC.DrawImage                 PROCEDURE(STRING pImageFile, *TRect rc)
 TDC.GetDeviceCaps             PROCEDURE(LONG pIndex)
   CODE
   RETURN winapi::GetDeviceCaps(SELF.handle, pIndex)
+  
+TDC.SetGraphicsMode           PROCEDURE(LONG pMode)
+  CODE
+  RETURN winapi::SetGraphicsMode(SELF.handle, pMode)
+  
+TDC.SetMapMode                PROCEDURE(LONG pMode)
+  CODE
+  RETURN winapi::SetMapMode(SELF.handle, pMode)
+  
+TDC.SetWorldTransform         PROCEDURE(tagXFORM pxf)
+  CODE
+  RETURN winapi::SetWorldTransform(SELF.handle, ADDRESS(pxf))
+  
+TDC.DPtoLP                    PROCEDURE(*_RECT_ prc)
+  CODE
+  RETURN winapi::DPtoLP(SELF.handle, ADDRESS(prc), 2)
+  
+TDC.DPtoLP                    PROCEDURE(*TRect prc)
+r                               LIKE(_RECT_)
+  CODE
+  prc.AssignTo(r)
+  IF SELF.DPtoLP(r)
+    prc.Assign(r)
+    RETURN TRUE
+  ELSE
+    RETURN FALSE
+  END
 !!!endregion
   
 !!!region TGdiObj
@@ -1656,9 +1687,18 @@ TGdiObj.DeleteObject          PROCEDURE()
     SELF.handle = 0
   END
   
+TGdiObj.DeleteObject          PROCEDURE(HGDIOBJ pObj)
+  CODE
+  winapi::DeleteObject(pObj)
+  
 TGdiObj.GetObject             PROCEDURE(LONG cbBuffer, LONG lpvObject)
   CODE
   RETURN winapi::GetObject(SELF.handle, cbBuffer, lpvObject)
+  
+TGdiObj.GetStockObject        PROCEDURE(LONG fnObject)
+  CODE
+  SELF.handle =  winapi::GetStockObject(fnObject)
+  RETURN SELF.handle
 !!!endregion
 
 !!!region TPen
@@ -1690,14 +1730,14 @@ TBitmap.CreateCompatibleBitmap    PROCEDURE(*TDC pDC, SIGNED cx, SIGNED cy)
   RETURN SELF.CreateCompatibleBitmap(pDC.GetHandle(), cx, cy)
   
 TBitmap.CreateBitmapInfoStruct    PROCEDURE()
-bmp                                 GROUP(winBITMAP).
+bmp                                 GROUP(tagBITMAP).
 cClrBits                            USHORT, AUTO
 pbmi                                &STRING !*BITMAPINFO
 bmih                                GROUP(BITMAPINFOHEADER).
 
   CODE
   ! Retrieve the bitmap color format, width, and height.  
-  IF SELF.GetObject(SIZE(winBITMAP), ADDRESS(bmp))
+  IF SELF.GetObject(SIZE(tagBITMAP), ADDRESS(bmp))
     ! Convert the color format to a count of bits.  
     cClrBits = bmp.bmPlanes * bmp.bmBitsPixel
     IF cClrBits = 1
@@ -1764,11 +1804,85 @@ szImage                         CSTRING(LEN(CLIP(pImage))+1)
   CODE
   szImage = CLIP(pImage)
   SELF.handle = winapi::LoadImage(hInst, szImage, uType, cxDesired, cyDesired, fuLoad)
+  IF SELF.handle = 0
+    printd('LoadImage(%Z) error %i', szImage, winapi::GetLastError())
+  END
+  
   RETURN SELF.handle
 
 TBitmap.LoadImage             PROCEDURE(STRING pImage, UNSIGNED uType=IMAGE_BITMAP, SIGNED cxDesired=0, SIGNED cyDesired=0, UNSIGNED fuLoad=LR_LOADFROMFILE)
   CODE
   RETURN SELF.LoadImage(0, pImage, uType, cxDesired, cyDesired, fuLoad)
+  
+TBitmap.GetBits               PROCEDURE(HDC pDC)
+dc                              TDC
+  CODE
+  dc.FromHDC(pDC)
+  RETURN SELF.GetBits(dc)
+  
+TBitmap.GetBits               PROCEDURE(*TDC pDC)
+pbi                             &STRING
+bih                             &BITMAPINFOHEADER
+lpBits                          &STRING !memory pointer
+bmpFile                         TIODevice
+hdr                             GROUP(BITMAPFILEHEADER). ! bitmap file-header
+dwTmp                           LONG, AUTO
+sBits                           &STRING
+  CODE
+  pbi &= SELF.CreateBitmapInfoStruct()
+
+  IF NOT pbi &= NULL
+    bih &= ADDRESS(pbi)
+
+    lpBits &= NEW STRING(bih.biSizeImage)
+  
+    ! Retrieve the color table (RGBQUAD array) and the bits  
+    ! (array of palette indices) from the DIB.  
+    IF pDC.GetDIBits(SELF, 0, bih.biHeight, ADDRESS(lpBits), ADDRESS(pbi), DIB_RGB_COLORS)
+      hdr.bfType = 04d42h        ! 0x42 = "B" 0x4d = "M"  
+        
+      ! Compute the size of the entire file.  
+      hdr.bfSize = SIZE(BITMAPFILEHEADER) + bih.biSize + bih.biClrUsed * SIZE(RGBQUAD) + bih.biSizeImage
+      hdr.bfReserved1 = 0 
+      hdr.bfReserved2 = 0 
+    
+      ! Compute the offset to the array of color indices.  
+      hdr.bfOffBits = SIZE(BITMAPFILEHEADER) + bih.biSize + bih.biClrUsed * SIZE(RGBQUAD)
+    
+      sBits &= NEW STRING(SIZE(BITMAPFILEHEADER) + (SIZE(BITMAPINFOHEADER) + bih.biClrUsed * SIZE(RGBQUAD)) + bih.biSizeImage)
+      winapi::memcpy(ADDRESS(sBits), ADDRESS(hdr), SIZE(BITMAPFILEHEADER))
+      sBits[SIZE(BITMAPFILEHEADER)+1 : LEN(sBits)] = SUB(pbi, 1, SIZE(BITMAPINFOHEADER) + bih.biClrUsed * SIZE(RGBQUAD)) & lpBits
+    ELSE
+      printd('GetDIBits error %i', winapi::GetLastError())
+    END
+    
+    DISPOSE(lpBits)
+    DISPOSE(pbi)
+  ELSE
+    printd('CreateBitmapInfoStruct failed, bi.biSizeImage = 0')
+  END
+
+  RETURN sBits
+  
+TBitmap.SaveBitmap            PROCEDURE(HDC pDC, STRING pImage)
+dc                              TDC
+  CODE
+  dc.FromHDC(pDC)
+  RETURN SELF.SaveBitmap(dc, pImage)
+  
+TBitmap.SaveBitmap            PROCEDURE(*TDC pDC, STRING pFileName)
+bmpFile                         TDiskFile
+sBits                           &STRING, AUTO
+rc                              BOOL(FALSE)
+  CODE
+  sBits &= SELF.GetBits(pDC)
+  IF NOT sBits &= NULL
+    rc = bmpFile.SaveFile(pFileName, sBits)
+    DISPOSE(sBits)
+    RETURN rc
+  ELSE
+    RETURN FALSE
+  END
 !!!endregion
   
 !!!region TLogicalFont

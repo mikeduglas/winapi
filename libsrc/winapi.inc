@@ -1,5 +1,5 @@
 !Base Windows classes
-!13.07.2021 revision
+!24.07.2021 revision
 !mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -25,6 +25,28 @@ ptMinPosition                   LIKE(POINT)
 ptMaxPosition                   LIKE(POINT)
 rcNormalPosition                LIKE(_RECT_)
 rcDevice                        LIKE(_RECT_)
+                              END
+
+!Used in SetWorldTransform.
+!https://docs.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-xform
+tagXFORM                      GROUP, TYPE
+eM11                            SREAL
+eM12                            SREAL
+eM21                            SREAL
+eM22                            SREAL
+eDx                             SREAL
+eDy                             SREAL
+                              END
+
+!-- In Clarion 6 BITMAP declaration has a bug
+tagBITMAP                     GROUP, TYPE
+bmType                          LONG
+bmWidth                         LONG
+bmHeight                        LONG
+bmWidthBytes                    LONG
+bmPlanes                        USHORT
+bmBitsPixel                     USHORT
+bmBits                          LONG
                               END
 
 
@@ -283,6 +305,9 @@ StretchBlt                      PROCEDURE(_RECT_ rcDest, *TDC dcSrc, _RECT_ rcSr
 StretchBlt                      PROCEDURE(*TRect rcDest, *TDC dcSrc, *TRect rcSrc, LONG dwRop = SRCCOPY), BOOL, PROC
 BitBlt                          PROCEDURE(SIGNED pX, SIGNED pY, SIGNED pW, SIGNED pH, *TDC dcSrc, SIGNED srcX, SIGNED srcY, LONG dwRop = SRCCOPY), BOOL, PROC
 BitBlt                          PROCEDURE(*TRect rcDest, *TDC dcSrc, SIGNED srcX, SIGNED srcY, LONG dwRop = SRCCOPY), BOOL, PROC
+PatBlt                          PROCEDURE(SIGNED pX, SIGNED pY, SIGNED pW, SIGNED pH, LONG dwRop), BOOL, PROC
+PatBlt                          PROCEDURE(TRect rcSrc, LONG dwRop), BOOL, PROC
+
 GetDIBits                       PROCEDURE(TBitmap hbmp, UNSIGNED uStartScan, UNSIGNED cScanLines, LONG lpvBits, LONG lpbi, UNSIGNED uUsage), SIGNED
 
 StretchDIBits                   PROCEDURE(SIGNED pDestX, SIGNED pDestY, SIGNED pDestW, SIGNED pDestH, SIGNED pSrcX, SIGNED pSrcY, SIGNED pSrcW, SIGNED pSrcH, LONG lpBits, LONG lpbmi, UNSIGNED iUsage, ULONG rop), SIGNED, PROC
@@ -403,6 +428,27 @@ DrawImage                       PROCEDURE(STRING pImageFile, *TRect rc), BOOL, P
 DrawImage                       PROCEDURE(STRING pImageFile, UNSIGNED pW, UNSIGNED pH), BOOL, PROC
 
 GetDeviceCaps                   PROCEDURE(LONG pIndex), LONG
+
+!!!<summary>Sets the graphics mode for the specified device context.</summary>
+!!!<param name="pMode">The graphics mode. This parameter can be one of the following values: GM_COMPATIBLE, GM_ADVANCED.</param>
+!!!<returns>If the function succeeds, the return value is the old graphics mode. If the function fails, the return value is zero.</returns>
+SetGraphicsMode                 PROCEDURE(LONG pMode), LONG, PROC
+!!!<summary>Sets the mapping mode of the specified device context. The mapping mode defines the unit of measure used to transform page-space units into device-space units, and also defines the orientation of the device's x and y axes.</summary>
+!!!<param name="pMode">The new mapping mode. This parameter can be one of the following values: MM_ANISOTROPIC, MM_HIENGLISH, MM_HIMETRIC, MM_ISOTROPIC, MM_LOENGLISH, MM_LOMETRIC, MM_TEXT, MM_TWIPS.</param>
+!!!<returns>If the function succeeds, the return value identifies the previous mapping mode. If the function fails, the return value is zero.</returns>
+SetMapMode                      PROCEDURE(LONG pMode), LONG, PROC
+!!!<summary>Sets a two-dimensional linear transformation between world space and page space for the specified device context. This transformation can be used to scale, rotate, shear, or translate graphics output.</summary>
+!!!<param name="pxf">The transformation data.</param>
+!!!<returns>If the function succeeds, the return value is nonzero. If the function fails, the return value is zero.</returns>
+SetWorldTransform               PROCEDURE(tagXFORM pxf), BOOL, PROC
+!!!<summary>Converts device coordinates into logical coordinates. The conversion depends on the mapping mode of the device context, the settings of the origins and extents for the window and viewport, and the world transformation.</summary>
+!!!<param name="prc">A pointer to an array of POINT structures. The x- and y-coordinates contained in each POINT structure will be transformed.</param>
+!!!<returns>If the function succeeds, the return value is nonzero. If the function fails, the return value is zero.</returns>
+DPtoLP                          PROCEDURE(*_RECT_ prc), BOOL, PROC
+!!!<summary>Converts device coordinates into logical coordinates. The conversion depends on the mapping mode of the device context, the settings of the origins and extents for the window and viewport, and the world transformation.</summary>
+!!!<param name="prc">A pointer to an array of POINT structures. The x- and y-coordinates contained in each POINT structure will be transformed.</param>
+!!!<returns>If the function succeeds, the return value is nonzero. If the function fails, the return value is zero.</returns>
+DPtoLP                          PROCEDURE(*TRect prc), BOOL, PROC
                               END
 
 !- GDI object
@@ -418,7 +464,10 @@ SetHandle                       PROCEDURE(HGDIOBJ handle)
 SelectObject                    PROCEDURE(HDC pDC, <*TGdiObj replacedObject>), HGDIOBJ, PROC
 SelectObject                    PROCEDURE(*TDC pDC, <*TGdiObj replacedObject>), HGDIOBJ, PROC
 DeleteObject                    PROCEDURE()
-GetObject                       PROCEDURE(LONG cbBuffer, LONG lpvObject), LONG
+DeleteObject                    PROCEDURE(HGDIOBJ pObj)
+GetObject                       PROCEDURE(LONG cbBuffer, LONG lpvObject), LONG, PROC
+GetStockObject                  PROCEDURE(LONG fnObject), HGDIOBJ, PROC
+
                               END
 
 !- Pen
@@ -439,8 +488,15 @@ CreateCompatibleBitmap          PROCEDURE(*TDC pDC, SIGNED cx, SIGNED cy), HBITM
 CreateBitmapInfoStruct          PROCEDURE(), *STRING !returns a reference to BITMAPINFO
 CreateDIBSection                PROCEDURE(HDC pDC, *BITMAPINFO bmi, UNSIGNED usage, <*LONG ppvBits>, <HANDLE hSection>, <UNSIGNED offset>), HBITMAP, PROC
 
+!- LoadImage(pFile) works only if pFile is a bmp.
 LoadImage                       PROCEDURE(HINSTANCE hInst, STRING pImage, UNSIGNED uType=IMAGE_BITMAP, SIGNED cxDesired=0, SIGNED cyDesired=0, UNSIGNED fuLoad=LR_LOADFROMFILE), HBITMAP, PROC
 LoadImage                       PROCEDURE(STRING pImage, UNSIGNED uType=IMAGE_BITMAP, SIGNED cxDesired=0, SIGNED cyDesired=0, UNSIGNED fuLoad=LR_LOADFROMFILE), HBITMAP, PROC
+
+GetBits                         PROCEDURE(HDC pDC), *STRING
+GetBits                         PROCEDURE(*TDC pDC), *STRING
+
+SaveBitmap                      PROCEDURE(HDC pDC, STRING pFileName), BOOL, PROC
+SaveBitmap                      PROCEDURE(*TDC pDC, STRING pFileName), BOOL, PROC
                               END
 
 !- Font

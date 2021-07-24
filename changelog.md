@@ -1,3 +1,8 @@
+24.07.2021
+- TGdiObj: GetStockObject method added.
+- TDC: SetGraphicsMode, SetMapMode, SetWorldTransform, DPtoLP, PatBlt methods added.
+- TBitmap: GetBits, SaveBitmap methods added.
+
 13.07.2021
 - TProcessEnvironment class, GetEnvironmentVariable and SetEnvironmentVariable methods.
 
