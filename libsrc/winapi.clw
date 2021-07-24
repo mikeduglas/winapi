@@ -739,12 +739,6 @@ w                               LONG, AUTO
 h                               LONG, AUTO
 hBitmap                         TBitmap
 hOldBitmap                      TBitmap
-pbi                             &STRING
-bih                             &BITMAPINFOHEADER
-lpBits                          &STRING !memory pointer
-bmpFile                         TIODevice
-hdr                             GROUP(BITMAPFILEHEADER). ! bitmap file-header
-dwTmp                           LONG, AUTO
 sBits                           &STRING
   CODE
   ! get the device context of the window
@@ -778,38 +772,7 @@ sBits                           &STRING
   hdcMemory.DeleteDC()
 
   ! now your image is held in hBitmap. You can save it or do whatever with it
-  pbi &= hBitmap.CreateBitmapInfoStruct()
-
-  IF NOT pbi &= NULL
-    bih &= ADDRESS(pbi)
-
-    lpBits &= NEW STRING(bih.biSizeImage)
-  
-    ! Retrieve the color table (RGBQUAD array) and the bits  
-    ! (array of palette indices) from the DIB.  
-    IF hdcWindow.GetDIBits(hBitmap, 0, bih.biHeight, ADDRESS(lpBits), ADDRESS(pbi), DIB_RGB_COLORS)
-      hdr.bfType = 04d42h        ! 0x42 = "B" 0x4d = "M"  
-        
-      ! Compute the size of the entire file.  
-      hdr.bfSize = SIZE(BITMAPFILEHEADER) + bih.biSize + bih.biClrUsed * SIZE(RGBQUAD) + bih.biSizeImage
-      hdr.bfReserved1 = 0 
-      hdr.bfReserved2 = 0 
-    
-      ! Compute the offset to the array of color indices.  
-      hdr.bfOffBits = SIZE(BITMAPFILEHEADER) + bih.biSize + bih.biClrUsed * SIZE(RGBQUAD)
-    
-      sBits &= NEW STRING(SIZE(BITMAPFILEHEADER) + (SIZE(BITMAPINFOHEADER) + bih.biClrUsed * SIZE(RGBQUAD)) + bih.biSizeImage)
-      winapi::memcpy(ADDRESS(sBits), ADDRESS(hdr), SIZE(BITMAPFILEHEADER))
-      sBits[SIZE(BITMAPFILEHEADER)+1 : LEN(sBits)] = SUB(pbi, 1, SIZE(BITMAPINFOHEADER) + bih.biClrUsed * SIZE(RGBQUAD)) & lpBits
-    ELSE
-      printd('GetDIBits error %i', winapi::GetLastError())
-    END
-    
-    DISPOSE(lpBits)
-    DISPOSE(pbi)
-  ELSE
-    printd('CreateBitmapInfoStruct failed, bi.biSizeImage = 0')
-  END
+  sBits &= hBitmap.GetBits(hdcWindow)
       
   hdcWindow.ReleaseDC()
 
