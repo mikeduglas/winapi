@@ -19,8 +19,8 @@ A set of helper classes:
 - TMCIDevice (MCI devices)
 - TMpegVideo (MP3)
 - TSystemMetrics (GetSystemMetrics api)
-- TStringEncoding (MultiByteToWideChar, WideCharToMultiByte api)
-- TProcessEnvironment
+- TStringEncoding (MultiByteToWideChar, WideCharToMultiByte apis)
+- TProcessEnvironment (GetEnvironmentVariable, SetEnvironmentVariable apis)
 
 See [change log](https://github.com/mikeduglas/winapi/blob/master/changelog.md).
 
