@@ -40,3 +40,4 @@ See [change log](https://github.com/mikeduglas/winapi/blob/master/changelog.md).
 - [Updown control](https://github.com/mikeduglas/Updown-Control)
 - [Live thumbnails](https://github.com/mikeduglas/Live-thumbnails)
 - [Empty List Message](https://github.com/mikeduglas/Empty-List-message)
+- [IMAGE transformations](https://github.com/mikeduglas/Image-Transformations)
