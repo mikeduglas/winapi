@@ -1,5 +1,5 @@
 !Base Windows classes
-!24.07.2021 revision
+!02.08.2021 revision
 !mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -104,6 +104,7 @@
       winapi::SetGraphicsMode(HDC pDC, LONG pMode), LONG, PROC, PASCAL, NAME('SetGraphicsMode')
       winapi::SetMapMode(HDC pDC, LONG pMode), LONG, PROC, PASCAL, NAME('SetMapMode')
       winapi::SetWorldTransform(HDC pDC, LONG lpxf), BOOL, PROC, PASCAL, NAME('SetWorldTransform')
+      winapi::ModifyWorldTransform(HDC pDC, LONG lpxf, UNSIGNED pMode), BOOL, PROC, PASCAL, NAME('ModifyWorldTransform')
       winapi::DPtoLP(HDC pDC, LONG lppt, LONG pNumPoints), BOOL, PROC, PASCAL, NAME('DPtoLP')
       winapi::MulDiv(LONG,LONG,LONG), LONG, PASCAL, NAME('MulDiv')
       winapi::ExcludeClipRect(HDC hdc, LONG left, LONG top, LONG right, LONG bottom), LONG, PROC, PASCAL, NAME('ExcludeClipRect')
@@ -1584,7 +1585,15 @@ TDC.SetMapMode                PROCEDURE(LONG pMode)
 TDC.SetWorldTransform         PROCEDURE(tagXFORM pxf)
   CODE
   RETURN winapi::SetWorldTransform(SELF.handle, ADDRESS(pxf))
-  
+    
+TDC.ModifyWorldTransform      PROCEDURE(*tagXFORM pxf, UNSIGNED pMode)
+  CODE
+  RETURN winapi::ModifyWorldTransform(SELF.handle, ADDRESS(pxf), pMode)
+    
+TDC.ModifyWorldTransform      PROCEDURE(LONG pxf, UNSIGNED pMode)
+  CODE
+  RETURN winapi::ModifyWorldTransform(SELF.handle, pxf, pMode)
+
 TDC.DPtoLP                    PROCEDURE(*_RECT_ prc)
   CODE
   RETURN winapi::DPtoLP(SELF.handle, ADDRESS(prc), 2)

@@ -1,3 +1,6 @@
+02.08.2021
+- TDC: ModifyWorldTransform added.
+
 24.07.2021
 - TGdiObj: GetStockObject method added.
 - TDC: SetGraphicsMode, SetMapMode, SetWorldTransform, DPtoLP, PatBlt methods added.

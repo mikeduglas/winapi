@@ -32,12 +32,12 @@ See [change log](https://github.com/mikeduglas/winapi/blob/master/changelog.md).
 - [Embedded Screensaver](https://github.com/mikeduglas/Embedded-Screensaver)
 - [Resizable controls](https://github.com/mikeduglas/Resizable_Controls)
 - [Rating control](https://github.com/mikeduglas/RatingControl)
-- Sticker control
 - [Unicode aware controls](https://github.com/mikeduglas/Unicode-aware-controls)
 - [Timer control](https://github.com/mikeduglas/Timer-Control)
 - [Cue Banner](https://github.com/mikeduglas/Cue-Banner)
 - [XEdit - edit controls extender](https://github.com/mikeduglas/XEdit)
 - [Updown control](https://github.com/mikeduglas/Updown-Control)
 - [Live thumbnails](https://github.com/mikeduglas/Live-thumbnails)
+- [Wheel Constraint](https://github.com/mikeduglas/Wheel-Constraint)
 - [Empty List Message](https://github.com/mikeduglas/Empty-List-message)
 - [IMAGE transformations](https://github.com/mikeduglas/Image-Transformations)

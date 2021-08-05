@@ -1,5 +1,5 @@
 !Base Windows classes
-!24.07.2021 revision
+!02.08.2021 revision
 !mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -27,7 +27,7 @@ rcNormalPosition                LIKE(_RECT_)
 rcDevice                        LIKE(_RECT_)
                               END
 
-!Used in SetWorldTransform.
+!Used in SetWorldTransform, ModifyWorldTransform.
 !https://docs.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-xform
 tagXFORM                      GROUP, TYPE
 eM11                            SREAL
@@ -441,6 +441,12 @@ SetMapMode                      PROCEDURE(LONG pMode), LONG, PROC
 !!!<param name="pxf">The transformation data.</param>
 !!!<returns>If the function succeeds, the return value is nonzero. If the function fails, the return value is zero.</returns>
 SetWorldTransform               PROCEDURE(tagXFORM pxf), BOOL, PROC
+!!!<summary>Changes the world transformation for a device context using the specified mode.</summary>
+!!!<param name="pxf">XFORM structure used to modify the world transformation for the given device context.</param>
+!!!<param name="pMode">Specifies how the transformation data modifies the current world transformation.</param>
+!!!<returns>If the function succeeds, the return value is nonzero. If the function fails, the return value is zero.</returns>
+ModifyWorldTransform            PROCEDURE(*tagXFORM pxf, UNSIGNED pMode), BOOL, PROC
+ModifyWorldTransform            PROCEDURE(LONG pxf, UNSIGNED pMode), BOOL, PROC
 !!!<summary>Converts device coordinates into logical coordinates. The conversion depends on the mapping mode of the device context, the settings of the origins and extents for the window and viewport, and the world transformation.</summary>
 !!!<param name="prc">A pointer to an array of POINT structures. The x- and y-coordinates contained in each POINT structure will be transformed.</param>
 !!!<returns>If the function succeeds, the return value is nonzero. If the function fails, the return value is zero.</returns>
