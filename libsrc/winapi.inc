@@ -1,5 +1,5 @@
 !Base Windows classes
-!02.08.2021 revision
+!08.08.2021 revision
 !mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -270,6 +270,8 @@ PtInRect                        PROCEDURE(*TPoint pt), BOOL
 Intersect                       PROCEDURE(_RECT_ rc), BOOL
 Intersect                       PROCEDURE(*TRect rc), BOOL
 
+OffsetRect                      PROCEDURE(LONG pDx, LONG pDy), BOOL, PROC
+
 ToString                        PROCEDURE(), STRING
                               END
 
@@ -289,6 +291,9 @@ GetDCEx                         PROCEDURE(HWND hwnd, HRGN hrgn, ULONG flags), HD
 GetDCEx                         PROCEDURE(TWnd wnd, HRGN hrgn, ULONG flags), HDC, PROC
 GetDCEx                         PROCEDURE(HWND hwnd, ULONG flags), HDC, PROC
 GetDCEx                         PROCEDURE(TWnd wnd, ULONG flags), HDC, PROC
+GetWindowDC                     PROCEDURE(HWND hwnd), HDC, PROC
+GetWindowDC                     PROCEDURE(TWnd wnd), HDC, PROC
+
 CreateCompatibleDC              PROCEDURE(*TDC pDC), HDC, PROC
 CreateCompatibleDC              PROCEDURE(HDC hdc), HDC, PROC
 FillRect                        PROCEDURE(*_RECT_ r, TBrush br), BOOL, PROC
@@ -372,6 +377,28 @@ Rectangle                       PROCEDURE(*_RECT_ rc), BOOL, PROC
 !!!<summary>Draws a rectangle. The rectangle is outlined by using the current pen and filled by using the current brush.
 !!!</summary>
 Rectangle                       PROCEDURE(*TRect rc), BOOL, PROC
+!!!<summary>Draws a rectangle with rounded corners. The rectangle is outlined by using the current pen and filled by using the current brush.</summary>
+!!!<param name="rc">Rectangle, in logical coordinates.</param>
+!!!<param name="pLeft">The x-coordinate, in logical coordinates, of the upper-left corner of the rectangle.</param>
+!!!<param name="pTop">The y-coordinate, in logical coordinates, of the upper-left corner of the rectangle.</param>
+!!!<param name="pRight">The x-coordinate, in logical coordinates, of the lower-right corner of the rectangle.</param>
+!!!<param name="pBottom">The y-coordinate, in logical coordinates, of the lower-right corner of the rectangle.</param>
+!!!<param name="pWidth">The width, in logical coordinates, of the ellipse used to draw the rounded corners.</param>
+!!!<param name="pHeight">The height, in logical coordinates, of the ellipse used to draw the rounded corners.</param>
+!!!<returns>If the function succeeds, the return value is nonzero. If the function fails, the return value is zero.</returns>
+RoundRect                       PROCEDURE(LONG pLeft, LONG pTop, LONG pRight, LONG pBottom, SIGNED pWidth, SIGNED pHeight), BOOL, PROC
+!!!<summary>Draws a rectangle with rounded corners. The rectangle is outlined by using the current pen and filled by using the current brush.</summary>
+!!!<param name="rc">Rectangle, in logical coordinates.</param>
+!!!<param name="pWidth">The width, in logical coordinates, of the ellipse used to draw the rounded corners.</param>
+!!!<param name="pHeight">The height, in logical coordinates, of the ellipse used to draw the rounded corners.</param>
+!!!<returns>If the function succeeds, the return value is nonzero. If the function fails, the return value is zero.</returns>
+RoundRect                       PROCEDURE(*_RECT_ rc, SIGNED pWidth, SIGNED pHeight), BOOL, PROC
+!!!<summary>Draws a rectangle with rounded corners. The rectangle is outlined by using the current pen and filled by using the current brush.</summary>
+!!!<param name="rc">Rectangle, in logical coordinates.</param>
+!!!<param name="pWidth">The width, in logical coordinates, of the ellipse used to draw the rounded corners.</param>
+!!!<param name="pHeight">The height, in logical coordinates, of the ellipse used to draw the rounded corners.</param>
+!!!<returns>If the function succeeds, the return value is nonzero. If the function fails, the return value is zero.</returns>
+RoundRect                       PROCEDURE(*TRect rc, SIGNED pWidth, SIGNED pHeight), BOOL, PROC
 !!!<summary>Draws a polygon consisting of two or more vertices connected by straight lines.
 !!!The polygon is outlined by using the current pen and filled by using the current brush and polygon fill mode.
 !!!</summary>

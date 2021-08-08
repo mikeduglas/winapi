@@ -1,5 +1,5 @@
 !Base Windows classes
-!02.08.2021 revision
+!08.08.2021 revision
 !mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -53,6 +53,7 @@
       winapi::ClientToScreen(HWND hWnd, *POINT ppt), BOOL, RAW, PASCAL, PROC, NAME('ClientToScreen')
       winapi::GetDC(HWND hwnd), HDC, PASCAL, NAME('GetDC')
       winapi::GetDCEx(HWND hwnd, HRGN hrgnClip, ULONG flags), HDC, PASCAL, NAME('GetDCEx')
+      winapi::GetWindowDC(HWND hwnd), HDC, PASCAL, NAME('GetWindowDC')
       winapi::ReleaseDC(HWND hwnd, HDC hdc), BOOL, PASCAL, PROC, NAME('ReleaseDC')
       winapi::DeleteDC(HDC hdc), BOOL, PASCAL, PROC, NAME('DeleteDC')
       winapi::WindowFromDC(HDC hdc),HWND,PASCAL,NAME('WindowFromDC')
@@ -127,10 +128,11 @@
       winapi::GetTempPath(UNSIGNED nBufferLength, *CSTRING lpBuffer), UNSIGNED, PASCAL, RAW, PROC, NAME('GetTempPathA')
       winapi::GetTempFileName(*CSTRING lpPathName, *CSTRING lpPrefixString, UNSIGNED uUnique, *CSTRING lpTempFileName), UNSIGNED, PASCAL, RAW, PROC, NAME('GetTempFileNameA')
 
-      winapi::PtInRect(*_RECT_ rc, POINT pt),BOOL,RAW,PASCAL,NAME('PtInRect')
+      winapi::PtInRect(*_RECT_ rc,POINT pt),BOOL,RAW,PASCAL,NAME('PtInRect')
+      winapi::OffsetRect(*_RECT_ rc,LONG dx,LONG dy),BOOL,RAW,PASCAL,NAME('OffsetRect')
 
-      winapi::SetTimer(HWND hWnd, UNSIGNED nIDEvent, UNSIGNED uElapse, long lpTimerFunc),UNSIGNED,PASCAL,PROC,NAME('SetTimer')
-      winapi::KillTimer(HWND hWnd, UNSIGNED uIDEvent),BOOL,PASCAL,PROC,NAME('KillTimer')
+      winapi::SetTimer(HWND hWnd,UNSIGNED nIDEvent,UNSIGNED uElapse,LONG lpTimerFunc),UNSIGNED,PASCAL,PROC,NAME('SetTimer')
+      winapi::KillTimer(HWND hWnd,UNSIGNED uIDEvent),BOOL,PASCAL,PROC,NAME('KillTimer')
 
       winapi::BeginPaint(HWND hWnd, *PAINTSTRUCT lpPaint),HDC,RAW,PASCAL,PROC,NAME('BeginPaint')
       winapi::EndPaint(HWND hWnd, *PAINTSTRUCT lpPaint),BOOL,RAW,PROC,PASCAL,NAME('EndPaint')
@@ -138,6 +140,7 @@
       winapi::Arc(HDC hdc,LONG x1,LONG y1,LONG x2,LONG y2,LONG x3,LONG y3,LONG x4,LONG y4),BOOL,PROC,PASCAL,NAME('Arc')
       winapi::Ellipse(HDC hdc,LONG pLeft,LONG pTop,LONG pRight,LONG pBottom),BOOL,PROC,PASCAL,NAME('Ellipse')
       winapi::Rectangle(HDC hdc,LONG pLeft,LONG pTop,LONG pRight,LONG pBottom),BOOL,PROC,PASCAL,NAME('Rectangle')
+      winapi::RoundRect(HDC hdc,SIGNED left,SIGNED top,SIGNED right,SIGNED bottom,SIGNED width,SIGNED height),BOOL,PROC,RAW,PASCAL,NAME('RoundRect')
       winapi::Polygon(HDC HDC, LONG apt, LONG cpt),BOOL,PASCAL,PROC,NAME('Polygon')
       winapi::Pie(HDC hdc,LONG left,LONG top,LONG right,LONG bottom,LONG xr1,LONG yr1,LONG xr2,LONG yr2),BOOL,PASCAL,PROC,NAME('Pie')
 
@@ -1179,6 +1182,17 @@ r2                              LIKE(_RECT_)
   rc.AssignTo(r2)
   RETURN SELF.Intersect(r2)
 
+TRect.OffsetRect              PROCEDURE(LONG pDx, LONG pDy)
+rc                              LIKE(_RECT_)
+  CODE
+  SELF.AssignTo(rc)
+  IF winapi::OffsetRect(rc, pDx, pDy)
+    SELF.Assign(rc)
+    RETURN TRUE
+  ELSE
+    RETURN FALSE
+  END
+  
 TRect.ToString                PROCEDURE()
   CODE
   RETURN printf('(%i,%i,%i,%i)', SELF.left, SELF.top, SELF.right, SELF.bottom)
@@ -1234,6 +1248,16 @@ TDC.GetDCEx                   PROCEDURE(TWnd wnd, ULONG flags)
   CODE
   RETURN SELF.GetDCEx(wnd.GetHandle(), flags)
   
+TDC.GetWindowDC               PROCEDURE(HWND hwnd)
+  CODE
+  SELF.hwnd = hwnd
+  SELF.handle =  winapi::GetWindowDC(hwnd)
+  RETURN SELF.handle
+
+TDC.GetWindowDC               PROCEDURE(TWnd wnd)
+  CODE
+  RETURN SELF.GetWindowDC(SELF.hwnd)
+
 TDC.CreateCompatibleDC        PROCEDURE(*TDC pDC)
   CODE
   RETURN SELF.CreateCompatibleDC(pDC.handle)
@@ -1452,6 +1476,18 @@ TDC.Rectangle                 PROCEDURE(*_RECT_ rc)
 TDC.Rectangle                 PROCEDURE(*TRect rc)
   CODE
   RETURN SELF.Rectangle(rc.left, rc.top, rc.right, rc.bottom)
+
+TDC.RoundRect                 PROCEDURE(LONG pLeft, LONG pTop, LONG pRight, LONG pBottom, SIGNED pWidth, SIGNED pHeight)
+  CODE
+  RETURN winapi::RoundRect(SELF.handle, pLeft, pTop, pRight, pBottom, pWidth, pHeight)
+  
+TDC.RoundRect                 PROCEDURE(*_RECT_ rc, SIGNED pWidth, SIGNED pHeight)
+  CODE
+  RETURN SELF.RoundRect(rc.left, rc.top, rc.right, rc.bottom, pWidth, pHeight)
+    
+TDC.RoundRect                 PROCEDURE(*TRect rc, SIGNED pWidth, SIGNED pHeight)
+  CODE
+  RETURN SELF.RoundRect(rc.left, rc.top, rc.right, rc.bottom, pWidth, pHeight)
 
 TDC.Polygon                   PROCEDURE(LONG apt, LONG cpt)
   CODE

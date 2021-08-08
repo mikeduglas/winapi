@@ -1,3 +1,7 @@
+08.08.2021
+- TRect: OffsetRect added.
+- TDC: GetWindowDC, RoundRect added.
+
 02.08.2021
 - TDC: ModifyWorldTransform added.
 
