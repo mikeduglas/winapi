@@ -41,3 +41,4 @@ See [change log](https://github.com/mikeduglas/winapi/blob/master/changelog.md).
 - [Wheel Constraint](https://github.com/mikeduglas/Wheel-Constraint)
 - [Empty List Message](https://github.com/mikeduglas/Empty-List-message)
 - [IMAGE transformations](https://github.com/mikeduglas/Image-Transformations)
+- [Custom Control Frame](https://github.com/mikeduglas/Custom-Control-Frame)
