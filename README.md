@@ -42,3 +42,4 @@ See [change log](https://github.com/mikeduglas/winapi/blob/master/changelog.md).
 - [Empty List Message](https://github.com/mikeduglas/Empty-List-message)
 - [IMAGE transformations](https://github.com/mikeduglas/Image-Transformations)
 - [Custom Control Frame](https://github.com/mikeduglas/Custom-Control-Frame)
+- [Composite label](https://github.com/mikeduglas/CompositeLabel)

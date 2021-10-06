@@ -1,5 +1,5 @@
 !Base Windows classes
-!08.08.2021 revision
+!26.09.2021 revision
 !mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -86,6 +86,7 @@
       winapi::EnableWindow(HWND hWnd,BOOL bEnable),BOOL,PASCAL,PROC,NAME('EnableWindow')
       winapi::IsWindowVisible(HWND hWnd),BOOL,PASCAL,PROC,NAME('IsWindowVisible')
       winapi::RedrawWindow(HWND hWnd, *_RECT_ lprcUpdate, HRGN hrgnUpdate, UNSIGNED flags), BOOL, RAW, PASCAL, PROC, NAME('RedrawWindow')
+      winapi::RedrawWindow(HWND hWnd, LONG lprcUpdate, HRGN hrgnUpdate, UNSIGNED flags), BOOL, RAW, PASCAL, PROC, NAME('RedrawWindow')
       winapi::DrawText(HDC hdc, LONG lpchText, LONG cchText, *_RECT_ lprc, LONG format), LONG, PROC, RAW, PASCAL, NAME('DrawTextA')
       winapi::DrawTextW(HDC hdc, LONG lpchText, LONG cchText, *_RECT_ lprc, LONG format), LONG, PROC, RAW, PASCAL, NAME('DrawTextW')
       winapi::TextOut(HDC hdc, LONG x, LONG y, LONG pText, LONG len), BOOL, PROC, PASCAL, NAME('TextOutA')
@@ -184,6 +185,10 @@
 
       winapi::GetEnvironmentVariable(*CSTRING lpName,*CSTRING lpBuffer,ULONG nSize),ULONG,RAW,PASCAL,PROC,NAME('GetEnvironmentVariableA')
       winapi::SetEnvironmentVariable(*CSTRING lpName,*CSTRING lpValue),BOOL,RAW,PASCAL,PROC,NAME('SetEnvironmentVariableA')
+
+      COMPILE('_C100_', _C100_)
+      winapi::PrintWindow(HWND hWnd,HDC hdcBlt,ULONG nFlags), BOOL, PASCAL, PROC, NAME('PrintWindow')
+      !'_C100_'
     END
   END
 
@@ -702,16 +707,20 @@ TWnd.IsWindowVisible          PROCEDURE()
   CODE
   RETURN winapi::IsWindowVisible(SELF.hwnd)
 
-TWnd.RedrawWindow             PROCEDURE(_RECT_ rc, HRGN hrgnUpdate, UNSIGNED pFlags)
+TWnd.RedrawWindow             PROCEDURE(*_RECT_ rc, HRGN hrgnUpdate, UNSIGNED pFlags)
   CODE
   RETURN winapi::RedrawWindow(SELF.hwnd, rc, hrgnUpdate, pFlags)
 
-TWnd.RedrawWindow             PROCEDURE(TRect rc, HRGN hrgnUpdate, UNSIGNED pFlags)
-oRect                           LIKE(_RECT_), AUTO
+TWnd.RedrawWindow             PROCEDURE(*TRect rc, HRGN hrgnUpdate, UNSIGNED pFlags)
+r                               LIKE(_RECT_), AUTO
   CODE
-  oRect :=: rc
-  RETURN SELF.RedrawWindow(oRect, hrgnUpdate, pFlags)
+  rc.AssignTo(r)
+  RETURN SELF.RedrawWindow(r, hrgnUpdate, pFlags)
 
+TWnd.RedrawWindow             PROCEDURE(UNSIGNED pFlags)
+  CODE
+  RETURN winapi::RedrawWindow(SELF.hwnd, 0, 0, pFlags)
+  
 TWnd.Redraw                   PROCEDURE(_RECT_ rc)
   CODE
   RETURN SELF.RedrawWindow(rc, 0, RDW_INVALIDATE + RDW_UPDATENOW + RDW_ALLCHILDREN)
@@ -812,6 +821,17 @@ sBits                           &STRING
   ELSE
     RETURN FALSE
   END
+  
+TWnd.PrintWindow              PROCEDURE(HDC hdcBlt, ULONG nFlags)
+  CODE
+  COMPILE('_C100_', _C100_)
+  RETURN winapi::PrintWindow(SELF.hwnd, hdcBlt, nFlags)
+  !'_C100_'
+  RETURN FALSE
+  
+TWnd.PrintWindow              PROCEDURE(TDC hdcBlt, ULONG nFlags)
+  CODE
+  RETURN SELF.PrintWindow(hdcBlt.GetHandle(), nFlags)
   
 TWnd.GetScrollInfo            PROCEDURE(SIGNED fnBar, *SCROLLINFO lpsi)
 rc                              BOOL, AUTO

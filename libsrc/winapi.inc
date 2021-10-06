@@ -1,5 +1,5 @@
 !Base Windows classes
-!08.08.2021 revision
+!26.09.2021 revision
 !mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -150,8 +150,9 @@ EnableWindow                    PROCEDURE(BOOL pEnable), BOOL, PROC
 
 IsWindowVisible                 PROCEDURE(), BOOL
 
-RedrawWindow                    PROCEDURE(_RECT_ rc, HRGN hrgnUpdate, UNSIGNED pFlags), BOOL, PROC
-RedrawWindow                    PROCEDURE(TRect rc, HRGN hrgnUpdate, UNSIGNED pFlags), BOOL, PROC
+RedrawWindow                    PROCEDURE(*_RECT_ rc, HRGN hrgnUpdate, UNSIGNED pFlags), BOOL, PROC
+RedrawWindow                    PROCEDURE(*TRect rc, HRGN hrgnUpdate, UNSIGNED pFlags), BOOL, PROC
+RedrawWindow                    PROCEDURE(UNSIGNED pFlags), BOOL, PROC  !- both rc and hrgn are NULL
 
 Redraw                          PROCEDURE(_RECT_ rc), BOOL, PROC
 Redraw                          PROCEDURE(TRect rc), BOOL, PROC
@@ -165,6 +166,9 @@ GetDlgCtrlID                    PROCEDURE(), LONG
 GetBitmap                       PROCEDURE(<_RECT_ pRect>, LONG dwRop=SRCCOPY), *STRING  !- For IMAGEs only!
 SaveBitmap                      PROCEDURE(STRING pFIleName, <_RECT_ pRect>), BOOL, PROC !- For IMAGEs only!
 CopyBitmap                      PROCEDURE(SIGNED pImageFeq, <_RECT_ pRect>), BOOL, PROC !- For IMAGEs only!
+
+PrintWindow                     PROCEDURE(HDC hdcBlt, ULONG nFlags), BOOL, PROC
+PrintWindow                     PROCEDURE(TDC hdcBlt, ULONG nFlags), BOOL, PROC
 
 GetScrollInfo                   PROCEDURE(SIGNED fnBar, *SCROLLINFO lpsi), BOOL, PROC
 GetScrollRange                  PROCEDURE(*SIGNED pHMin, *SIGNED pHMax, *SIGNED pVMin, *SIGNED pVMax)

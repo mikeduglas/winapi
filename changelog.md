@@ -1,3 +1,6 @@
+06.10.2021
+- TWnd: PrintWindow method added.
+
 08.08.2021
 - TRect: OffsetRect added.
 - TDC: GetWindowDC, RoundRect added.
