@@ -1,5 +1,5 @@
 !Base Windows classes
-!26.09.2021 revision
+!27.11.2021 revision
 !mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -124,7 +124,9 @@
       winapi::WriteFile(HANDLE hFile, LONG lpBuffer, LONG dwBytes, *LONG dwBytesWritten, LONG lpOverlapped),BOOL,RAW,PASCAL,PROC,NAME('WriteFile')
       winapi::CloseHandle(HANDLE hFile),BOOL,PASCAL,PROC,NAME('CloseHandle')
       winapi::GetFileSize(HANDLE hFile, LONG pFileSizeHigh),LONG,RAW,PASCAL,NAME('GetFileSize')
+      winapi::GetFileSizeEx(HANDLE hFile, *_ULARGE_INTEGER pFileSize),BOOL,RAW,PASCAL,NAME('GetFileSizeEx')
       winapi::SetFilePointer(HANDLE hFile, LONG lDistanceToMove, LONG lpDistanceToMoveHigh, ULONG dwMoveMethod),ULONG,RAW,PASCAL,NAME('SetFilePointer')
+      winapi::SetFilePointerEx(HANDLE hFile, _ULARGE_INTEGER lDistanceToMove, *_ULARGE_INTEGER lpNewFilePointer, ULONG dwMoveMethod),BOOL,RAW,PASCAL,NAME('SetFilePointerEx')
 
       winapi::GetTempPath(UNSIGNED nBufferLength, *CSTRING lpBuffer), UNSIGNED, PASCAL, RAW, PROC, NAME('GetTempPathA')
       winapi::GetTempFileName(*CSTRING lpPathName, *CSTRING lpPrefixString, UNSIGNED uUnique, *CSTRING lpTempFileName), UNSIGNED, PASCAL, RAW, PROC, NAME('GetTempFileNameA')
@@ -2079,6 +2081,14 @@ lpFileSizeHi                    LONG, AUTO
     RETURN 0
   END
   
+TIODevice.GetFileSizeEx       PROCEDURE(*_ULARGE_INTEGER pFileSize)
+  CODE
+  IF SELF.handle
+    RETURN winapi::GetFileSizeEx(SELF.handle, pFileSize)
+  ELSE
+    RETURN FALSE
+  END
+  
 TIODevice.SetFilePointer      PROCEDURE(LONG plDistanceToMove, ULONG pdwMoveMethod)
   CODE
   IF SELF.handle
@@ -2086,6 +2096,10 @@ TIODevice.SetFilePointer      PROCEDURE(LONG plDistanceToMove, ULONG pdwMoveMeth
   ELSE
     RETURN winapi::INVALID_SET_FILE_POINTER
   END
+  
+TIODevice.SetFilePointerEx    PROCEDURE(_ULARGE_INTEGER pDistanceToMove, *_ULARGE_INTEGER pNewFilePointer, ULONG pMoveMethod)
+  CODE
+  RETURN winapi::SetFilePointerEx(SELF.handle, pDistanceToMove, pNewFilePointer, pMoveMethod)
 !!!endregion
   
 !!!region TDiskFile

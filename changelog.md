@@ -1,3 +1,6 @@
+01.11.2021
+- TIODevice: GetFileSizeEx, SetFilePointerEx methods added.
+
 06.10.2021
 - TWnd: PrintWindow method added.
 

@@ -1,5 +1,5 @@
 !Base Windows classes
-!26.09.2021 revision
+!27.11.2021 revision
 !mikeduglas (c) 2019-2021
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -600,15 +600,17 @@ WriteLong                       PROCEDURE(LONG pVal), BOOL, PROC
 WriteReal                       PROCEDURE(REAL pVal), BOOL, PROC
 CloseHandle                     PROCEDURE(), BOOL, PROC
 GetFileSize                     PROCEDURE(<*LONG pFileSizeHigh>), LONG
+GetFileSizeEx                   PROCEDURE(*_ULARGE_INTEGER pFileSize), BOOL, PROC
 !!!<summary>Moves the file pointer of the specified file.</summary>
-!!!<param name="plDistanceToMove">A number of bytes to move the file pointer.</param>
-!!!<param name="pdwMoveMethod">The starting point for the file pointer move. 
+!!!<param name="pDistanceToMove">A number of bytes to move the file pointer.</param>
+!!!<param name="pMoveMethod">The starting point for the file pointer move. 
 !!!This parameter can be one of the following values:
 !!!FILE_BEGIN (0) - The starting point is zero or the beginning of the file.
 !!!FILE_CURRENT (1) - The starting point is the current value of the file pointer.
 !!!FILE_END (2) - The starting point is the current end-of-file position.
 !!!</param>
-SetFilePointer                  PROCEDURE(LONG plDistanceToMove, ULONG pdwMoveMethod), ULONG
+SetFilePointer                  PROCEDURE(LONG pDistanceToMove, ULONG pMoveMethod), ULONG
+SetFilePointerEx                PROCEDURE(_ULARGE_INTEGER pDistanceToMove, *_ULARGE_INTEGER pNewFilePointer, ULONG pMoveMethod), BOOL, PROC
                               END
 
 !- File
