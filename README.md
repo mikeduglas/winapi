@@ -44,3 +44,4 @@ See [change log](https://github.com/mikeduglas/winapi/blob/master/changelog.md).
 - [Custom Control Frame](https://github.com/mikeduglas/Custom-Control-Frame)
 - [Composite label](https://github.com/mikeduglas/CompositeLabel)
 - [DataGrid](https://github.com/mikeduglas/DataGrid)
+- [Custom Desktops](https://github.com/mikeduglas/Custom-Desktops)
