@@ -1,3 +1,8 @@
+16.03.2022
+- TWnd: ModifyStyle, ModifyStyleEx added: call these methods to modify a window's style or a window's extended style.
+- TRect: SetRectEmpty, UnionRect, InflateRect.
+- TDC: ExtTextOut, FillSolidRect, Draw3dRect.
+
 01.11.2021
 - TIODevice: GetFileSizeEx, SetFilePointerEx methods added.
 

@@ -1,6 +1,6 @@
 !Base Windows classes
-!27.11.2021 revision
-!mikeduglas (c) 2019-2021
+!16.03.2022 revision
+!mikeduglas (c) 2019-2022
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
   INCLUDE('svapi.inc'), ONCE
@@ -226,6 +226,27 @@ FindWindowEx                    PROCEDURE(HWND hWndParent, HWND hWndChildAfter, 
 FindWindowEx                    PROCEDURE(HWND hWndChildAfter, STRING pWindowName), HWND, PROC
 
 GetWindowPlacement              PROCEDURE(*tagWINDOWPLACEMENT pwndpl), BOOL, PROC
+
+ModifyWindowLong                PROCEDURE(LONG pIndex, UNSIGNED pRemove, UNSIGNED pAdd, ULONG pFlags=0)
+
+!!!<summary>Modifies a window's style.</summary>
+!!!<param name="pRemove">Specifies window styles to be removed during style modification.</param>
+!!!<param name="pAdd">Specifies window styles to be added during style modification.</param>
+!!!<param name="pFlags">Flags to be passed to SetWindowPos, or zero if SetWindowPos shouldn't be called. The default is zero. See the Remarks section for a list of preset flags.</param>
+!!!<remarks>Styles to be added or removed can be combined by using the bitwise OR (|) operator. 
+!!!If nFlags is nonzero, ModifyStyle calls the Windows API function SetWindowPos and redraws the window by combining nFlags with the following four preset flags:
+!!!SWP_NOSIZE, SWP_NOMOVE, SWP_NOZORDER, SWP_NOACTIVATE.
+!!!</remarks>
+ModifyStyle                     PROCEDURE(UNSIGNED pRemove, UNSIGNED pAdd, ULONG pFlags=0)
+!!!<summary>Modifies a window's extended style.</summary>
+!!!<param name="pRemove">Specifies extended styles to be removed during style modification.</param>
+!!!<param name="pAdd">Specifies extended styles to be added during style modification.</param>
+!!!<param name="pFlags">Flags to be passed to SetWindowPos, or zero if SetWindowPos shouldn't be called. The default is zero. See the Remarks section for a list of preset flags.</param>
+!!!<remarks>Styles to be added or removed can be combined by using the bitwise OR (|) operator. 
+!!!If nFlags is nonzero, ModifyStyle calls the Windows API function SetWindowPos and redraws the window by combining nFlags with the following four preset flags:
+!!!SWP_NOSIZE, SWP_NOMOVE, SWP_NOZORDER, SWP_NOACTIVATE.
+!!!</remarks>
+ModifyStyleEx                   PROCEDURE(UNSIGNED pRemove, UNSIGNED pAdd, ULONG pFlags=0)
                               END
 
 !- Window{PROP:ClientHandle}
@@ -277,6 +298,13 @@ Intersect                       PROCEDURE(*TRect rc), BOOL
 OffsetRect                      PROCEDURE(LONG pDx, LONG pDy), BOOL, PROC
 
 ToString                        PROCEDURE(), STRING
+
+SetRectEmpty                    PROCEDURE()
+
+UnionRect                       PROCEDURE(_RECT_ rc1, _RECT_ rc2), BOOL, PROC
+UnionRect                       PROCEDURE(TRect rc1, TRect rc2), BOOL, PROC
+
+InflateRect                     PROCEDURE(LONG pDx, LONG pDy), BOOL, PROC
                               END
 
 !- Device context
@@ -335,7 +363,7 @@ GetCurrentObject                PROCEDURE(UNSIGNED pObjType), HGDIOBJ
 GetTextColor                    PROCEDURE(), LONG
 SetTextColor                    PROCEDURE(LONG pClaColor)
 GetBkColor                      PROCEDURE(), LONG
-SetBkColor                      PROCEDURE(LONG pClaColor)
+SetBkColor                      PROCEDURE(LONG pClaColor), LONG, PROC
 !!!<summary>Sets the background mix mode of the specified device context.
 !!!The background mix mode is used with text, hatched brushes, and pen styles that are not solid lines.
 !!!</summary>
@@ -486,6 +514,17 @@ DPtoLP                          PROCEDURE(*_RECT_ prc), BOOL, PROC
 !!!<param name="prc">A pointer to an array of POINT structures. The x- and y-coordinates contained in each POINT structure will be transformed.</param>
 !!!<returns>If the function succeeds, the return value is nonzero. If the function fails, the return value is zero.</returns>
 DPtoLP                          PROCEDURE(*TRect prc), BOOL, PROC
+
+ExtTextOut                      PROCEDURE(LONG px, LONG py, ULONG pOptions, _RECT_ prc, STRING pStr, LONG pDx=0), BOOL, PROC
+ExtTextOut                      PROCEDURE(LONG px, LONG py, ULONG pOptions, TRect prc, STRING pStr, LONG pDx=0), BOOL, PROC
+
+FillSolidRect                   PROCEDURE(_RECT_ prc, LONG pColor)
+FillSolidRect                   PROCEDURE(TRect prc, LONG pColor)
+FillSolidRect                   PROCEDURE(LONG pX, LONG pY, LONG pW, LONG pH, LONG pColor)
+
+Draw3dRect                      PROCEDURE(_RECT_ prc, LONG pClrTopLeft, LONG pClrBottomRight)
+Draw3dRect                      PROCEDURE(TRect prc, LONG pClrTopLeft, LONG pClrBottomRight)
+Draw3dRect                      PROCEDURE(LONG pX, LONG pY, LONG pW, LONG pH, LONG pClrTopLeft, LONG pClrBottomRight)
                               END
 
 !- GDI object
@@ -573,9 +612,9 @@ TLogicalFont                  CLASS(TGdiObj), TYPE, MODULE('winapi.clw'), LINK('
 CreateFont                      PROCEDURE(HDC pDC, STRING pTypeface, UNSIGNED pSize, UNSIGNED pStyle = FONT:regular, LONG pCharset = CHARSET:DEFAULT), HFONT, PROC
 CreateFont                      PROCEDURE(*TDC pDC, STRING pTypeface, UNSIGNED pSize, UNSIGNED pStyle = FONT:regular, LONG pCharset = CHARSET:DEFAULT), HFONT, PROC
 CreateFontIndirect              PROCEDURE(*tagLOGFONTA lplf), HFONT, PROC
-CreateFontIndirectW              PROCEDURE(*tagLOGFONTW lplf), HFONT, PROC
+CreateFontIndirectW             PROCEDURE(*tagLOGFONTW lplf), HFONT, PROC
 GetProperties                   PROCEDURE(*tagLOGFONTA lplf), BOOL, PROC
-GetPropertiesW                   PROCEDURE(*tagLOGFONTW lplf), BOOL, PROC
+GetPropertiesW                  PROCEDURE(*tagLOGFONTW lplf), BOOL, PROC
                               END
 
 !- I/O device

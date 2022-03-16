@@ -1,12 +1,13 @@
 !Base Windows classes
-!27.11.2021 revision
-!mikeduglas (c) 2019-2021
+!16.03.2022 revision
+!mikeduglas (c) 2019-2022
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
   MEMBER
 
   OMIT('***', _C100_)
-  !- GetWindowSubclass, SetWindowSubclass, RemoveWindowSubclass, DefSubclassProc in Win32.lib since C10
+  !- GetWindowSubclass, SetWindowSubclass, RemoveWindowSubclass, DefSubclassProc, InitCommonControlsEx 
+  !- in Win32.lib since C10
   PRAGMA('link(winapi.lib)')
 !***
 
@@ -110,6 +111,7 @@
       winapi::DPtoLP(HDC pDC, LONG lppt, LONG pNumPoints), BOOL, PROC, PASCAL, NAME('DPtoLP')
       winapi::MulDiv(LONG,LONG,LONG), LONG, PASCAL, NAME('MulDiv')
       winapi::ExcludeClipRect(HDC hdc, LONG left, LONG top, LONG right, LONG bottom), LONG, PROC, PASCAL, NAME('ExcludeClipRect')
+      winapi::ExtTextOut(HDC hdc,LONG x,LONG y,ULONG options,*_RECT_ lprect,LONG lpString,ULONG lenstr,LONG lpDx),BOOL,PROC,RAW,PASCAL,NAME('ExtTextOutA')
       winapi::SetCapture(HWND hwnd), HWND, PASCAL, PROC, NAME('SetCapture')
       winapi::ReleaseCapture(), BOOL, PASCAL, PROC, NAME('ReleaseCapture')
       winapi::InvalidateRect(HWND hwnd, *_RECT_ lpRect, BOOL bErase),BOOL,RAW,PASCAL,PROC,NAME('InvalidateRect')
@@ -133,6 +135,8 @@
 
       winapi::PtInRect(*_RECT_ rc,POINT pt),BOOL,RAW,PASCAL,NAME('PtInRect')
       winapi::OffsetRect(*_RECT_ rc,LONG dx,LONG dy),BOOL,RAW,PASCAL,NAME('OffsetRect')
+      winapi::UnionRect(*_RECT_ lprcDst,*_RECT_ lprcSrc1,*_RECT_ lprcSrc2),BOOL,RAW,PASCAL,NAME('UnionRect')
+      winapi::InflateRect(*_RECT_ lprc,LONG dx,LONG dy),BOOL,RAW,PASCAL,NAME('InflateRect')
 
       winapi::SetTimer(HWND hWnd,UNSIGNED nIDEvent,UNSIGNED uElapse,LONG lpTimerFunc),UNSIGNED,PASCAL,PROC,NAME('SetTimer')
       winapi::KillTimer(HWND hWnd,UNSIGNED uIDEvent),BOOL,PASCAL,PROC,NAME('KillTimer')
@@ -192,6 +196,8 @@
       winapi::PrintWindow(HWND hWnd,HDC hdcBlt,ULONG nFlags), BOOL, PASCAL, PROC, NAME('PrintWindow')
       !'_C100_'
     END
+
+    BNOT(UNSIGNED pValue), UNSIGNED, PRIVATE  !- bitwise NOT
   END
 
 winapi::OS_INVALID_HANDLE_VALUE   EQUATE(-1)
@@ -352,6 +358,10 @@ b                                 BYTE
   CODE
   ClaClrGrp :=: winClrGrp
   RETURN claColor
+
+BNOT                          PROCEDURE(UNSIGNED pValue)
+  CODE
+  RETURN BXOR(pValue, -1)
 !!!endregion
   
 !!!region TWnd
@@ -1058,6 +1068,27 @@ ret                             BOOL, AUTO
     printd('GetWindowPlacement(%i) failed, error %i', SELF.hwnd, winapi::GetLastError())
   END
   RETURN ret
+  
+TWnd.ModifyWindowLong         PROCEDURE(LONG pIndex, UNSIGNED pRemove, UNSIGNED pAdd, ULONG pFlags=0)
+dwStyle                         UNSIGNED, AUTO
+swpFlags                        ULONG, AUTO
+  CODE
+  dwStyle = SELF.GetWindowLong(pIndex)
+  dwStyle = BAND(dwStyle, BNOT(pRemove))
+  dwStyle = BOR(dwStyle, pAdd)
+  SELF.SetWindowLong(pIndex, dwStyle)
+  IF pFlags
+    swpFlags = BOR(SWP_NOSIZE+SWP_NOMOVE+SWP_NOZORDER+SWP_NOACTIVATE, pFlags)
+    SELF.SetWindowPos(0, 0, 0, 0, 0, swpFlags)
+  END
+
+TWnd.ModifyStyle              PROCEDURE(UNSIGNED pRemove, UNSIGNED pAdd, ULONG pFlags=0)
+  CODE
+  SELF.ModifyWindowLong(GWL_STYLE, pRemove, pAdd, pFlags)
+    
+TWnd.ModifyStyleEx            PROCEDURE(UNSIGNED pRemove, UNSIGNED pAdd, ULONG pFlags=0)
+  CODE
+  SELF.ModifyWindowLong(GWL_EXSTYLE, pRemove, pAdd, pFlags)
 !!!endregion
 
 !!!region TCWnd
@@ -1218,6 +1249,39 @@ rc                              LIKE(_RECT_)
 TRect.ToString                PROCEDURE()
   CODE
   RETURN printf('(%i,%i,%i,%i)', SELF.left, SELF.top, SELF.right, SELF.bottom)
+  
+TRect.SetRectEmpty            PROCEDURE()
+  CODE
+  SELF.Assign(0, 0, 0, 0)
+  
+TRect.UnionRect               PROCEDURE(_RECT_ rc1, _RECT_ rc2)
+r                               LIKE(_RECT_)
+  CODE
+  IF winapi::UnionRect(r, rc1, rc2)
+    SELF.Assign(r)
+    RETURN TRUE
+  ELSE
+    RETURN FALSE
+  END
+  
+TRect.UnionRect               PROCEDURE(TRect rc1, TRect rc2)
+r1                              LIKE(_RECT_)
+r2                              LIKE(_RECT_)
+  CODE
+  rc1.AssignTo(r1)
+  rc2.AssignTo(r2)
+  RETURN SELF.UnionRect(r1, r2)
+  
+TRect.InflateRect             PROCEDURE(LONG pDx, LONG pDy)
+r                               LIKE(_RECT_)
+  CODE
+  SELF.AssignTo(r)
+  IF winapi::InflateRect(r, pDx, pDy)
+    SELF.Assign(r)
+    RETURN TRUE
+  ELSE
+    RETURN FALSE
+  END
 !!!endregion
   
 !!!region TDC
@@ -1278,7 +1342,7 @@ TDC.GetWindowDC               PROCEDURE(HWND hwnd)
 
 TDC.GetWindowDC               PROCEDURE(TWnd wnd)
   CODE
-  RETURN SELF.GetWindowDC(SELF.hwnd)
+  RETURN SELF.GetWindowDC(wnd.GetHandle())
 
 TDC.CreateCompatibleDC        PROCEDURE(*TDC pDC)
   CODE
@@ -1385,7 +1449,7 @@ TDC.GetBkColor                PROCEDURE()
 
 TDC.SetBkColor                PROCEDURE(LONG pClaColor)
   CODE
-  winapi::SetBkColor(SELF.handle, COLORREF::FromClarion(pClaColor))
+  RETURN winapi::SetBkColor(SELF.handle, COLORREF::FromClarion(pClaColor))
 
 TDC.SetBkMode                 PROCEDURE(LONG pMode)
   CODE
@@ -1666,6 +1730,50 @@ r                               LIKE(_RECT_)
   ELSE
     RETURN FALSE
   END
+  
+TDC.ExtTextOut                PROCEDURE(LONG px, LONG py, ULONG pOptions, _RECT_ prc, STRING pStr, LONG pDx=0)
+  CODE
+  RETURN winapi::ExtTextOut(SELF.handle, px, py, pOptions, prc, ADDRESS(pStr), LEN(CLIP(pStr)), pDx)
+
+TDC.ExtTextOut                PROCEDURE(LONG px, LONG py, ULONG pOptions, TRect prc, STRING pStr, LONG pDx=0)
+r                               LIKE(_RECT_)
+  CODE
+  prc.AssignTo(r)
+  RETURN SELF.ExtTextOut(px, py, pOptions, r, pStr, pDx)
+  
+TDC.FillSolidRect             PROCEDURE(_RECT_ prc, LONG pColor)
+clrOld                          LONG, AUTO
+  CODE
+  clrOld = SELF.SetBkColor(pColor)
+  SELF.ExtTextOut(0, 0, ETO_OPAQUE, prc, '', 0)
+  SELF.SetBkColor(clrOld)
+
+TDC.FillSolidRect             PROCEDURE(TRect prc, LONG pColor)
+r                               LIKE(_RECT_)
+  CODE
+  prc.AssignTo(r)
+  SELF.FillSolidRect(r, pColor)
+  
+TDC.FillSolidRect             PROCEDURE(LONG pX, LONG pY, LONG pW, LONG pH, LONG pColor)
+r                               TRect
+  CODE
+  r.Assign(pX, pY, pX+pW, pY+pH)
+  SELF.FillSolidRect(r, pColor)
+  
+TDC.Draw3dRect                PROCEDURE(_RECT_ prc, LONG pClrTopLeft, LONG pClrBottomRight)
+  CODE
+  SELF.Draw3dRect(prc.left, prc.top, prc.right-prc.left, prc.bottom-prc.top, pClrTopLeft, pClrBottomRight)
+  
+TDC.Draw3dRect                PROCEDURE(TRect prc, LONG pClrTopLeft, LONG pClrBottomRight)
+  CODE
+  SELF.Draw3dRect(prc.left, prc.top, prc.Width(), prc.Height(), pClrTopLeft, pClrBottomRight)
+  
+TDC.Draw3dRect                PROCEDURE(LONG pX, LONG pY, LONG pW, LONG pH, LONG pClrTopLeft, LONG pClrBottomRight)
+  CODE
+  SELF.FillSolidRect(pX, pY, pW-1, 1, pClrTopLeft)
+  SELF.FillSolidRect(pX, pY, 1, pH-1, pClrTopLeft)
+  SELF.FillSolidRect(pX+pW, pY, -1, pH, pClrBottomRight)
+  SELF.FillSolidRect(pX, pY+pH, pW, -1, pClrBottomRight)
 !!!endregion
   
 !!!region TGdiObj
@@ -1883,7 +1991,7 @@ sBits                           &STRING
       winapi::memcpy(ADDRESS(sBits), ADDRESS(hdr), SIZE(BITMAPFILEHEADER))
       sBits[SIZE(BITMAPFILEHEADER)+1 : LEN(sBits)] = SUB(pbi, 1, SIZE(BITMAPINFOHEADER) + bih.biClrUsed * SIZE(RGBQUAD)) & lpBits
     ELSE
-      printd('GetDIBits error %i', winapi::GetLastError())
+      printd('GetDIBits(dc %x, 0, %i, %xh, %xh, DIB_RGB_COLORS) error %i', pDC.GetHandle(), bih.biHeight, ADDRESS(lpBits), ADDRESS(pbi), winapi::GetLastError())
     END
     
     DISPOSE(lpBits)
