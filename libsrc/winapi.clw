@@ -1,5 +1,5 @@
 !Base Windows classes
-!16.03.2022 revision
+!30.03.2022 revision
 !mikeduglas (c) 2019-2022
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -206,7 +206,7 @@ DWORD                         EQUATE(ULONG)
 GDI_ERROR                     EQUATE(0FFFFFFFFh)
 
 !-- Screen capture
-BITMAPFILEHEADER              GROUP, TYPE
+tagBITMAPFILEHEADER              GROUP, TYPE
 bfType                          USHORT
 bfSize                          DWORD
 bfReserved1                     USHORT
@@ -1963,7 +1963,7 @@ pbi                             &STRING
 bih                             &BITMAPINFOHEADER
 lpBits                          &STRING !memory pointer
 bmpFile                         TIODevice
-hdr                             GROUP(BITMAPFILEHEADER). ! bitmap file-header
+hdr                             GROUP(tagBITMAPFILEHEADER). ! bitmap file-header
 dwTmp                           LONG, AUTO
 sBits                           &STRING
   CODE
@@ -1980,16 +1980,16 @@ sBits                           &STRING
       hdr.bfType = 04d42h        ! 0x42 = "B" 0x4d = "M"  
         
       ! Compute the size of the entire file.  
-      hdr.bfSize = SIZE(BITMAPFILEHEADER) + bih.biSize + bih.biClrUsed * SIZE(RGBQUAD) + bih.biSizeImage
+      hdr.bfSize = SIZE(tagBITMAPFILEHEADER) + bih.biSize + bih.biClrUsed * SIZE(RGBQUAD) + bih.biSizeImage
       hdr.bfReserved1 = 0 
       hdr.bfReserved2 = 0 
     
       ! Compute the offset to the array of color indices.  
-      hdr.bfOffBits = SIZE(BITMAPFILEHEADER) + bih.biSize + bih.biClrUsed * SIZE(RGBQUAD)
+      hdr.bfOffBits = SIZE(tagBITMAPFILEHEADER) + bih.biSize + bih.biClrUsed * SIZE(RGBQUAD)
     
-      sBits &= NEW STRING(SIZE(BITMAPFILEHEADER) + (SIZE(BITMAPINFOHEADER) + bih.biClrUsed * SIZE(RGBQUAD)) + bih.biSizeImage)
-      winapi::memcpy(ADDRESS(sBits), ADDRESS(hdr), SIZE(BITMAPFILEHEADER))
-      sBits[SIZE(BITMAPFILEHEADER)+1 : LEN(sBits)] = SUB(pbi, 1, SIZE(BITMAPINFOHEADER) + bih.biClrUsed * SIZE(RGBQUAD)) & lpBits
+      sBits &= NEW STRING(SIZE(tagBITMAPFILEHEADER) + (SIZE(BITMAPINFOHEADER) + bih.biClrUsed * SIZE(RGBQUAD)) + bih.biSizeImage)
+      winapi::memcpy(ADDRESS(sBits), ADDRESS(hdr), SIZE(tagBITMAPFILEHEADER))
+      sBits[SIZE(tagBITMAPFILEHEADER)+1 : LEN(sBits)] = SUB(pbi, 1, SIZE(BITMAPINFOHEADER) + bih.biClrUsed * SIZE(RGBQUAD)) & lpBits
     ELSE
       printd('GetDIBits(dc %x, 0, %i, %xh, %xh, DIB_RGB_COLORS) error %i', pDC.GetHandle(), bih.biHeight, ADDRESS(lpBits), ADDRESS(pbi), winapi::GetLastError())
     END

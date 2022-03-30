@@ -1,3 +1,6 @@
+30.03.2022
+- Renamed BITMAPFILEHEADER to tagBITMAPFILEHEADER to fix "Duplicate symbol: TYPE$BITMAPFILEHEADER" error when FRB is used.
+
 16.03.2022
 - TWnd: ModifyStyle, ModifyStyleEx added: call these methods to modify a window's style or a window's extended style.
 - TRect: SetRectEmpty, UnionRect, InflateRect.
