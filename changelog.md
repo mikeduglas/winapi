@@ -1,3 +1,6 @@
+08.05.2022
+- TToolHelp class.
+
 30.03.2022
 - Renamed BITMAPFILEHEADER to tagBITMAPFILEHEADER to fix "Duplicate symbol: TYPE$BITMAPFILEHEADER" error when FRB is used.
 
