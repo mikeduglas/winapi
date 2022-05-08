@@ -1,5 +1,5 @@
 !Base Windows classes
-!30.03.2022 revision
+!08.05.2022 revision
 !mikeduglas (c) 2019-2022
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -12,6 +12,8 @@
 !***
 
   INCLUDE('winapi.inc'), ONCE
+
+DWORD                         EQUATE(ULONG)
 
   MAP
     INCLUDE('printf.inc')
@@ -192,6 +194,24 @@
       winapi::GetEnvironmentVariable(*CSTRING lpName,*CSTRING lpBuffer,ULONG nSize),ULONG,RAW,PASCAL,PROC,NAME('GetEnvironmentVariableA')
       winapi::SetEnvironmentVariable(*CSTRING lpName,*CSTRING lpValue),BOOL,RAW,PASCAL,PROC,NAME('SetEnvironmentVariableA')
 
+      winapi::GetCurrentProcessID(),DWORD,PASCAL,NAME('GetCurrentProcessId')
+      winapi::CreateProcess(LONG lpApplicationName,LONG lpCommandLine,LONG lpProcessAttributes,LONG lpThreadAttributes,BOOL bInheritHandles, |
+        ULONG dwCreationFlags,LONG lpEnvironment,LONG lpCurrentDirectory,LONG lpStartupInfo,LONG lpProcessInformation),BOOL,PASCAL,NAME('CreateProcessA')
+      winapi::OpenProcess(ULONG dwDesiredAccess,BOOL bInheritHandle,ULONG dwProcessId),HANDLE,PASCAL,NAME('OpenProcess')
+      winapi::TerminateProcess(HANDLE hProcess,ULONG uExitCode),BOOL,PROC,PASCAL,NAME('TerminateProcess')
+      winapi::WaitForSingleObjectEx(HANDLE hHandle,ULONG dwMilliSeconds,BOOL bAlertable),ULONG,PROC,PASCAL,NAME('WaitForSingleObjectEx')
+
+      winapi::CreateToolhelp32Snapshot(DWORD dwFlags,DWORD th32ProcessID),HANDLE,PASCAL,PROC,NAME('CreateToolHelp32Snapshot')
+      winapi::Process32First(HANDLE hSnapshot,LONG lppe),BOOL,PASCAL,RAW,NAME('Process32First')
+      winapi::Process32Next(HANDLE hSnapshot,LONG lppe),BOOL,PASCAL,RAW,NAME('Process32Next')
+      winapi::Module32First(HANDLE hSnapshot,LONG lpme),BOOL,PASCAL,RAW,NAME('Module32First')
+      winapi::Module32Next(HANDLE hSnapshot,LONG lpme),BOOL,PASCAL,RAW,NAME('Module32Next')
+
+      winapi::LoadLibrary(*CSTRING szLibFileName),HINSTANCE,PASCAL,RAW,NAME('LoadLibraryA')
+      winapi::FreeLibrary(LONG hModule),BOOL,PASCAL,PROC,NAME('FreeLibrary')
+      winapi::GetProcAddress(LONG hModule, *CSTRING szProcName),LONG,PASCAL,RAW,NAME('GetProcAddress')
+      winapi::GetProcAddress(LONG hModule, LONG pOrdinalValue),LONG,PASCAL,RAW,NAME('GetProcAddress')
+
       COMPILE('_C100_', _C100_)
       winapi::PrintWindow(HWND hWnd,HDC hdcBlt,ULONG nFlags), BOOL, PASCAL, PROC, NAME('PrintWindow')
       !'_C100_'
@@ -200,9 +220,19 @@
     BNOT(UNSIGNED pValue), UNSIGNED, PRIVATE  !- bitwise NOT
   END
 
+!!!region QueryFullProcessImageName
+  MAP
+    MODULE('Kernel32 dll')
+      winapi::QueryFullProcessImageName(HANDLE hProcess,DWORD dwFlags,*CSTRING lpExeName,*DWORD lpdwSize),BOOL,RAW,PASCAL,NAME('fptr_QueryFullProcessImageName'),DLL
+    END
+    QueryFullProcessImageName(HANDLE hProcess,DWORD dwFlags,*CSTRING lpExeName,*DWORD lpdwSize),BOOL
+  END
+szQueryFullProcessImageName   CSTRING('QueryFullProcessImageNameA'), STATIC
+paQueryFullProcessImageName   LONG, NAME('fptr_QueryFullProcessImageName'), STATIC
+!!!endregion
+
 winapi::OS_INVALID_HANDLE_VALUE   EQUATE(-1)
 winapi::INVALID_SET_FILE_POINTER  EQUATE(-1)
-DWORD                         EQUATE(ULONG)
 GDI_ERROR                     EQUATE(0FFFFFFFFh)
 
 !-- Screen capture
@@ -318,6 +348,35 @@ LOGPIXELSX                    EQUATE(88)
 LOGPIXELSY                    EQUATE(90)
 !'** LOGPIXELSY **'
 
+!- Tool Help API
+PROCESS_TERMINATE             EQUATE(1)
+TH32CS_SNAPPROCESS            EQUATE(02h)
+TH32CS_SNAPMODULE             EQUATE(08h)
+TH32CS_SNAPMODULE32           EQUATE(10h)
+
+
+QueryFullProcessImageName     PROCEDURE(HANDLE hProcess,DWORD dwFlags,*CSTRING lpExeName,*DWORD lpdwSize)
+szDllName                       CSTRING('Kernel32')
+hDll                            LONG, AUTO
+ret                             BOOL(FALSE)
+  CODE
+  IF ADDRESS(winapi::QueryFullProcessImageName) = 0
+    hDll = winapi::LoadLibrary(szDllName)
+    IF NOT hDll
+      RETURN FALSE
+    END
+  
+    paQueryFullProcessImageName = winapi::GetProcAddress(hDll, szQueryFullProcessImageName)
+    IF paQueryFullProcessImageName
+      ret = winapi::QueryFullProcessImageName(hProcess, dwFlags, lpExeName, lpdwSize)
+    END
+    
+    winapi::FreeLibrary(hDll)
+  ELSE
+    ret = winapi::QueryFullProcessImageName(hProcess, dwFlags, lpExeName, lpdwSize)
+  END
+  RETURN ret
+  
 !!!region static functions
 COLORREF::FromRGB             PROCEDURE(BYTE r, BYTE g, BYTE b)
   CODE
@@ -3162,4 +3221,142 @@ szValue                                         CSTRING(LEN(CLIP(pValue))+1), AU
   szName = CLIP(pName)
   szValue = CLIP(pValue)
   RETURN winapi::SetEnvironmentVariable(szName, szValue)
+!!!endregion
+
+!!!region TToolHelp
+TToolHelp.CreateToolhelp32Snapshot    PROCEDURE(ULONG pFlags, ULONG pProcessID)
+  CODE
+  RETURN winapi::CreateToolhelp32Snapshot(pFlags, pProcessID)
+  
+TToolHelp.Process32First      PROCEDURE(HANDLE pSnapshot, *tagPROCESSENTRY32 ppe)
+  CODE
+  ppe.dwSize = SIZE(tagPROCESSENTRY32)
+  RETURN winapi::Process32First(pSnapshot, ADDRESS(ppe))
+    
+TToolHelp.Process32Next       PROCEDURE(HANDLE pSnapshot, *tagPROCESSENTRY32 ppe)
+  CODE
+  ppe.dwSize = SIZE(tagPROCESSENTRY32)
+  RETURN winapi::Process32Next(pSnapshot, ADDRESS(ppe))
+
+TToolHelp.Module32First       PROCEDURE(HANDLE pSnapshot, *tagMODULEENTRY32 pme)
+  CODE
+  pme.dwSize = SIZE(tagMODULEENTRY32)
+  RETURN winapi::Module32Next(pSnapshot, ADDRESS(pme))
+
+TToolHelp.Module32Next        PROCEDURE(HANDLE pSnapshot, *tagMODULEENTRY32 pme)
+  CODE
+  pme.dwSize = SIZE(tagMODULEENTRY32)
+  RETURN winapi::Module32Next(pSnapshot, ADDRESS(pme))
+
+TToolHelp.GetProcessEntry     PROCEDURE(ULONG pProcessId, *tagPROCESSENTRY32 ppe)
+hSnapshot                       HANDLE, AUTO
+pe32                            LIKE(tagPROCESSENTRY32)
+ret                             BOOL(FALSE)
+  CODE
+  CLEAR(ppe)
+  hSnapshot = SELF.CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)
+  IF hSnapshot <> winapi::OS_INVALID_HANDLE_VALUE
+    IF SELF.Process32First(hSnapshot, pe32)
+      LOOP
+        IF pe32.th32ProcessID = pProcessId
+          ppe = pe32
+          ret = TRUE
+          BREAK
+        END
+      WHILE SELF.Process32Next(hSnapshot, pe32)
+    END
+ 
+    winapi::CloseHandle(hSnapshot)
+  END
+  
+  RETURN ret
+
+TToolHelp.GetModuleEntry      PROCEDURE(ULONG pProcessId, STRING pModuleName, *tagMODULEENTRY32 pme)
+hSnapshot                       HANDLE, AUTO
+me32                            LIKE(tagMODULEENTRY32)
+ret                             BOOL(FALSE)
+  CODE
+  printd('GetModuleEntry.........')
+  
+  CLEAR(pme)
+  
+  hSnapshot = SELF.CreateToolhelp32Snapshot(TH32CS_SNAPMODULE+TH32CS_SNAPMODULE32, pProcessId)
+  
+  IF hSnapshot <> winapi::OS_INVALID_HANDLE_VALUE
+    IF SELF.Module32First(hSnapshot, me32)
+      LOOP
+        printd('    MODULE NAME:     %s', me32.szModule)
+        printd('    MODULE PATH:     %s', me32.szExeFile)
+        printd('')
+        
+        IF UPPER(me32.szModule) = UPPER(pModuleName)
+          pme = me32
+          ret = TRUE
+          BREAK
+        END
+      WHILE SELF.Module32Next(hSnapshot, me32)
+    END
+ 
+    winapi::CloseHandle(hSnapshot)
+  ELSE
+    printd('CreateToolhelp32Snapshot failed, error %i', winapi::GetLastError())
+  END
+  
+  RETURN ret
+
+TToolHelp.GetCurrentProcessID PROCEDURE()
+  CODE
+  RETURN winapi::GetCurrentProcessID()
+  
+TToolHelp.GetParentProcessId  PROCEDURE(ULONG pProcessId=0)
+hSnapshot                       HANDLE, AUTO
+pe32                            LIKE(tagPROCESSENTRY32)
+pid                             DWORD, AUTO
+ppid                            DWORD(0)
+  CODE
+  IF pProcessId
+    pid = pProcessId
+  ELSE
+    pid = SELF.GetCurrentProcessId()
+  END
+  
+  IF SELF.GetProcessEntry(pid, pe32)
+    ppid = pe32.th32ParentProcessID
+  END
+  
+  RETURN ppid
+  
+TToolHelp.KillProcess         PROCEDURE(ULONG pProcessId)
+hProcess                        HANDLE, AUTO
+ret                             BOOL(FALSE)
+  CODE
+  hProcess = winapi::OpenProcess(PROCESS_TERMINATE, FALSE, pProcessId)
+  IF hProcess
+    IF winapi::TerminateProcess(hProcess, 0)
+      ret = TRUE
+      winapi::WaitForSingleObjectEx(hProcess, 1000, FALSE)
+    END
+    winapi::CloseHandle(hProcess)
+  ELSE
+    printd('OpenProcess(%x) failed, error code %i', pProcessId, winapi::GetLastError())
+  END
+  
+  RETURN ret
+  
+TToolHelp.QueryFullProcessImageName   PROCEDURE(ULONG pProcessId)
+hProcess                                HANDLE, AUTO
+szName                                  CSTRING(MAX_PATH)
+nSize                                   DWORD(MAX_PATH)
+  CODE
+  hProcess = winapi::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pProcessId)
+  IF hProcess
+    IF NOT QueryFullProcessImageName(hProcess, 0, szName, nSize)
+      printd('QueryFullProcessImageName(%x) failed, error code %i', pProcessId, winapi::GetLastError())
+    END
+    
+    winapi::CloseHandle(hProcess)
+  ELSE
+    printd('OpenProcess(%x) failed, error code %i', pProcessId, winapi::GetLastError())
+  END
+  RETURN szName
 !!!endregion

@@ -1,5 +1,5 @@
 !Base Windows classes
-!16.03.2022 revision
+!08.05.2022 revision
 !mikeduglas (c) 2019-2022
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -1199,5 +1199,43 @@ GetEnvironmentVariable          PROCEDURE(STRING pName), STRING
 SetEnvironmentVariable          PROCEDURE(STRING pName, STRING pValue), BOOL, PROC
                               END
 
+tagPROCESSENTRY32             GROUP, TYPE
+dwSize                          ULONG             !- The size of the structure, in bytes.
+cntUsage                        ULONG             !- This member is no longer used and is always set to zero.
+th32ProcessID                   ULONG             !- The process identifier.
+th32DefaultHeapID               ULONG             !- This member is no longer used and is always set to zero.
+th32ModuleID                    ULONG             !- This member is no longer used and is always set to zero.
+cntThreads                      ULONG             !- The number of execution threads started by the process.
+th32ParentProcessID             ULONG             !- The identifier of the process that created this process (its parent process).
+pcPriClassBase                  LONG              !- The base priority of any threads created by this process.
+dwFlags                         ULONG             !- This member is no longer used, and is always set to zero.
+szExeFile                       CSTRING(MAX_PATH) !- The name of the executable file for the process. see https://docs.microsoft.com/en-us/windows/win32/api/tlhelp32/ns-tlhelp32-processentry32
+                              END                                   
 
-!- TODO: Custom font
+tagMODULEENTRY32              GROUP, TYPE
+dwSize                          ULONG             !- The size of the structure, in bytes.
+th32ModuleID                    ULONG             !- The module identifier.
+th32ProcessID                   ULONG             !- The process identifier.
+GlblcntUsage                    ULONG             !- The load count of the module, which is not generally meaningful, and usually equal to 0xFFFF.
+ProccntUsage                    ULONG             !- The load count of the module (same as GlblcntUsage), which is not generally meaningful, and usually equal to 0xFFFF.
+modBaseAddr                     LONG              !- The base address of the module in the context of the owning process.
+modBaseSize                     ULONG             !- The size of the module, in bytes.
+hModule                         HMODULE           !- A handle to the module in the context of the owning process.
+szModule                        CSTRING(256)      !- The module name.
+szExeFile                       CSTRING(MAX_PATH) !- The module path.
+                              END                                   
+
+TToolHelp                     CLASS, TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+CreateToolhelp32Snapshot        PROCEDURE(ULONG pFlags, ULONG pProcessID), HANDLE
+Process32First                  PROCEDURE(HANDLE pSnapshot, *tagPROCESSENTRY32 ppe), BOOL
+Process32Next                   PROCEDURE(HANDLE pSnapshot, *tagPROCESSENTRY32 ppe), BOOL
+Module32First                   PROCEDURE(HANDLE pSnapshot, *tagMODULEENTRY32 pme), BOOL
+Module32Next                    PROCEDURE(HANDLE pSnapshot, *tagMODULEENTRY32 pme), BOOL
+
+GetProcessEntry                 PROCEDURE(ULONG pProcessId, *tagPROCESSENTRY32 ppe), BOOL, PROC
+GetModuleEntry                  PROCEDURE(ULONG pProcessId, STRING pModuleName, *tagMODULEENTRY32 pme), BOOL, PROC
+GetCurrentProcessID             PROCEDURE(), ULONG
+GetParentProcessId              PROCEDURE(ULONG pProcessId=0), ULONG
+KillProcess                     PROCEDURE(ULONG pProcessId), BOOL, PROC
+QueryFullProcessImageName       PROCEDURE(ULONG pProcessId), STRING
+                              END
