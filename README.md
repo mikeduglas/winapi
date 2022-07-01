@@ -47,3 +47,5 @@ See [change log](https://github.com/mikeduglas/winapi/blob/master/changelog.md).
 - [Composite label](https://github.com/mikeduglas/CompositeLabel)
 - [DataGrid](https://github.com/mikeduglas/DataGrid)
 - [Custom Desktops](https://github.com/mikeduglas/Custom-Desktops)
+- [Sheet Extender](https://github.com/mikeduglas/SheetExtender)
+
