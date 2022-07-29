@@ -1,5 +1,5 @@
 !Base Windows classes
-!08.05.2022 revision
+!29.07.2022 revision
 !mikeduglas (c) 2019-2022
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -317,7 +317,7 @@ Destruct                        PROCEDURE(), VIRTUAL
 
 FromHDC                         PROCEDURE(HDC pDC)
 FromHDC                         PROCEDURE(HDC pDC, HWND hwnd)
-GetDC                           PROCEDURE(HWND hwnd), HDC, PROC
+GetDC                           PROCEDURE(HWND hwnd), HDC, PROC, VIRTUAL
 GetDC                           PROCEDURE(TWnd wnd), HDC, PROC
 GetDCEx                         PROCEDURE(HWND hwnd, HRGN hrgn, ULONG flags), HDC, PROC
 GetDCEx                         PROCEDURE(TWnd wnd, HRGN hrgn, ULONG flags), HDC, PROC
@@ -469,7 +469,7 @@ DrawFocusRect                   PROCEDURE(*TRect rc), BOOL, PROC
 ExcludeClipRect                 PROCEDURE(*_RECT_ pRect), LONG, PROC
 ExcludeClipRect                 PROCEDURE(*TRect pRect), LONG, PROC
 
-ReleaseDC                       PROCEDURE()
+ReleaseDC                       PROCEDURE(), VIRTUAL
 DeleteDC                        PROCEDURE()
 
 BeginPaint                      PROCEDURE(HWND hWnd, *PAINTSTRUCT lpPaint), HDC, PROC
@@ -526,6 +526,15 @@ Draw3dRect                      PROCEDURE(_RECT_ prc, LONG pClrTopLeft, LONG pCl
 Draw3dRect                      PROCEDURE(TRect prc, LONG pClrTopLeft, LONG pClrBottomRight)
 Draw3dRect                      PROCEDURE(LONG pX, LONG pY, LONG pW, LONG pH, LONG pClrTopLeft, LONG pClrBottomRight)
                               END
+
+!- TPaintDC
+TPaintDC                      CLASS(TDC), MODULE('winapi.clw'), LINK('winapi.clw')
+ps                              LIKE(PAINTSTRUCT), PROTECTED
+
+GetDC                           PROCEDURE(HWND hwnd), HDC, PROC, DERIVED
+ReleaseDC                       PROCEDURE(), DERIVED
+                              END
+
 
 !- GDI object
 TGdiObj                       CLASS, TYPE, MODULE('winapi.clw'), LINK('winapi.clw')

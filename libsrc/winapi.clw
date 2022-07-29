@@ -1,5 +1,5 @@
 !Base Windows classes
-!08.05.2022 revision
+!29.07.2022 revision
 !mikeduglas (c) 2019-2022
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -1839,6 +1839,19 @@ TDC.Draw3dRect                PROCEDURE(LONG pX, LONG pY, LONG pW, LONG pH, LONG
   SELF.FillSolidRect(pX, pY, 1, pH-1, pClrTopLeft)
   SELF.FillSolidRect(pX+pW, pY, -1, pH, pClrBottomRight)
   SELF.FillSolidRect(pX, pY+pH, pW, -1, pClrBottomRight)
+!!!endregion
+  
+!!!region TPaintDC
+TPaintDC.GetDC                PROCEDURE(HWND hwnd)
+  CODE
+  RETURN SELF.BeginPaint(hwnd, SELF.ps)
+  
+TPaintDC.ReleaseDC            PROCEDURE()
+  CODE
+  IF SELF.handle
+    SELF.EndPaint(SELF.ps)
+    SELF.handle = 0
+  END
 !!!endregion
   
 !!!region TGdiObj
