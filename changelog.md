@@ -1,5 +1,5 @@
 29.07.2022
-- TPaintDC class: a device-context class derived from TDC. It performs a BeginPaint in GetDC(hwnd) and EndPaint in Rel;easeDC().
+- TPaintDC class: a device-context class derived from TDC. It performs a BeginPaint in GetDC(hwnd) and EndPaint in ReleaseDC().
 
 
 08.05.2022
