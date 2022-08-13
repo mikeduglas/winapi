@@ -1,3 +1,7 @@
+13.08.2022
+- TWnd: SetScrollInfo method added.
+- TDC: LPtoDP method added.
+
 29.07.2022
 - TPaintDC class: a device-context class derived from TDC. It performs a BeginPaint in GetDC(hwnd) and EndPaint in ReleaseDC().
 

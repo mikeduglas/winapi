@@ -1,5 +1,5 @@
 !Base Windows classes
-!29.07.2022 revision
+!13.08.2022 revision
 !mikeduglas (c) 2019-2022
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -114,6 +114,8 @@ DWORD                         EQUATE(ULONG)
       winapi::MulDiv(LONG,LONG,LONG), LONG, PASCAL, NAME('MulDiv')
       winapi::ExcludeClipRect(HDC hdc, LONG left, LONG top, LONG right, LONG bottom), LONG, PROC, PASCAL, NAME('ExcludeClipRect')
       winapi::ExtTextOut(HDC hdc,LONG x,LONG y,ULONG options,*_RECT_ lprect,LONG lpString,ULONG lenstr,LONG lpDx),BOOL,PROC,RAW,PASCAL,NAME('ExtTextOutA')
+      winapi::LPtoDP(HDC hdc,LONG ppt,LONG pCount),BOOL,PROC,PASCAL,NAME('LPtoDP')
+
       winapi::SetCapture(HWND hwnd), HWND, PASCAL, PROC, NAME('SetCapture')
       winapi::ReleaseCapture(), BOOL, PASCAL, PROC, NAME('ReleaseCapture')
       winapi::InvalidateRect(HWND hwnd, *_RECT_ lpRect, BOOL bErase),BOOL,RAW,PASCAL,PROC,NAME('InvalidateRect')
@@ -121,6 +123,7 @@ DWORD                         EQUATE(ULONG)
       winapi::GetDlgCtrlID(HWND hwnd), LONG, PASCAL, NAME('GetDlgCtrlID')
 
       winapi::GetScrollInfo(HWND hwnd, SIGNED fnBar, *SCROLLINFO lpsi),BOOL,RAW,PASCAL,NAME('GetScrollInfo')
+      winapi::SetScrollInfo(HWND hwnd, SIGNED fnBar, *SCROLLINFO lpsi, BOOL pRedraw),LONG,RAW,PASCAL,NAME('SetScrollInfo')
       winapi::ShowScrollBar(HWND hwnd, SIGNED wBar, BOOL bShow),BOOL,PASCAL,PROC,NAME('ShowScrollBar')
 
       winapi::CreateFile(*CSTRING,ULONG,ULONG,LONG,ULONG,ULONG,UNSIGNED=0),UNSIGNED,RAW,PASCAL,NAME('CreateFileA')
@@ -918,7 +921,11 @@ rc                              BOOL, AUTO
     printd('GetScrollInfo failed, error %i', winapi::GetLastError())
   END
   RETURN rc
-  
+    
+TWnd.SetScrollInfo            PROCEDURE(SIGNED fnBar, SCROLLINFO lpsi, BOOL pRedraw)
+  CODE
+  RETURN winapi::SetScrollInfo(SELF.hwnd, fnBar, lpsi, pRedraw)
+
 TWnd.GetScrollRange           PROCEDURE(*SIGNED pHMin, *SIGNED pHMax, *SIGNED pVMin, *SIGNED pVMax)
 si                              LIKE(SCROLLINFO)
   CODE
@@ -1839,6 +1846,14 @@ TDC.Draw3dRect                PROCEDURE(LONG pX, LONG pY, LONG pW, LONG pH, LONG
   SELF.FillSolidRect(pX, pY, 1, pH-1, pClrTopLeft)
   SELF.FillSolidRect(pX+pW, pY, -1, pH, pClrBottomRight)
   SELF.FillSolidRect(pX, pY+pH, pW, -1, pClrBottomRight)
+  
+TDC.LPtoDP                    PROCEDURE(*POINT ppt)
+  CODE
+  RETURN SELF.LPtoDP(ADDRESS(ppt), 1)
+  
+TDC.LPtoDP                    PROCEDURE(LONG ppt, LONG pCount)
+  CODE
+  RETURN winapi::LPtoDP(SELF.handle, ppt, pCount)
 !!!endregion
   
 !!!region TPaintDC

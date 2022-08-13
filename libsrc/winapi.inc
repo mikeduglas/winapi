@@ -1,5 +1,5 @@
 !Base Windows classes
-!29.07.2022 revision
+!13.08.2022 revision
 !mikeduglas (c) 2019-2022
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -171,6 +171,7 @@ PrintWindow                     PROCEDURE(HDC hdcBlt, ULONG nFlags), BOOL, PROC
 PrintWindow                     PROCEDURE(TDC hdcBlt, ULONG nFlags), BOOL, PROC
 
 GetScrollInfo                   PROCEDURE(SIGNED fnBar, *SCROLLINFO lpsi), BOOL, PROC
+SetScrollInfo                   PROCEDURE(SIGNED fnBar, SCROLLINFO lpsi, BOOL pRedraw), LONG, PROC
 GetScrollRange                  PROCEDURE(*SIGNED pHMin, *SIGNED pHMax, *SIGNED pVMin, *SIGNED pVMax)
 GetScrollRange                  PROCEDURE(*_RECT_ pRect)
 ShowScrollBar                   PROCEDURE(SIGNED wBar, BOOL bShow), BOOL, PROC
@@ -525,6 +526,9 @@ FillSolidRect                   PROCEDURE(LONG pX, LONG pY, LONG pW, LONG pH, LO
 Draw3dRect                      PROCEDURE(_RECT_ prc, LONG pClrTopLeft, LONG pClrBottomRight)
 Draw3dRect                      PROCEDURE(TRect prc, LONG pClrTopLeft, LONG pClrBottomRight)
 Draw3dRect                      PROCEDURE(LONG pX, LONG pY, LONG pW, LONG pH, LONG pClrTopLeft, LONG pClrBottomRight)
+
+LPtoDP                          PROCEDURE(*POINT ppt), BOOL, PROC
+LPtoDP                          PROCEDURE(LONG ppt, LONG pCount), BOOL, PROC
                               END
 
 !- TPaintDC
