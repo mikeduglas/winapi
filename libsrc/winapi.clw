@@ -1,5 +1,5 @@
 !Base Windows classes
-!13.08.2022 revision
+!22.09.2022 revision
 !mikeduglas (c) 2019-2022
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -54,6 +54,8 @@ DWORD                         EQUATE(ULONG)
       winapi::IsZoomed(HWND hWnd),BOOL,PASCAL,NAME('IsZoomed')
       winapi::ScreenToClient(HWND hWnd, *POINT ppt), BOOL, RAW, PASCAL, PROC, NAME('ScreenToClient')
       winapi::ClientToScreen(HWND hWnd, *POINT ppt), BOOL, RAW, PASCAL, PROC, NAME('ClientToScreen')
+      winapi::WindowFromPoint(POINT pt),HWND,RAW,NAME('WindowFromPoint')
+
       winapi::GetDC(HWND hwnd), HDC, PASCAL, NAME('GetDC')
       winapi::GetDCEx(HWND hwnd, HRGN hrgnClip, ULONG flags), HDC, PASCAL, NAME('GetDCEx')
       winapi::GetWindowDC(HWND hwnd), HDC, PASCAL, NAME('GetWindowDC')
@@ -118,6 +120,8 @@ DWORD                         EQUATE(ULONG)
 
       winapi::SetCapture(HWND hwnd), HWND, PASCAL, PROC, NAME('SetCapture')
       winapi::ReleaseCapture(), BOOL, PASCAL, PROC, NAME('ReleaseCapture')
+      winapi::DragDetect(HWND hwnd,POINT pt),BOOL,RAW,PASCAL,NAME('DragDetect')
+
       winapi::InvalidateRect(HWND hwnd, *_RECT_ lpRect, BOOL bErase),BOOL,RAW,PASCAL,PROC,NAME('InvalidateRect')
       winapi::InvalidateRect(HWND hwnd, LONG lpRect, BOOL bErase),BOOL,RAW,PASCAL,PROC,NAME('InvalidateRect')
       winapi::GetDlgCtrlID(HWND hwnd), LONG, PASCAL, NAME('GetDlgCtrlID')
@@ -818,6 +822,10 @@ TWnd.SetCapture               PROCEDURE()
 TWnd.ReleaseCapture           PROCEDURE()
   CODE
   RETURN winapi::ReleaseCapture()
+  
+TWnd.DragDetect               PROCEDURE(POINT pt)
+  CODE
+  RETURN winapi::DragDetect(SELF.hwnd, pt)
 
 TWnd.GetDlgCtrlID             PROCEDURE()
   CODE
@@ -1161,6 +1169,11 @@ TWnd.ModifyStyle              PROCEDURE(UNSIGNED pRemove, UNSIGNED pAdd, ULONG p
 TWnd.ModifyStyleEx            PROCEDURE(UNSIGNED pRemove, UNSIGNED pAdd, ULONG pFlags=0)
   CODE
   SELF.ModifyWindowLong(GWL_EXSTYLE, pRemove, pAdd, pFlags)
+  
+TWnd.WindowFromPoint          PROCEDURE(POINT pPt)
+  CODE
+  SELF.hwnd = winapi::WindowFromPoint(pPt)
+  RETURN SELF.hwnd
 !!!endregion
 
 !!!region TCWnd

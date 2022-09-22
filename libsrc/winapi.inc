@@ -1,5 +1,5 @@
 !Base Windows classes
-!13.08.2022 revision
+!22.09.2022 revision
 !mikeduglas (c) 2019-2022
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -159,6 +159,7 @@ Redraw                          PROCEDURE(TRect rc), BOOL, PROC
 
 SetCapture                      PROCEDURE(), HANDLE, PROC
 ReleaseCapture                  PROCEDURE(), BOOL, PROC
+DragDetect                      PROCEDURE(POINT pt),BOOL
 
 GetDlgCtrlID                    PROCEDURE(), LONG
 
@@ -248,6 +249,10 @@ ModifyStyle                     PROCEDURE(UNSIGNED pRemove, UNSIGNED pAdd, ULONG
 !!!SWP_NOSIZE, SWP_NOMOVE, SWP_NOZORDER, SWP_NOACTIVATE.
 !!!</remarks>
 ModifyStyleEx                   PROCEDURE(UNSIGNED pRemove, UNSIGNED pAdd, ULONG pFlags=0)
+
+!!!<summary>Retrieves a handle to the window that contains the specified point.</summary>
+!!!<param name="pPt">The point to be checked.</param>
+WindowFromPoint                 PROCEDURE(POINT pPt), HWND, PROC
                               END
 
 !- Window{PROP:ClientHandle}

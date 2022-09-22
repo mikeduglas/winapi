@@ -1,3 +1,6 @@
+22.09.2022
+- TWnd: WindowFromPoint, DragDetect methods added.
+
 13.08.2022
 - TWnd: SetScrollInfo method added.
 - TDC: LPtoDP method added.
