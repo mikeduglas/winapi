@@ -1,5 +1,5 @@
 !Base Windows classes
-!22.09.2022 revision
+!14.10.2022 revision
 !mikeduglas (c) 2019-2022
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -725,6 +725,8 @@ DisposeResource                 PROCEDURE()
 GetModuleHandle                 PROCEDURE(<STRING pModuleName>), HMODULE, PROC
 FindResource                    PROCEDURE(HMODULE hModule, STRING pName, STRING pType), HRSRC
 FindResource                    PROCEDURE(STRING pName, STRING pType), HRSRC, PROC
+FindResourceEx                  PROCEDURE(HMODULE hModule, STRING pType, STRING pName, USHORT pLanguage=0), HRSRC !- Note: unlike FindResource() it uses opposite order of pType, pName
+FindResourceEx                  PROCEDURE(STRING pType, STRING pName, USHORT pLanguage=0), HRSRC, PROC  !- Note: unlike FindResource() it uses opposite order of pType, pName
 LoadResource                    PROCEDURE(HMODULE hModule, HRSRC hResInfo), HGLOBAL
 LoadResource                    PROCEDURE(), HGLOBAL, PROC
 LockResource                    PROCEDURE(HGLOBAL hResData), LONG
@@ -733,10 +735,21 @@ SizeofResource                  PROCEDURE(HMODULE hModule, HRSRC hResInfo), UNSI
 SizeofResource                  PROCEDURE(), UNSIGNED
 !- returns a resource data from an exe or dll
 GetResource                     PROCEDURE(STRING pModuleName, STRING pName, STRING pType), *STRING, PROC
+GetResourceEx                   PROCEDURE(STRING pModuleName, STRING pType, STRING pName, USHORT pLanguage=0), *STRING, PROC  !- Note: unlike GetResource() it uses opposite order of pType, pName
 !- returns a resource data from this module
 GetResource                     PROCEDURE(STRING pName, STRING pType), *STRING, PROC
+GetResourceEx                   PROCEDURE(STRING pType, STRING pName, USHORT pLanguage=0), *STRING, PROC  !- Note: unlike GetResource() it uses opposite order of pType, pName
 !- returns previously obtained resource data
 GetResource                     PROCEDURE(), *STRING
+
+!!!<summary>Loads the specified bitmap resource from a module's executable file.</summary>
+LoadBitmap                      PROCEDURE(HINSTANCE hInstance, STRING pBitmapName), HBITMAP
+!!!<summary>Loads the specified cursor resource from a module's executable file.</summary>
+LoadCursor                      PROCEDURE(HINSTANCE hInstance, STRING pCursorName), HCURSOR
+!!!<summary>Loads the specified icon resource from a module's executable file.</summary>
+LoadIcon                        PROCEDURE(HINSTANCE hInstance, STRING pIconName), HICON
+!!!<summary>Loads a string resource from a module's executable file.</summary>
+LoadString                      PROCEDURE(HINSTANCE hInstance, ULONG uID, *STRING pBuffer), SIGNED, PROC
                               END
 
 !- MCI device
@@ -1194,6 +1207,7 @@ FromUtf8                        PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP
 ToUtf8                          PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_ACP), STRING
 !!!<summary>Converts input string from utf-16.</summary>
 FromUtf16                       PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_ACP), STRING
+FromUtf16                       PROCEDURE(CONST *STRING pInput, UNSIGNED pCodepage = CP_ACP), STRING
 !!!<summary>Converts input string to utf-16.</summary>
 !!!<returns>utf-16 encoded string without null terminator <0,0>.</returns>
 ToUtf16                          PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_ACP), STRING

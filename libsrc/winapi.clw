@@ -1,5 +1,5 @@
 !Base Windows classes
-!22.09.2022 revision
+!14.10.2022 revision
 !mikeduglas (c) 2019-2022
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -168,10 +168,16 @@ DWORD                         EQUATE(ULONG)
       winapi::PlaySound(*CSTRING pszSound, HMODULE hmod, UNSIGNED fdwSound),BOOL,PROC,RAW,PASCAL,NAME('PlaySoundA')
 
       winapi::GetModuleHandle(<*CSTRING pszModuleName>),HMODULE,PASCAL,RAW,NAME('GetModuleHandleA')
-      winapi::FindResource(HMODULE hModule, *CSTRING lpName, *CSTRING lpType),HRSRC,PASCAL,RAW,NAME('FindResourceA')
+!      winapi::FindResource(HMODULE hModule, *CSTRING lpName, *CSTRING lpType),HRSRC,PASCAL,RAW,NAME('FindResourceA')
+      winapi::FindResource(HMODULE hModule, LONG lpName, LONG lpType),HRSRC,PASCAL,NAME('FindResourceA')
+      winapi::FindResourceEx(HMODULE hModule, LONG lpType, LONG lpName, USHORT pLanguage),HRSRC,PASCAL,NAME('FindResourceExA')
       winapi::LoadResource(HMODULE hModule, HRSRC hResInfo),HGLOBAL,PASCAL,NAME('LoadResource')
       winapi::LockResource(HGLOBAL hResData),LONG,PASCAL,NAME('LockResource')
       winapi::SizeofResource(HMODULE hModule, HRSRC hResInfo),UNSIGNED,PASCAL,NAME('SizeofResource')
+      winapi::LoadBitmap(HINSTANCE hInstance,LONG lpBitmapName),HBITMAP,PASCAL,NAME('LoadBitmapA')
+      winapi::LoadCursor(HINSTANCE hInstance,LONG lpCursorName),HCURSOR,PASCAL,NAME('LoadCursorA')
+      winapi::LoadIcon(HINSTANCE hInstance,LONG lpIconName),HICON,PASCAL,NAME('LoadIconA')
+      winapi::LoadString(HINSTANCE hInstance,ULONG uID,*CSTRING lpBuffer,LONG cchBufferMax),SIGNED,RAW,PASCAL,NAME('LoadStringA')
 
       winapi::mciSendString(*CSTRING lpszCommand, <*CSTRING lpszReturnString>, UNSIGNED cchReturn, HANDLE  hwndCallback),MCIERROR,RAW,PASCAL,NAME('mciSendStringA')
       winapi::mciGetErrorString(MCIERROR fdwError, *CSTRING lpszErrorText, UNSIGNED cchErrorText),BOOL,RAW,PASCAL,NAME('mciGetErrorStringA')
@@ -225,6 +231,7 @@ DWORD                         EQUATE(ULONG)
     END
 
     BNOT(UNSIGNED pValue), UNSIGNED, PRIVATE  !- bitwise NOT
+    MAKERESOURCE(CONST *CSTRING pNameOrNumber), LONG, PRIVATE !- returns an address of resource name or its value if it is a number
   END
 
 !!!region QueryFullProcessImageName
@@ -434,6 +441,16 @@ b                                 BYTE
 BNOT                          PROCEDURE(UNSIGNED pValue)
   CODE
   RETURN BXOR(pValue, -1)
+  
+MAKERESOURCE                  PROCEDURE(CONST *CSTRING pNameOrNumber)
+uNumber                         USHORT, AUTO
+  CODE
+  uNumber = pNameOrNumber
+  IF pNameOrNumber = printf(uNumber)
+    RETURN uNumber
+  ELSE
+    RETURN ADDRESS(pNameOrNumber)
+  END
 !!!endregion
   
 !!!region TWnd
@@ -2504,7 +2521,7 @@ szModuleName                    CSTRING(LEN(CLIP(pModuleName))+1), AUTO
     SELF.hModule = winapi::GetModuleHandle()
   END
   IF SELF.hModule=0
-    printd('GetModuleHandle(%Z) failed, error %i', szModuleName, winapi::GetLastError())
+    printd('GetModuleHandle(%s) failed, error %i', pModuleName, winapi::GetLastError())
   END
   RETURN SELF.hModule
   
@@ -2514,9 +2531,9 @@ szType                          CSTRING(LEN(CLIP(pType))+1), AUTO
   CODE
   szName = CLIP(pName)
   szType = CLIP(pType)
-  SELF.hResInfo = winapi::FindResource(hModule, szName, szType)
+  SELF.hResInfo = winapi::FindResource(hModule, MAKERESOURCE(szName), MAKERESOURCE(szType))
   IF SELF.hResInfo=0
-    printd('FindResource(%i,%Z,%Z) failed, error %i', hModule, szName, szType, winapi::GetLastError())
+    printd('FindResource(%i,%S,%S) failed, error %i', hModule, pName, pType, winapi::GetLastError())
   END
   RETURN SELF.hResInfo
   
@@ -2524,6 +2541,22 @@ TResource.FindResource        PROCEDURE(STRING pName, STRING pType)
   CODE
   RETURN SELF.FindResource(SELF.hModule, pName, pType)
   
+TResource.FindResourceEx      PROCEDURE(HMODULE hModule, STRING pType, STRING pName, USHORT pLanguage=0)
+szName                          CSTRING(LEN(CLIP(pName))+1), AUTO
+szType                          CSTRING(LEN(CLIP(pType))+1), AUTO
+  CODE
+  szName = CLIP(pName)
+  szType = CLIP(pType)
+  SELF.hResInfo = winapi::FindResourceEx(hModule, MAKERESOURCE(szType), MAKERESOURCE(szName), pLanguage)
+  IF SELF.hResInfo=0
+    printd('FindResourceEx(%i,%S,%S) failed, error %i', hModule, pType, pName, winapi::GetLastError())
+  END
+  RETURN SELF.hResInfo
+
+TResource.FindResourceEx      PROCEDURE(STRING pType, STRING pName, USHORT pLanguage=0)
+  CODE
+  RETURN SELF.FindResourceEx(SELF.hModule, pType, pName, pLanguage)
+
 TResource.LoadResource        PROCEDURE(HMODULE hModule, HRSRC hResInfo)
   CODE
   SELF.hResData = winapi::LoadResource(hModule, hResInfo)
@@ -2575,14 +2608,83 @@ nLen                            UNSIGNED, AUTO
     END
   END
   RETURN SELF.sResData
-  
+    
+TResource.GetResourceEx       PROCEDURE(STRING pModuleName, STRING pType, STRING pName, USHORT pLanguage=0)
+aData                           LONG, AUTO
+nLen                            UNSIGNED, AUTO
+  CODE
+  SELF.DisposeResource()
+  IF SELF.GetModuleHandle(pModuleName)
+    IF SELF.FindResourceEx(pType, pName, pLanguage)
+      IF SELF.LoadResource()
+        aData = SELF.LockResource()
+        IF aData
+          nLen = SELF.SizeofResource()
+          SELF.sResData &= NEW STRING(nLen)
+          winapi::memcpy(ADDRESS(SELF.sResData), aData, nLen)
+        END
+      END
+    END
+  END
+  RETURN SELF.sResData
+
 TResource.GetResource         PROCEDURE(STRING pName, STRING pType)
   CODE
   RETURN SELF.GetResource('', pName, pType)
   
+TResource.GetResourceEx       PROCEDURE(STRING pType, STRING pName, USHORT pLanguage=0)
+  CODE
+  RETURN SELF.GetResourceEx('', pType, pName, pLanguage)
+
 TResource.GetResource         PROCEDURE()
   CODE
   RETURN SELF.sResData
+  
+TResource.LoadBitmap          PROCEDURE(HINSTANCE hInstance, STRING pBitmapName)
+szName                          CSTRING(LEN(CLIP(pBitmapName))+1), AUTO
+ret                             SIGNED, AUTO
+  CODE
+  szName = CLIP(pBitmapName)
+  ret = winapi::LoadBitmap(hInstance, MAKERESOURCE(szName))
+  IF NOT ret
+    printd('TResource.LoadBitmap failed, error %i', winapi::GetLastError())
+  END
+  RETURN ret
+  
+TResource.LoadCursor          PROCEDURE(HINSTANCE hInstance, STRING pCursorName)
+szName                          CSTRING(LEN(CLIP(pCursorName))+1), AUTO
+ret                             SIGNED, AUTO
+  CODE
+  szName = CLIP(pCursorName)
+  ret = winapi::LoadCursor(hInstance, MAKERESOURCE(szName))
+  IF NOT ret
+    printd('TResource.LoadCursor failed, error %i', winapi::GetLastError())
+  END
+  RETURN ret
+
+TResource.LoadIcon            PROCEDURE(HINSTANCE hInstance, STRING pIconName)
+szName                          CSTRING(LEN(CLIP(pIconName))+1), AUTO
+ret                             SIGNED, AUTO
+  CODE
+  szName = CLIP(pIconName)
+  ret = winapi::LoadIcon(hInstance, MAKERESOURCE(szName))
+  IF NOT ret
+    printd('TResource.LoadIcon failed, error %i', winapi::GetLastError())
+  END
+  RETURN ret
+
+TResource.LoadString          PROCEDURE(HINSTANCE hInstance, ULONG uID, *STRING pBuffer)
+szBuffer                        CSTRING(LEN(pBuffer)+1), AUTO
+ret                             SIGNED, AUTO
+  CODE
+  CLEAR(pBuffer)
+  ret = winapi::LoadString(hInstance, uID, szBuffer, SIZE(szBuffer))
+  IF ret
+    pBuffer = szBuffer[1 : ret]
+  ELSE
+    printd('TResource.LoadString(%i) failed, error %i', uID, winapi::GetLastError())
+  END
+  RETURN ret
 !!!endregion
   
 !!!region TMCIDevice
@@ -3237,6 +3339,10 @@ TStringEncoding.FromUtf16     PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_A
   CODE
   RETURN SELF.Convert(pInput, CP_UTF16, pCodepage)
   
+TStringEncoding.FromUtf16     PROCEDURE(CONST *STRING pInput, UNSIGNED pCodepage = CP_ACP)
+  CODE
+  RETURN SELF.Convert(pInput, CP_UTF16, pCodepage)
+
 TStringEncoding.ToUtf16        PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_ACP)
   CODE
   RETURN SELF.Convert(pInput, pCodepage, CP_UTF16)

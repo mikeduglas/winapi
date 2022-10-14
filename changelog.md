@@ -1,3 +1,6 @@
+14.10.2022
+- TResource: FindResourceEx, GetResourceEx, LoadBitmap, LoadIcon, LoadCursor, LoadString methods added.
+
 22.09.2022
 - TWnd: WindowFromPoint, DragDetect methods added.
 
