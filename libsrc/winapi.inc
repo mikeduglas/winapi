@@ -1,5 +1,5 @@
 !Base Windows classes
-!14.10.2022 revision
+!31.12.2022 revision
 !mikeduglas (c) 2019-2022
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -253,6 +253,10 @@ ModifyStyleEx                   PROCEDURE(UNSIGNED pRemove, UNSIGNED pAdd, ULONG
 !!!<summary>Retrieves a handle to the window that contains the specified point.</summary>
 !!!<param name="pPt">The point to be checked.</param>
 WindowFromPoint                 PROCEDURE(POINT pPt), HWND, PROC
+
+!!!<summary>Updates the position, size, shape, content, and translucency of a layered window.</summary>
+UpdateLayeredWindow             PROCEDURE(HDC pHdcDst, LONG pptDst, LONG pSize, HDC pHdcSrc, LONG pptSrc, COLORREF pCrKey, |
+                                  LONG pBlend, ULONG pFlags), BOOL, PROC
                               END
 
 !- Window{PROP:ClientHandle}

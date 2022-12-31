@@ -1,3 +1,8 @@
+31.12.2022
+- TWnd: UpdateLayeredWindow methods added.
+- winapi::WindowFromPoint missing PASCAL attribute.
+- winapi.lib has been updated.
+
 14.10.2022
 - TResource: FindResourceEx, GetResourceEx, LoadBitmap, LoadIcon, LoadCursor, LoadString methods added.
 

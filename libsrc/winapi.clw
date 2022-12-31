@@ -1,13 +1,17 @@
 !Base Windows classes
-!14.10.2022 revision
+!31.12.2022 revision
 !mikeduglas (c) 2019-2022
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
   MEMBER
 
   OMIT('***', _C100_)
-  !- GetWindowSubclass, SetWindowSubclass, RemoveWindowSubclass, DefSubclassProc, InitCommonControlsEx 
-  !- in Win32.lib since C10
+  !- These APIs are in Win32.lib since C10, for early versions they are in winapi.lib:
+  !- DefSubclassProc (Comctl32.dll)
+  !- GetWindowSubclass (Comctl32.dll)
+  !- RemoveWindowSubclass (Comctl32.dll)
+  !- SetWindowSubclass (Comctl32.dll)
+  !- UpdateLayeredWindow (User32.dll)
   PRAGMA('link(winapi.lib)')
 !***
 
@@ -52,9 +56,11 @@ DWORD                         EQUATE(ULONG)
       winapi::FindWindowEx(HWND hWndParent,HWND hWndChildAfter,LONG lpszClass,LONG lpszWindow),HWND,PASCAL,NAME('FindWindowExA')
       winapi::DestroyWindow(HWND hWnd),BOOL,PROC,PASCAL,NAME('DestroyWindow')
       winapi::IsZoomed(HWND hWnd),BOOL,PASCAL,NAME('IsZoomed')
-      winapi::ScreenToClient(HWND hWnd, *POINT ppt), BOOL, RAW, PASCAL, PROC, NAME('ScreenToClient')
-      winapi::ClientToScreen(HWND hWnd, *POINT ppt), BOOL, RAW, PASCAL, PROC, NAME('ClientToScreen')
-      winapi::WindowFromPoint(POINT pt),HWND,RAW,NAME('WindowFromPoint')
+      winapi::ScreenToClient(HWND hWnd, *POINT ppt),BOOL,RAW,PASCAL,PROC,NAME('ScreenToClient')
+      winapi::ClientToScreen(HWND hWnd, *POINT ppt),BOOL,RAW,PASCAL,PROC,NAME('ClientToScreen')
+      winapi::WindowFromPoint(POINT pt),HWND,RAW,PASCAL,NAME('WindowFromPoint')
+      winapi::UpdateLayeredWindow(HWND hWnd,HDC hdcDst,LONG pptDst,LONG psize,HDC hdcSrc,LONG pptSrc,COLORREF crKey, |
+        LONG pblend, DWORD dwFlags),BOOL,RAW,PASCAL,NAME('UpdateLayeredWindow')
 
       winapi::GetDC(HWND hwnd), HDC, PASCAL, NAME('GetDC')
       winapi::GetDCEx(HWND hwnd, HRGN hrgnClip, ULONG flags), HDC, PASCAL, NAME('GetDCEx')
@@ -186,8 +192,6 @@ DWORD                         EQUATE(ULONG)
 
       winapi::GetLastError(), LONG, PASCAL, NAME('GetLastError')
 
-      winapi::memcpy(LONG lpDest,LONG lpSource,LONG nCount),LONG,PROC,NAME('_memcpy')
-
       winapi::MultiByteToWideChar(UNSIGNED Codepage, ULONG dwFlags, ULONG LpMultuByteStr, |
         LONG cbMultiByte, ULONG LpWideCharStr, LONG cchWideChar), RAW, ULONG, PASCAL, PROC, NAME('MultiByteToWideChar')
 
@@ -228,6 +232,10 @@ DWORD                         EQUATE(ULONG)
       COMPILE('_C100_', _C100_)
       winapi::PrintWindow(HWND hWnd,HDC hdcBlt,ULONG nFlags), BOOL, PASCAL, PROC, NAME('PrintWindow')
       !'_C100_'
+    END
+
+    MODULE('cw runtime')
+      cw::memcpy(LONG lpDest,LONG lpSource,LONG nCount),LONG,PROC,NAME('_memcpy')
     END
 
     BNOT(UNSIGNED pValue), UNSIGNED, PRIVATE  !- bitwise NOT
@@ -1125,8 +1133,14 @@ nErr                            LONG, AUTO
   CODE
   szWindowName = CLIP(pWindowName)
   IF pClassName
-    szClassName = CLIP(pClassName)
-    aClassName = ADDRESS(szClassName)
+    IF NOT NUMERIC(pClassName)
+      szClassName = CLIP(pClassName)
+      aClassName = ADDRESS(szClassName)
+    ELSE
+      !- A class atom. The atom must be placed in the low-order word of lpszClass; the high-order word must be zero.
+      aClassName = pClassName
+      aClassName = BAND(aClassName, 0FFFFh)
+    END
   ELSE
     aClassName = 0
   END
@@ -1143,7 +1157,7 @@ nErr                            LONG, AUTO
   ELSE
     nErr = winapi::GetLastError()
     IF nErr
-      printd('FindWindowEx(%i, %i, %s, %s) failed, error %i', hWndParent, hWndChildAfter, pClassName, pWindowName, nErr)
+      printd('FindWindowEx(%x, %x, %s, %s) failed, error %i', hWndParent, hWndChildAfter, pClassName, pWindowName, nErr)
     END
   END
 
@@ -1162,7 +1176,7 @@ ret                             BOOL, AUTO
   CODE
   ret = winapi::GetWindowPlacement(SELF.hwnd, ADDRESS(pwndpl))
   IF NOT ret
-    printd('GetWindowPlacement(%i) failed, error %i', SELF.hwnd, winapi::GetLastError())
+    printd('GetWindowPlacement(%x) failed, error %i', SELF.hwnd, winapi::GetLastError())
   END
   RETURN ret
   
@@ -1191,6 +1205,16 @@ TWnd.WindowFromPoint          PROCEDURE(POINT pPt)
   CODE
   SELF.hwnd = winapi::WindowFromPoint(pPt)
   RETURN SELF.hwnd
+  
+TWnd.UpdateLayeredWindow      PROCEDURE(HDC pHdcDst, LONG pptDst, LONG pSize, HDC pHdcSrc, LONG pptSrc, COLORREF pCrKey, |
+                                LONG pBlend, ULONG pFlags)
+ret                             BOOL, AUTO
+  CODE
+  ret = winapi::UpdateLayeredWindow(SELF.hwnd, pHdcDst, pptDst, pSize, pHdcSrc, pptSrc, pCrKey, pBlend, pFlags)
+  IF NOT ret
+    printd('UpdateLayeredWindow(%x) failed, error %i', SELF.hwnd, winapi::GetLastError())
+  END
+  RETURN ret
 !!!endregion
 
 !!!region TCWnd
@@ -2111,7 +2135,7 @@ sBits                           &STRING
       hdr.bfOffBits = SIZE(tagBITMAPFILEHEADER) + bih.biSize + bih.biClrUsed * SIZE(RGBQUAD)
     
       sBits &= NEW STRING(SIZE(tagBITMAPFILEHEADER) + (SIZE(BITMAPINFOHEADER) + bih.biClrUsed * SIZE(RGBQUAD)) + bih.biSizeImage)
-      winapi::memcpy(ADDRESS(sBits), ADDRESS(hdr), SIZE(tagBITMAPFILEHEADER))
+      cw::memcpy(ADDRESS(sBits), ADDRESS(hdr), SIZE(tagBITMAPFILEHEADER))
       sBits[SIZE(tagBITMAPFILEHEADER)+1 : LEN(sBits)] = SUB(pbi, 1, SIZE(BITMAPINFOHEADER) + bih.biClrUsed * SIZE(RGBQUAD)) & lpBits
     ELSE
       printd('GetDIBits(dc %x, 0, %i, %xh, %xh, DIB_RGB_COLORS) error %i', pDC.GetHandle(), bih.biHeight, ADDRESS(lpBits), ADDRESS(pbi), winapi::GetLastError())
@@ -2602,7 +2626,7 @@ nLen                            UNSIGNED, AUTO
         IF aData
           nLen = SELF.SizeofResource()
           SELF.sResData &= NEW STRING(nLen)
-          winapi::memcpy(ADDRESS(SELF.sResData), aData, nLen)
+          cw::memcpy(ADDRESS(SELF.sResData), aData, nLen)
         END
       END
     END
@@ -2621,7 +2645,7 @@ nLen                            UNSIGNED, AUTO
         IF aData
           nLen = SELF.SizeofResource()
           SELF.sResData &= NEW STRING(nLen)
-          winapi::memcpy(ADDRESS(SELF.sResData), aData, nLen)
+          cw::memcpy(ADDRESS(SELF.sResData), aData, nLen)
         END
       END
     END
