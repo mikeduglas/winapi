@@ -1,6 +1,6 @@
 !Base Windows classes
-!31.12.2022 revision
-!mikeduglas (c) 2019-2022
+!19.03.2023 revision
+!mikeduglas (c) 2019-2023
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
   MEMBER
@@ -2373,6 +2373,21 @@ dwBytesRead                     LONG
   END
 
   RETURN sData
+
+TDiskFile.ReadFileHeader      PROCEDURE(STRING pFilename, *STRING pFileHeader, LONG pHeaderSize=0)
+dwHeaderSize                    LONG
+dwBytesRead                     LONG
+ret                             BOOL(FALSE)
+  CODE
+  IF SELF.CreateFile(pFilename, GENERIC_READ, 0, 0, OPEN_EXISTING, 0, 0)
+    dwHeaderSize = CHOOSE(pHeaderSize=0, SIZE(pFileHeader), pHeaderSize)
+    IF dwHeaderSize > 0
+      ret = SELF.ReadFile(ADDRESS(pFileHeader), dwHeaderSize, dwBytesRead, 0)
+    END
+    SELF.CloseHandle()
+  END
+
+  RETURN ret
 
 TDiskFile.SaveFile            PROCEDURE(STRING pFilename, LONG pData, LONG pDataLen, ULONG dwDesiredAccess=GENERIC_WRITE, ULONG dwCreationDisposition=CREATE_ALWAYS)
 dwBytesWritten                  LONG

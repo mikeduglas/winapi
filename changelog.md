@@ -1,3 +1,6 @@
+19.03.2023
+- TDiskFile: ReadFileHeader added.
+
 31.12.2022
 - TWnd: UpdateLayeredWindow methods added.
 - winapi::WindowFromPoint missing PASCAL attribute.

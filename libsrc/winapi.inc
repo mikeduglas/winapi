@@ -1,6 +1,6 @@
 !Base Windows classes
-!31.12.2022 revision
-!mikeduglas (c) 2019-2022
+!19.03.2023 revision
+!mikeduglas (c) 2019-2023
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
   INCLUDE('svapi.inc'), ONCE
@@ -682,6 +682,7 @@ SaveFile                        PROCEDURE(STRING pFilename, *STRING pData, ULONG
 SaveFile                        PROCEDURE(STRING pFilename, STRING pData, ULONG dwDesiredAccess=GENERIC_WRITE, ULONG dwCreationDisposition=CREATE_ALWAYS), BOOL, PROC
 AppendFile                      PROCEDURE(STRING pFilename, *STRING pData), BOOL, PROC
 AppendFile                      PROCEDURE(STRING pFilename, STRING pData), BOOL, PROC
+ReadFileHeader                  PROCEDURE(STRING pFilename, *STRING pFileHeader, LONG pHeaderSize=0), BOOL, PROC
                               END
 
 !- Temp files
