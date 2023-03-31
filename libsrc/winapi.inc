@@ -165,8 +165,17 @@ GetDlgCtrlID                    PROCEDURE(), LONG
 
 !- pRect (0,0) based (i.e. from (0,0) to (w,h)
 GetBitmap                       PROCEDURE(<_RECT_ pRect>, LONG dwRop=SRCCOPY), *STRING  !- For IMAGEs only!
+GetBitmap                       PROCEDURE(TRect pRect, LONG dwRop=SRCCOPY), *STRING  !- For IMAGEs only!
 SaveBitmap                      PROCEDURE(STRING pFIleName, <_RECT_ pRect>), BOOL, PROC !- For IMAGEs only!
+SaveBitmap                      PROCEDURE(STRING pFIleName, TRect pRect), BOOL, PROC !- For IMAGEs only!
+!!!<summary>Copies a window snapshot to the destination image control.</summary>
+!!!<param name="pImageFeq">The destination control feq.</param>
+!!!<param name="pRect">The rectangle of a snapshot. If omitted, full window ssnapshot is copied.</param>
 CopyBitmap                      PROCEDURE(SIGNED pImageFeq, <_RECT_ pRect>), BOOL, PROC !- For IMAGEs only!
+!!!<summary>Copies a window snapshot to the destination image control.</summary>
+!!!<param name="pImageFeq">The destination control feq.</param>
+!!!<param name="pRect">The rectangle of a snapshot.</param>
+CopyBitmap                      PROCEDURE(SIGNED pImageFeq, TRect pRect), BOOL, PROC !- For IMAGEs only!
 
 PrintWindow                     PROCEDURE(HDC hdcBlt, ULONG nFlags), BOOL, PROC
 PrintWindow                     PROCEDURE(TDC hdcBlt, ULONG nFlags), BOOL, PROC

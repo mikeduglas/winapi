@@ -1,3 +1,6 @@
+31.03.2023
+- TWnd: Overloaded GetBitmap, SaveBitmap, CopyBitmap accept TRect.
+
 19.03.2023
 - TDiskFile: ReadFileHeader added.
 

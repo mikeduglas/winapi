@@ -904,6 +904,12 @@ sBits                           &STRING
 
   RETURN sBits
 
+TWnd.GetBitmap                PROCEDURE(TRect pRect, LONG dwRop=SRCCOPY)
+r                               LIKE(_RECT_), AUTO
+  CODE
+  pRect.AssignTo(r)
+  RETURN SELF.GetBitmap(r, dwRop)
+
 TWnd.SaveBitmap               PROCEDURE(STRING pFIleName, <_RECT_ pRect>)
 bmpFile                         TDiskFile
 sBits                           &STRING, AUTO
@@ -917,6 +923,12 @@ rc                              BOOL(FALSE)
   ELSE
     RETURN FALSE
   END
+  
+TWnd.SaveBitmap               PROCEDURE(STRING pFIleName, TRect pRect)
+r                               LIKE(_RECT_), AUTO
+  CODE
+  pRect.AssignTo(r)
+  RETURN SELF.SaveBitmap(pFIleName, r)
   
 TWnd.CopyBitmap               PROCEDURE(SIGNED pImageFeq, <_RECT_ pRect>)
 sBits                           &STRING
@@ -934,6 +946,12 @@ sBits                           &STRING
   ELSE
     RETURN FALSE
   END
+  
+TWnd.CopyBitmap               PROCEDURE(SIGNED pImageFeq, TRect pRect)
+r                               LIKE(_RECT_), AUTO
+  CODE
+  pRect.AssignTo(r)
+  RETURN SELF.CopyBitmap(pImageFeq, r)
   
 TWnd.PrintWindow              PROCEDURE(HDC hdcBlt, ULONG nFlags)
   CODE
