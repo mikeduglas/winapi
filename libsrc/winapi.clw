@@ -234,12 +234,16 @@ DWORD                         EQUATE(ULONG)
       winapi::OpenClipboard(HWND hWndNewOwner=0),BOOL,PROC,PASCAL,NAME('OpenClipboard')
       winapi::CloseClipboard(),BOOL,PROC,PASCAL,NAME('CloseClipboard')
       winapi::EmptyClipboard(),BOOL,PROC,PASCAL,NAME('EmptyClipboard')
+      winapi::GetClipboardData(ULONG uFormat),HANDLE,PROC,PASCAL,NAME('GetClipboardData')
       winapi::SetClipboardData(ULONG uFormat,HANDLE hMem),HANDLE,PROC,PASCAL,NAME('SetClipboardData')
+      winapi::IsClipboardFormatAvailable(ULONG uFormat),BOOL,PASCAL,NAME('IsClipboardFormatAvailable')
 
       winapi::GlobalAlloc(LONG uFlags,LONG dwBytes),HGLOBAL,PASCAL,NAME('GlobalAlloc')
+      winapi::GlobalReAlloc(HGLOBAL hMem,LONG dwBytes,LONG uFlags),HGLOBAL,PASCAL,NAME('GlobalReAlloc')
       winapi::GlobalLock(HGLOBAL hMem),LONG,PASCAL,PROC,NAME('GlobalLock')
       winapi::GlobalUnlock(HGLOBAL hMem),BOOL,PASCAL,PROC,NAME('GlobalUnlock')
       winapi::GlobalFree(HGLOBAL hMem),BOOL,PASCAL,PROC,NAME('GlobalFree')
+      winapi::GlobalSize(HGLOBAL hMem),LONG,PASCAL,PROC,NAME('GlobalSize')
 
       COMPILE('_C100_', _C100_)
       winapi::PrintWindow(HWND hWnd,HDC hdcBlt,ULONG nFlags), BOOL, PASCAL, PROC, NAME('PrintWindow')
@@ -268,6 +272,17 @@ paQueryFullProcessImageName   LONG, NAME('fptr_QueryFullProcessImageName'), STAT
 winapi::OS_INVALID_HANDLE_VALUE   EQUATE(-1)
 winapi::INVALID_SET_FILE_POINTER  EQUATE(-1)
 GDI_ERROR                     EQUATE(0FFFFFFFFh)
+
+!-- In Clarion 6 BITMAP declaration has a bug
+tagBITMAP                     GROUP, TYPE
+bmType                          LONG
+bmWidth                         LONG
+bmHeight                        LONG
+bmWidthBytes                    LONG
+bmPlanes                        USHORT
+bmBitsPixel                     USHORT
+bmBits                          LONG
+                              END
 
 !-- Screen capture
 tagBITMAPFILEHEADER              GROUP, TYPE
@@ -3617,9 +3632,17 @@ TClipboard.EmptyClipboard     PROCEDURE()
   CODE
   RETURN winapi::EmptyClipboard()
   
+TClipboard.GetClipboardData   PROCEDURE(ULONG pFormat)
+  CODE
+  RETURN winapi::GetClipboardData(pFormat)
+  
 TClipboard.SetClipboardData   PROCEDURE(ULONG pFormat, HANDLE pMem)
   CODE
   RETURN winapi::SetClipboardData(pFormat, pMem)
+  
+TClipboard.IsClipboardFormatAvailable PROCEDURE(ULONG pFormat)
+  CODE
+  RETURN winapi::IsClipboardFormatAvailable(pFormat)
 !!!endregion
 
 !!!region TGlobalMemory
@@ -3627,9 +3650,18 @@ TGlobalMemory.GetHandle       PROCEDURE()
   CODE
   RETURN SELF.hMem
   
+TGlobalMemory.SetHandle       PROCEDURE(HGLOBAL pHandle)
+  CODE
+  SELF.hMem = pHandle
+  
 TGlobalMemory.GlobalAlloc     PROCEDURE(LONG pFlags, LONG pBytes)
   CODE
   SELF.hMem = winapi::GlobalAlloc(pFlags, pBytes)
+  RETURN SELF.hMem
+  
+TGlobalMemory.GlobalReAlloc   PROCEDURE(LONG pBytes, LONG pFlags)
+  CODE
+  SELF.hMem = winapi::GlobalReAlloc(SELF.hMem, pBytes, pFlags)
   RETURN SELF.hMem
   
 TGlobalMemory.GlobalLock      PROCEDURE()
@@ -3643,4 +3675,8 @@ TGlobalMemory.GlobalUnlock    PROCEDURE()
 TGlobalMemory.GlobalFree      PROCEDURE()
   CODE
   RETURN winapi::GlobalFree(SELF.hMem)
+  
+TGlobalMemory.GlobalSize      PROCEDURE()
+  CODE
+  RETURN winapi::GlobalSize(SELF.hMem)
 !!!endregion

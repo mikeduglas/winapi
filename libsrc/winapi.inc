@@ -38,17 +38,6 @@ eDx                             SREAL
 eDy                             SREAL
                               END
 
-!-- In Clarion 6 BITMAP declaration has a bug
-tagBITMAP                     GROUP, TYPE
-bmType                          LONG
-bmWidth                         LONG
-bmHeight                        LONG
-bmWidthBytes                    LONG
-bmPlanes                        USHORT
-bmBitsPixel                     USHORT
-bmBits                          LONG
-                              END
-
 
 !- Window{PROP:Handle}
 TWnd                          CLASS, TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
@@ -1295,15 +1284,20 @@ TClipboard                    CLASS, TYPE, MODULE('winapi.clw'), LINK('winapi.cl
 OpenClipboard                   PROCEDURE(HWND pWndNewOwner=0), BOOL, PROC
 CloseClipboard                  PROCEDURE(), BOOL, PROC
 EmptyClipboard                  PROCEDURE(), BOOL, PROC
+GetClipboardData                PROCEDURE(ULONG pFormat), HANDLE
 SetClipboardData                PROCEDURE(ULONG pFormat, HANDLE pMem), HANDLE, PROC
+IsClipboardFormatAvailable      PROCEDURE(ULONG pFormat), BOOL
                               END
 
 TGlobalMemory                 CLASS, TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
 hMem                            HGLOBAL, PROTECTED
 
 GetHandle                       PROCEDURE(), HGLOBAL
+SetHandle                       PROCEDURE(HGLOBAL pHandle)
 GlobalAlloc                     PROCEDURE(LONG pFlags, LONG pBytes), HGLOBAL, PROC
+GlobalReAlloc                   PROCEDURE(LONG pBytes, LONG pFlags), HGLOBAL, PROC
 GlobalLock                      PROCEDURE(), LONG
 GlobalUnlock                    PROCEDURE(), BOOL, PROC
 GlobalFree                      PROCEDURE(), BOOL, PROC
+GlobalSize                      PROCEDURE(), LONG
                               END
