@@ -1,5 +1,5 @@
 !Base Windows classes
-!19.03.2023 revision
+!09.04.2023 revision
 !mikeduglas (c) 2019-2023
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -364,7 +364,9 @@ BitBlt                          PROCEDURE(*TRect rcDest, *TDC dcSrc, SIGNED srcX
 PatBlt                          PROCEDURE(SIGNED pX, SIGNED pY, SIGNED pW, SIGNED pH, LONG dwRop), BOOL, PROC
 PatBlt                          PROCEDURE(TRect rcSrc, LONG dwRop), BOOL, PROC
 
-GetDIBits                       PROCEDURE(TBitmap hbmp, UNSIGNED uStartScan, UNSIGNED cScanLines, LONG lpvBits, LONG lpbi, UNSIGNED uUsage), SIGNED
+GetDIBits                       PROCEDURE(HBITMAP hbmp, UNSIGNED uStartScan, UNSIGNED cScanLines, LONG lpvBits, LONG lpbi, UNSIGNED uUsage), SIGNED, PROC
+GetDIBits                       PROCEDURE(TBitmap hbmp, UNSIGNED uStartScan, UNSIGNED cScanLines, LONG lpvBits, LONG lpbi, UNSIGNED uUsage), SIGNED, PROC
+SetDIBits                       PROCEDURE(TBitmap hbmp, UNSIGNED uStartScan, UNSIGNED cScanLines, LONG lpvBits, LONG lpbi, UNSIGNED pColorUse), SIGNED, PROC
 
 StretchDIBits                   PROCEDURE(SIGNED pDestX, SIGNED pDestY, SIGNED pDestW, SIGNED pDestH, SIGNED pSrcX, SIGNED pSrcY, SIGNED pSrcW, SIGNED pSrcH, LONG lpBits, LONG lpbmi, UNSIGNED iUsage, ULONG rop), SIGNED, PROC
 StretchDIBits                   PROCEDURE(TRect rcDest, TRect rcSrc, LONG lpBits, LONG lpbmi, UNSIGNED iUsage, ULONG rop), SIGNED, PROC
@@ -594,6 +596,9 @@ CreateCompatibleBitmap          PROCEDURE(HDC pDC, SIGNED cx, SIGNED cy), HBITMA
 CreateCompatibleBitmap          PROCEDURE(*TDC pDC, SIGNED cx, SIGNED cy), HBITMAP, PROC
 CreateBitmapInfoStruct          PROCEDURE(), *STRING !returns a reference to BITMAPINFO
 CreateDIBSection                PROCEDURE(HDC pDC, *BITMAPINFO bmi, UNSIGNED usage, <*LONG ppvBits>, <HANDLE hSection>, <UNSIGNED offset>), HBITMAP, PROC
+CreateDIBitmap                  PROCEDURE(HDC pDC, LONG pBmih, UNSIGNED pFlInit, LONG pjBits, LONG pBmi, ULONG pUsage), HBITMAP, PROC
+CreateDIBitmap                  PROCEDURE(HDC pDC, *BITMAPINFOHEADER pBmih, UNSIGNED pFlInit, LONG pjBits, *BITMAPINFO pBmi, ULONG pUsage), HBITMAP, PROC
+CreateDIBitmap                  PROCEDURE(*TDC pDC, *BITMAPINFOHEADER pBmih, UNSIGNED pFlInit, LONG pjBits, *BITMAPINFO pBmi, ULONG pUsage), HBITMAP, PROC
 
 !- LoadImage(pFile) works only if pFile is a bmp.
 LoadImage                       PROCEDURE(HINSTANCE hInst, STRING pImage, UNSIGNED uType=IMAGE_BITMAP, SIGNED cxDesired=0, SIGNED cyDesired=0, UNSIGNED fuLoad=LR_LOADFROMFILE), HBITMAP, PROC
@@ -1284,4 +1289,21 @@ GetCurrentProcessID             PROCEDURE(), ULONG
 GetParentProcessId              PROCEDURE(ULONG pProcessId=0), ULONG
 KillProcess                     PROCEDURE(ULONG pProcessId), BOOL, PROC
 QueryFullProcessImageName       PROCEDURE(ULONG pProcessId), STRING
+                              END
+
+TClipboard                    CLASS, TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+OpenClipboard                   PROCEDURE(HWND pWndNewOwner=0), BOOL, PROC
+CloseClipboard                  PROCEDURE(), BOOL, PROC
+EmptyClipboard                  PROCEDURE(), BOOL, PROC
+SetClipboardData                PROCEDURE(ULONG pFormat, HANDLE pMem), HANDLE, PROC
+                              END
+
+TGlobalMemory                 CLASS, TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+hMem                            HGLOBAL, PROTECTED
+
+GetHandle                       PROCEDURE(), HGLOBAL
+GlobalAlloc                     PROCEDURE(LONG pFlags, LONG pBytes), HGLOBAL, PROC
+GlobalLock                      PROCEDURE(), LONG
+GlobalUnlock                    PROCEDURE(), BOOL, PROC
+GlobalFree                      PROCEDURE(), BOOL, PROC
                               END

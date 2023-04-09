@@ -1,5 +1,5 @@
 !Base Windows classes
-!19.03.2023 revision
+!09.04.2023 revision
 !mikeduglas (c) 2019-2023
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -76,11 +76,13 @@ DWORD                         EQUATE(ULONG)
       winapi::GetObject(HGDIOBJ hgdiobj, LONG cbBuffer, LONG lpvObject), LONG, PASCAL, NAME('GetObjectA'),PROC
       winapi::GetStockObject(LONG fnObject),HGDIOBJ,PASCAL,NAME('GetStockObject')
       winapi::GetDIBits(HDC hdc, HBITMAP hbmp, UNSIGNED uStartScan, UNSIGNED cScanLines, LONG lpvBits, LONG lpbi, UNSIGNED uUsage),SIGNED,RAW,PASCAL,NAME('GetDIBits'),PROC
+      winapi::SetDIBits(HDC hdc, HBITMAP hbmp, UNSIGNED uStartScan, UNSIGNED cScanLines, LONG lpvBits, LONG lpbi, UNSIGNED pColorUse),SIGNED,RAW,PASCAL,NAME('SetDIBits'),PROC
       winapi::StretchDIBits(HDC hdc,SIGNED pDestX,SIGNED pDestY,SIGNED pDestW,SIGNED pDestH,SIGNED pSrcX,SIGNED pSrcY,SIGNED pSrcW,SIGNED pSrcH,LONG lpBits,LONG lpbmi,UNSIGNED iUsage,ULONG rop),SIGNED,RAW,PASCAL,NAME('StretchDIBits'),PROC
       winapi::GetStretchBltMode(HDC hdc),LONG,PASCAL,NAME('GetStretchBltMode')
       winapi::SetStretchBltMode(HDC hdc,LONG pMode),LONG,PASCAL,NAME('SetStretchBltMode')
       winapi::CreateDIBSection(HDC hdc,LONG pbmi,UNSIGNED usage,*LONG ppvBits,HANDLE hSection,UNSIGNED offset),HBITMAP,PASCAL,NAME('CreateDIBSection')
       winapi::CreateDIBSection(HDC hdc,LONG pbmi,UNSIGNED usage,LONG ppvBits,HANDLE hSection,UNSIGNED offset),HBITMAP,PASCAL,NAME('CreateDIBSection')
+      winapi::CreateDIBitmap(HDC hdc,LONG pbmih,UNSIGNED flInit,LONG pjBits,LONG pbmi,ULONG iUsage),HBITMAP,NAME('CreateDIBitmap')
       winapi::DrawIconEx(HDC hDC,SIGNED xLeft,SIGNED yTop,HICON hIcon,SIGNED cxWidth,SIGNED cyWidth,UNSIGNED iStepIfAniCur,HBRUSH hbrFlickerFreeDraw,UNSIGNED diFlags),BOOL,PASCAL,PROC,NAME('DrawIconEx')
       winapi::CreateSolidBrush(COLORREF crColor), HBRUSH, PASCAL, NAME('CreateSolidBrush')
       winapi::DeleteObject(HGDIOBJ hObj), BOOL, RAW, PASCAL, NAME('DeleteObject'), PROC
@@ -228,6 +230,16 @@ DWORD                         EQUATE(ULONG)
       winapi::FreeLibrary(LONG hModule),BOOL,PASCAL,PROC,NAME('FreeLibrary')
       winapi::GetProcAddress(LONG hModule, *CSTRING szProcName),LONG,PASCAL,RAW,NAME('GetProcAddress')
       winapi::GetProcAddress(LONG hModule, LONG pOrdinalValue),LONG,PASCAL,RAW,NAME('GetProcAddress')
+
+      winapi::OpenClipboard(HWND hWndNewOwner=0),BOOL,PROC,PASCAL,NAME('OpenClipboard')
+      winapi::CloseClipboard(),BOOL,PROC,PASCAL,NAME('CloseClipboard')
+      winapi::EmptyClipboard(),BOOL,PROC,PASCAL,NAME('EmptyClipboard')
+      winapi::SetClipboardData(ULONG uFormat,HANDLE hMem),HANDLE,PROC,PASCAL,NAME('SetClipboardData')
+
+      winapi::GlobalAlloc(LONG uFlags,LONG dwBytes),HGLOBAL,PASCAL,NAME('GlobalAlloc')
+      winapi::GlobalLock(HGLOBAL hMem),LONG,PASCAL,PROC,NAME('GlobalLock')
+      winapi::GlobalUnlock(HGLOBAL hMem),BOOL,PASCAL,PROC,NAME('GlobalUnlock')
+      winapi::GlobalFree(HGLOBAL hMem),BOOL,PASCAL,PROC,NAME('GlobalFree')
 
       COMPILE('_C100_', _C100_)
       winapi::PrintWindow(HWND hWnd,HDC hdcBlt,ULONG nFlags), BOOL, PASCAL, PROC, NAME('PrintWindow')
@@ -1555,10 +1567,18 @@ TDC.PatBlt                    PROCEDURE(TRect rcSrc, LONG dwRop)
   CODE
   RETURN SELF.PatBlt(rcSrc.left, rcSrc.top, rcSrc.Width(), rcSrc.Height(), dwRop)
 
+TDC.GetDIBits                 PROCEDURE(HBITMAP hbmp, UNSIGNED uStartScan, UNSIGNED cScanLines, LONG lpvBits, LONG lpbi, UNSIGNED uUsage)
+  CODE
+  RETURN winapi::GetDIBits(SELF.handle, hbmp, uStartScan, cScanLines, lpvBits, lpbi, uUsage)
+
 TDC.GetDIBits                 PROCEDURE(TBitmap hbmp, UNSIGNED uStartScan, UNSIGNED cScanLines, LONG lpvBits, LONG lpbi, UNSIGNED uUsage)
   CODE
   RETURN winapi::GetDIBits(SELF.handle, hbmp.GetHandle(), uStartScan, cScanLines, lpvBits, lpbi, uUsage)
   
+TDC.SetDIBits                 PROCEDURE(TBitmap hbmp, UNSIGNED uStartScan, UNSIGNED cScanLines, LONG lpvBits, LONG lpbi, UNSIGNED pColorUse)
+  CODE
+  RETURN winapi::SetDIBits(SELF.handle, hbmp.GetHandle(), uStartScan, cScanLines, lpvBits, lpbi, pColorUse)
+
 TDC.StretchDIBits             PROCEDURE(SIGNED pDestX, SIGNED pDestY, SIGNED pDestW, SIGNED pDestH, SIGNED pSrcX, SIGNED pSrcY, SIGNED pSrcW, SIGNED pSrcH, LONG lpBits, LONG lpbmi, UNSIGNED iUsage, ULONG rop)
   CODE
   RETURN winapi::StretchDIBits(SELF.handle, pDestX, pDestY, pDestW, pDestH, pSrcX, pSrcY, pSrcW, pSrcH, lpBits, lpbmi, iUsage, rop)
@@ -2101,6 +2121,19 @@ TBitmap.CreateDIBSection      PROCEDURE(HDC pDC, *BITMAPINFO bmi, UNSIGNED usage
   CODE
   SELF.handle = winapi::CreateDIBSection(pDC, ADDRESS(bmi), usage, ppvBits, hSection, offset)
   RETURN SELF.handle
+  
+TBitmap.CreateDIBitmap        PROCEDURE(HDC pDC, LONG pBmih, UNSIGNED pFlInit, LONG pjBits, LONG pBmi, ULONG pUsage)
+  CODE
+  SELF.handle = winapi::CreateDIBitmap(pDC, pBmih, pFlInit, pjBits, pBmi, pUsage)
+  RETURN SELF.handle
+
+TBitmap.CreateDIBitmap        PROCEDURE(HDC pDC, *BITMAPINFOHEADER pBmih, UNSIGNED pFlInit, LONG pjBits, *BITMAPINFO pBmi, ULONG pUsage)
+  CODE
+  RETURN SELF.CreateDIBitmap(pDC, ADDRESS(pBmih), pFlInit, pjBits, ADDRESS(pBmi), pUsage)
+  
+TBitmap.CreateDIBitmap        PROCEDURE(*TDC pDC, *BITMAPINFOHEADER pBmih, UNSIGNED pFlInit, LONG pjBits, *BITMAPINFO pBmi, ULONG pUsage)
+  CODE
+  RETURN SELF.CreateDIBitmap(pDC.GetHandle(), ADDRESS(pBmih), pFlInit, pjBits, ADDRESS(pBmi), pUsage)
   
 TBitmap.LoadImage             PROCEDURE(HINSTANCE hInst, STRING pImage, UNSIGNED uType=IMAGE_BITMAP, SIGNED cxDesired=0, SIGNED cyDesired=0, UNSIGNED fuLoad=LR_LOADFROMFILE)
 szImage                         CSTRING(LEN(CLIP(pImage))+1)
@@ -3569,4 +3602,45 @@ nSize                                   DWORD(MAX_PATH)
     printd('OpenProcess(%x) failed, error code %i', pProcessId, winapi::GetLastError())
   END
   RETURN szName
+!!!endregion
+  
+!!!region TClipboard
+TClipboard.OpenClipboard      PROCEDURE(HWND pWndNewOwner=0)
+  CODE
+  RETURN winapi::OpenClipboard(pWndNewOwner)
+  
+TClipboard.CloseClipboard     PROCEDURE()
+  CODE
+  RETURN winapi::CloseClipboard()
+  
+TClipboard.EmptyClipboard     PROCEDURE()
+  CODE
+  RETURN winapi::EmptyClipboard()
+  
+TClipboard.SetClipboardData   PROCEDURE(ULONG pFormat, HANDLE pMem)
+  CODE
+  RETURN winapi::SetClipboardData(pFormat, pMem)
+!!!endregion
+
+!!!region TGlobalMemory
+TGlobalMemory.GetHandle       PROCEDURE()
+  CODE
+  RETURN SELF.hMem
+  
+TGlobalMemory.GlobalAlloc     PROCEDURE(LONG pFlags, LONG pBytes)
+  CODE
+  SELF.hMem = winapi::GlobalAlloc(pFlags, pBytes)
+  RETURN SELF.hMem
+  
+TGlobalMemory.GlobalLock      PROCEDURE()
+  CODE
+  RETURN winapi::GlobalLock(SELF.hMem)
+  
+TGlobalMemory.GlobalUnlock    PROCEDURE()
+  CODE
+  RETURN winapi::GlobalUnlock(SELF.hMem)
+  
+TGlobalMemory.GlobalFree      PROCEDURE()
+  CODE
+  RETURN winapi::GlobalFree(SELF.hMem)
 !!!endregion

@@ -1,3 +1,9 @@
+09.04.2023
+- TClipboard class added.
+- TGlobalMemory class added.
+- TDC: SetDIBits method added.
+- TBitmap: CreateDIBitmap method added.
+
 31.03.2023
 - TWnd: Overloaded GetBitmap, SaveBitmap, CopyBitmap accept TRect.
 

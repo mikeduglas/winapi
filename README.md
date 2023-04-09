@@ -22,8 +22,9 @@ A set of helper classes:
 - TSystemMetrics (GetSystemMetrics api)
 - TStringEncoding (MultiByteToWideChar, WideCharToMultiByte apis)
 - TProcessEnvironment (GetEnvironmentVariable, SetEnvironmentVariable apis)
-- TToolHelp (CreateToolhelp32Snapshot, Process32First, Process32Next and others).
-
+- TToolHelp (CreateToolhelp32Snapshot, Process32First, Process32Next and others)
+- TClipboard (OpenClipboard etc)
+- TGlobalMemory (GlobalAlloc etc)
 
 See [change log](https://github.com/mikeduglas/winapi/blob/master/changelog.md).
 
