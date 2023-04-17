@@ -1,3 +1,6 @@
+17.04.2023
+- TRectF class added.
+
 09.04.2023
 - TClipboard class added.
 - TGlobalMemory class added.

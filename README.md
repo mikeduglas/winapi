@@ -4,6 +4,7 @@ A set of helper classes:
 - TWnd (hwnd)
 - TCWnd (client hwnd)
 - TRect (rect)
+- TRectF (rectf)
 - TDC (device context)
 - TPaintDC (a device-context class derived from TDC)
 - TGdiObj (GDI generic object)

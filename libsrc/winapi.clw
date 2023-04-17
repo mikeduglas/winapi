@@ -1454,7 +1454,150 @@ r                               LIKE(_RECT_)
     RETURN FALSE
   END
 !!!endregion
+
+  !!!region TRectF
+TRectF.Width                  PROCEDURE()
+  CODE
+  RETURN SELF.right - SELF.left
+
+TRectF.Width                  PROCEDURE(SREAL pNewWidth)
+  CODE
+  SELF.right += (pNewWidth-SELF.Width())
   
+TRectF.Height                 PROCEDURE()
+  CODE
+  RETURN SELF.bottom - SELF.top
+
+TRectF.Height                 PROCEDURE(SREAL pNewHeight)
+  CODE
+  SELF.bottom += (pNewHeight-SELF.Height())
+
+TRectF.Assign                 PROCEDURE(_RECT_ rc)
+  CODE
+  SELF.Assign(rc.left, rc.top, rc.right, rc.bottom)
+
+TRectF.Assign                 PROCEDURE(*TRect rc)
+  CODE
+  SELF.Assign(rc.left, rc.top, rc.right, rc.bottom)
+
+TRectF.Assign                 PROCEDURE(*TRectF rc)
+  CODE
+  SELF.Assign(rc.left, rc.top, rc.right, rc.bottom)
+
+TRectF.Assign                 PROCEDURE(SREAL left, SREAL top, SREAL right, SREAL bottom)
+  CODE
+  SELF.left = left
+  SELF.top = top
+  SELF.right = right
+  SELF.bottom = bottom
+
+TRectF.AssignTo               PROCEDURE(*_RECT_ rc)
+  CODE
+  rc.left = SELF.left
+  rc.top = SELF.top
+  rc.right = SELF.right
+  rc.bottom = SELF.bottom
+  
+TRectF.AssignTo               PROCEDURE(*TRect rc)
+  CODE
+  rc.Assign(SELF.left, SELF.top, SELF.right, SELF.bottom)
+  
+TRectF.AssignTo               PROCEDURE(*TRectF rc)
+  CODE
+  rc.Assign(SELF.left, SELF.top, SELF.right, SELF.bottom)
+  
+TRectF.Equal                  PROCEDURE(*TRectF rc)
+  CODE
+  RETURN CHOOSE(SELF.left=rc.left AND SELF.top=rc.top AND SELF.right=rc.right AND SELF.bottom=rc.bottom)
+  
+TRectF.PtInRect               PROCEDURE(SREAL pX, SREAL pY)
+pt                              LIKE(POINT)
+  CODE
+  pt.x = pX
+  pt.y = pY
+  RETURN SELF.PtInRect(pt)
+
+TRectF.PtInRect               PROCEDURE(*POINT pt)
+rc                              LIKE(_RECT_)
+  CODE
+  SELF.AssignTo(rc)
+  RETURN winapi::PtInRect(rc, pt)
+
+TRectF.PtInRect               PROCEDURE(*TPoint pt)
+  CODE
+  RETURN SELF.PtInRect(pt.x, pt.y)
+  
+TRectF.Intersect              PROCEDURE(_RECT_ rc)
+r2                              TRectF
+  CODE
+  r2.Assign(rc)
+  RETURN SELF.Intersect(r2)
+  
+TRectF.Intersect              PROCEDURE(*TRect rc)
+r2                              TRectF
+  CODE
+  r2.Assign(rc)
+  RETURN SELF.Intersect(r2)
+  
+TRectF.Intersect              PROCEDURE(*TRectF rc)
+  CODE
+  IF (rc.left > SELF.right) OR (rc.right < SELF.left) OR (rc.top > SELF.bottom) OR (rc.bottom < SELF.top)
+    RETURN FALSE
+  ELSE
+    RETURN TRUE
+  END
+
+TRectF.OffsetRect             PROCEDURE(SREAL pDx, SREAL pDy)
+  CODE
+  SELF.left += pDx
+  SELF.right += pDx
+  SELF.top += pDy
+  SELF.bottom += pDy
+  RETURN TRUE
+  
+TRectF.ToString               PROCEDURE()
+  CODE
+  RETURN printf('(%f,%f,%f,%f)', SELF.left, SELF.top, SELF.right, SELF.bottom)
+  
+TRectF.SetRectEmpty           PROCEDURE()
+  CODE
+  SELF.Assign(0, 0, 0, 0)
+  
+TRectF.UnionRect              PROCEDURE(_RECT_ rc1, _RECT_ rc2)
+r                               LIKE(_RECT_)
+  CODE
+  IF winapi::UnionRect(r, rc1, rc2)
+    SELF.Assign(r)
+    RETURN TRUE
+  ELSE
+    RETURN FALSE
+  END
+  
+TRectF.UnionRect              PROCEDURE(TRect rc1, TRect rc2)
+r1                              LIKE(_RECT_)
+r2                              LIKE(_RECT_)
+  CODE
+  rc1.AssignTo(r1)
+  rc2.AssignTo(r2)
+  RETURN SELF.UnionRect(r1, r2)
+    
+TRectF.UnionRect              PROCEDURE(TRectF rc1, TRectF rc2)
+r1                              LIKE(_RECT_)
+r2                              LIKE(_RECT_)
+  CODE
+  rc1.AssignTo(r1)
+  rc2.AssignTo(r2)
+  RETURN SELF.UnionRect(r1, r2)
+
+TRectF.InflateRect            PROCEDURE(SREAL pDx, SREAL pDy)
+  CODE
+  SELF.left -= pDx
+  SELF.right += pDx
+  SELF.top -= pDy
+  SELF.bottom += pDy
+  RETURN TRUE
+!!!endregion
+
 !!!region TDC
 TDC.Construct                 PROCEDURE()
   CODE

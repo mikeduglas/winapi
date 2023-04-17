@@ -273,7 +273,7 @@ Equal                           PROCEDURE(*TPoint pt), BOOL
 ToString                        PROCEDURE(), STRING
                               END
 
-!- Rectangle
+!- Rectangle (integer)
 TRect                         CLASS(_RECT_), TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
 Width                           PROCEDURE(), SIGNED
 Width                           PROCEDURE(SIGNED pNewWidth)
@@ -313,6 +313,52 @@ UnionRect                       PROCEDURE(_RECT_ rc1, _RECT_ rc2), BOOL, PROC
 UnionRect                       PROCEDURE(TRect rc1, TRect rc2), BOOL, PROC
 
 InflateRect                     PROCEDURE(LONG pDx, LONG pDy), BOOL, PROC
+                              END
+
+!- Rectangle (float)
+TRectF                        CLASS, TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+left                            SREAL
+top                             SREAL
+right                           SREAL
+bottom                          SREAL
+Width                           PROCEDURE(), SREAL
+Width                           PROCEDURE(SREAL pNewWidth)
+Height                          PROCEDURE(), SREAL
+Height                          PROCEDURE(SREAL pNewHeight)
+
+!- assign rc to self
+Assign                          PROCEDURE(_RECT_ rc)
+Assign                          PROCEDURE(*TRect rc)
+Assign                          PROCEDURE(*TRectF rc)
+Assign                          PROCEDURE(SREAL left, SREAL top, SREAL right, SREAL bottom)
+
+!- assign self to rc
+AssignTo                        PROCEDURE(*_RECT_ rc)
+AssignTo                        PROCEDURE(*TRect rc)
+AssignTo                        PROCEDURE(*TRectF rc)
+
+Equal                           PROCEDURE(*TRectF rc), BOOL
+
+!- determines whether the specified point lies within the specified rectangle.
+PtInRect                        PROCEDURE(SREAL pX, SREAL pY), BOOL
+PtInRect                        PROCEDURE(*POINT pt), BOOL
+PtInRect                        PROCEDURE(*TPoint pt), BOOL
+
+Intersect                       PROCEDURE(_RECT_ rc), BOOL
+Intersect                       PROCEDURE(*TRect rc), BOOL
+Intersect                       PROCEDURE(*TRectF rc), BOOL
+
+OffsetRect                      PROCEDURE(SREAL pDx, SREAL pDy), BOOL, PROC
+
+ToString                        PROCEDURE(), STRING
+
+SetRectEmpty                    PROCEDURE()
+
+UnionRect                       PROCEDURE(_RECT_ rc1, _RECT_ rc2), BOOL, PROC
+UnionRect                       PROCEDURE(TRect rc1, TRect rc2), BOOL, PROC
+UnionRect                       PROCEDURE(TRectF rc1, TRectF rc2), BOOL, PROC
+
+InflateRect                     PROCEDURE(SREAL pDx, SREAL pDy), BOOL, PROC
                               END
 
 !- Device context
