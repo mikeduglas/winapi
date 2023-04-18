@@ -1,5 +1,5 @@
 !Base Windows classes
-!09.04.2023 revision
+!18.04.2023 revision
 !mikeduglas (c) 2019-2023
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -679,13 +679,16 @@ lfQuality                       BYTE
 lfPitchAndFamily                BYTE
 lfFaceName                      STRING(64)  !- 32 WCHARs including the terminating NULL
                               END
+
 TLogicalFont                  CLASS(TGdiObj), TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
 CreateFont                      PROCEDURE(HDC pDC, STRING pTypeface, UNSIGNED pSize, UNSIGNED pStyle = FONT:regular, LONG pCharset = CHARSET:DEFAULT), HFONT, PROC
 CreateFont                      PROCEDURE(*TDC pDC, STRING pTypeface, UNSIGNED pSize, UNSIGNED pStyle = FONT:regular, LONG pCharset = CHARSET:DEFAULT), HFONT, PROC
-CreateFontIndirect              PROCEDURE(*tagLOGFONTA lplf), HFONT, PROC
-CreateFontIndirectW             PROCEDURE(*tagLOGFONTW lplf), HFONT, PROC
-GetProperties                   PROCEDURE(*tagLOGFONTA lplf), BOOL, PROC
-GetPropertiesW                  PROCEDURE(*tagLOGFONTW lplf), BOOL, PROC
+CreateFontIndirect              PROCEDURE(*tagLOGFONTA plf), HFONT, PROC
+CreateFontIndirectW             PROCEDURE(*tagLOGFONTW plf), HFONT, PROC
+GetProperties                   PROCEDURE(*tagLOGFONTA plf), BOOL, PROC
+GetPropertiesW                  PROCEDURE(*tagLOGFONTW plf), BOOL, PROC
+EnumFontFamiliesEx              PROCEDURE(<STRING pFaceName>, BYTE pCharSet=0), LONG, PROC
+EnumFontFamiliesCB              PROCEDURE(LONG pLogFont, LONG ptextMetric, ULONG pFontType), LONG, PROTECTED, VIRTUAL
                               END
 
 !- I/O device

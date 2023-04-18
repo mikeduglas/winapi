@@ -1,5 +1,5 @@
 !Base Windows classes
-!09.04.2023 revision
+!18.04.2023 revision
 !mikeduglas (c) 2019-2023
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -69,8 +69,8 @@ DWORD                         EQUATE(ULONG)
       winapi::DeleteDC(HDC hdc), BOOL, PASCAL, PROC, NAME('DeleteDC')
       winapi::WindowFromDC(HDC hdc),HWND,PASCAL,NAME('WindowFromDC')
       winapi::GetCurrentObject(HDC hdc,UNSIGNED pObjType),HGDIOBJ,PASCAL,NAME('GetCurrentObject')
-      winapi::FillRect(HDC hdc, *_RECT_ lprc, HBRUSH hbr), BOOL, RAW, PASCAL, PROC, NAME('FillRect')
-      winapi::FrameRect(HDC hdc, *_RECT_ lprc, HBRUSH hbr), BOOL, RAW, PASCAL, PROC, NAME('FrameRect')
+      winapi::FillRect(HDC hdc, *_RECT_ lprc, HBRUSH hbr), BOOL,RAW,PASCAL,PROC,NAME('FillRect')
+      winapi::FrameRect(HDC hdc, *_RECT_ lprc, HBRUSH hbr), BOOL,RAW,PASCAL,PROC,NAME('FrameRect')
       winapi::CreateCompatibleDC(HDC hdc), HDC, PASCAL, NAME('CreateCompatibleDC')
       winapi::SelectObject(HDC hdc, HGDIOBJ hgdiobj), HGDIOBJ, PASCAL, PROC, NAME('SelectObject')
       winapi::GetObject(HGDIOBJ hgdiobj, LONG cbBuffer, LONG lpvObject), LONG, PASCAL, NAME('GetObjectA'),PROC
@@ -89,7 +89,7 @@ DWORD                         EQUATE(ULONG)
       winapi::CreateCompatibleBitmap(HDC hdc, SIGNED cx, SIGNED cy), HBITMAP, PASCAL, NAME('CreateCompatibleBitmap')
       winapi::LoadImage(HINSTANCE hInst, *CSTRING szIcon, UNSIGNED uType, SIGNED cxDesired, SIGNED cyDesired, UNSIGNED fuLoad),HANDLE,PASCAL,RAW,NAME('LoadImageA')
       winapi::CreatePen(SIGNED fnPenStyle, SIGNED nWidth, COLORREF crColor), HPEN, PASCAL, NAME('CreatePen')
-      winapi::MoveToEx(HDC hdc, SIGNED x, SIGNED y, *POINT lpPoint), BOOL, RAW, PASCAL, PROC, NAME('MoveToEx')
+      winapi::MoveToEx(HDC hdc, SIGNED x, SIGNED y, *POINT lpPoint), BOOL,RAW,PASCAL,PROC,NAME('MoveToEx')
       winapi::LineTo(HDC hdc, SIGNED x, SIGNED y), BOOL, PASCAL, PROC, NAME('LineTo')
       winapi::StretchBlt(HDC hdcDest, SIGNED nXDest, SIGNED nYDest, SIGNED nWidthDest, SIGNED |
         nHeightDest, HDC hdcSrc, SIGNED nXSrc, SIGNED nYSrc, SIGNED nWSrc, SIGNED nHSrc, LONG dwRop), BOOL, PASCAL, PROC, NAME('StretchBlt')
@@ -98,31 +98,33 @@ DWORD                         EQUATE(ULONG)
       winapi::UpdateWindow(HWND hWnd),BOOL,PASCAL,PROC,NAME('UpdateWindow')
       winapi::EnableWindow(HWND hWnd,BOOL bEnable),BOOL,PASCAL,PROC,NAME('EnableWindow')
       winapi::IsWindowVisible(HWND hWnd),BOOL,PASCAL,PROC,NAME('IsWindowVisible')
-      winapi::RedrawWindow(HWND hWnd, *_RECT_ lprcUpdate, HRGN hrgnUpdate, UNSIGNED flags), BOOL, RAW, PASCAL, PROC, NAME('RedrawWindow')
-      winapi::RedrawWindow(HWND hWnd, LONG lprcUpdate, HRGN hrgnUpdate, UNSIGNED flags), BOOL, RAW, PASCAL, PROC, NAME('RedrawWindow')
-      winapi::DrawText(HDC hdc, LONG lpchText, LONG cchText, *_RECT_ lprc, LONG format), LONG, PROC, RAW, PASCAL, NAME('DrawTextA')
-      winapi::DrawTextW(HDC hdc, LONG lpchText, LONG cchText, *_RECT_ lprc, LONG format), LONG, PROC, RAW, PASCAL, NAME('DrawTextW')
-      winapi::TextOut(HDC hdc, LONG x, LONG y, LONG pText, LONG len), BOOL, PROC, PASCAL, NAME('TextOutA')
-      winapi::GetTextColor(HDC HDC), COLORREF, PROC, PASCAL, NAME('GetTextColor')
-      winapi::SetTextColor(HDC HDC, COLORREF color), COLORREF, PROC, PASCAL, NAME('SetTextColor')
+      winapi::RedrawWindow(HWND hWnd, *_RECT_ lprcUpdate, HRGN hrgnUpdate, UNSIGNED flags), BOOL,RAW,PASCAL,PROC,NAME('RedrawWindow')
+      winapi::RedrawWindow(HWND hWnd, LONG lprcUpdate, HRGN hrgnUpdate, UNSIGNED flags), BOOL,RAW,PASCAL,PROC,NAME('RedrawWindow')
+      winapi::DrawText(HDC hdc, LONG lpchText, LONG cchText, *_RECT_ lprc, LONG format), LONG,PROC,RAW,PASCAL,NAME('DrawTextA')
+      winapi::DrawTextW(HDC hdc, LONG lpchText, LONG cchText, *_RECT_ lprc, LONG format), LONG,PROC,RAW,PASCAL,NAME('DrawTextW')
+      winapi::TextOut(HDC hdc, LONG x, LONG y, LONG pText, LONG len), BOOL,PROC,PASCAL,NAME('TextOutA')
+      winapi::GetTextColor(HDC HDC), COLORREF,PROC,PASCAL,NAME('GetTextColor')
+      winapi::SetTextColor(HDC HDC, COLORREF color), COLORREF,PROC,PASCAL,NAME('SetTextColor')
       winapi::GetTextExtentPoint32A(HDC hdc,LONG lpString,LONG pLen,LONG psizl),BOOL,PROC,PASCAL,NAME('GetTextExtentPoint32A')
       winapi::GetTextExtentPoint32W(HDC hdc,LONG lpString,LONG pLen,LONG psizl),BOOL,PROC,PASCAL,NAME('GetTextExtentPoint32W')
-      winapi::GetBkColor(HDC HDC), COLORREF, PROC, PASCAL, NAME('GetBkColor')
-      winapi::SetBkColor(HDC HDC, COLORREF color), COLORREF, PROC, PASCAL, NAME('SetBkColor')
-      winapi::SetBkMode(HDC HDC, LONG mode), LONG, PROC, PASCAL, NAME('SetBkMode')
+      winapi::GetBkColor(HDC HDC), COLORREF,PROC,PASCAL,NAME('GetBkColor')
+      winapi::SetBkColor(HDC HDC, COLORREF color), COLORREF,PROC,PASCAL,NAME('SetBkColor')
+      winapi::SetBkMode(HDC HDC, LONG mode), LONG,PROC,PASCAL,NAME('SetBkMode')
       winapi::CreateFont(SIGNED nHeight, SIGNED nWidth, SIGNED nEscapement, SIGNED nOrientation, SIGNED fnWeight, UNSIGNED fdwItalic, |
         UNSIGNED fdwUnderline, UNSIGNED fdwStrikeOut, UNSIGNED fdwCharSet, UNSIGNED fdwOutputPrecision, UNSIGNED fdwClipPrecision, | 
-        UNSIGNED fdwQuality, UNSIGNED fdwPitchAndFamily, *CSTRING lpszFace), HFONT, PASCAL, RAW, NAME('CreateFontA')
-      winapi::CreateFontIndirect(*tagLOGFONTA lplf),HFONT, PASCAL, RAW, NAME('CreateFontIndirectA')
-      winapi::CreateFontIndirectW(*tagLOGFONTW lplf),HFONT, PASCAL, RAW, NAME('CreateFontIndirectW')
+        UNSIGNED fdwQuality, UNSIGNED fdwPitchAndFamily, *CSTRING lpszFace), HFONT,PASCAL,RAW,NAME('CreateFontA')
+      winapi::CreateFontIndirect(*tagLOGFONTA lplf),HFONT,PASCAL,RAW,NAME('CreateFontIndirectA')
+      winapi::CreateFontIndirectW(*tagLOGFONTW lplf),HFONT,PASCAL,RAW,NAME('CreateFontIndirectW')
+      winapi::EnumFontFamiliesEx(HDC hdc,LONG lpLogfont,LONG lpProc,LONG lParam,ULONG dwFlags),LONG,PASCAL,RAW,NAME('EnumFontFamiliesExA')
+
       winapi::GetDeviceCaps(HDC pDC, LONG pIndex), LONG, PASCAL, NAME('GetDeviceCaps')
-      winapi::SetGraphicsMode(HDC pDC, LONG pMode), LONG, PROC, PASCAL, NAME('SetGraphicsMode')
-      winapi::SetMapMode(HDC pDC, LONG pMode), LONG, PROC, PASCAL, NAME('SetMapMode')
-      winapi::SetWorldTransform(HDC pDC, LONG lpxf), BOOL, PROC, PASCAL, NAME('SetWorldTransform')
-      winapi::ModifyWorldTransform(HDC pDC, LONG lpxf, UNSIGNED pMode), BOOL, PROC, PASCAL, NAME('ModifyWorldTransform')
-      winapi::DPtoLP(HDC pDC, LONG lppt, LONG pNumPoints), BOOL, PROC, PASCAL, NAME('DPtoLP')
+      winapi::SetGraphicsMode(HDC pDC, LONG pMode), LONG,PROC,PASCAL,NAME('SetGraphicsMode')
+      winapi::SetMapMode(HDC pDC, LONG pMode), LONG,PROC,PASCAL,NAME('SetMapMode')
+      winapi::SetWorldTransform(HDC pDC, LONG lpxf), BOOL,PROC,PASCAL,NAME('SetWorldTransform')
+      winapi::ModifyWorldTransform(HDC pDC, LONG lpxf, UNSIGNED pMode), BOOL,PROC,PASCAL,NAME('ModifyWorldTransform')
+      winapi::DPtoLP(HDC pDC, LONG lppt, LONG pNumPoints), BOOL,PROC,PASCAL,NAME('DPtoLP')
       winapi::MulDiv(LONG,LONG,LONG), LONG, PASCAL, NAME('MulDiv')
-      winapi::ExcludeClipRect(HDC hdc, LONG left, LONG top, LONG right, LONG bottom), LONG, PROC, PASCAL, NAME('ExcludeClipRect')
+      winapi::ExcludeClipRect(HDC hdc, LONG left, LONG top, LONG right, LONG bottom), LONG,PROC,PASCAL,NAME('ExcludeClipRect')
       winapi::ExtTextOut(HDC hdc,LONG x,LONG y,ULONG options,*_RECT_ lprect,LONG lpString,ULONG lenstr,LONG lpDx),BOOL,PROC,RAW,PASCAL,NAME('ExtTextOutA')
       winapi::LPtoDP(HDC hdc,LONG ppt,LONG pCount),BOOL,PROC,PASCAL,NAME('LPtoDP')
 
@@ -256,6 +258,10 @@ DWORD                         EQUATE(ULONG)
 
     BNOT(UNSIGNED pValue), UNSIGNED, PRIVATE  !- bitwise NOT
     MAKERESOURCE(CONST *CSTRING pNameOrNumber), LONG, PRIVATE !- returns an address of resource name or its value if it is a number
+
+    !!!region callbacks
+    callback::EnumFontFamExProc(LONG lpelfe,LONG lpntme,ULONG pFontType,LONG lParam),LONG,PASCAL
+    !!!endregion
   END
 
 !!!region QueryFullProcessImageName
@@ -488,6 +494,46 @@ uNumber                         USHORT, AUTO
   END
 !!!endregion
   
+!!!region Callbacks
+!callback::EnumFontFamExProc   PROCEDURE(LONG lpelfe,LONG lpntme,ULONG pFontType,LONG lParam)
+!lf                              &tagLOGFONTA
+!f                               &TLogicalFont
+!  CODE
+!  f &= (lParam)
+!  IF lpelfe
+!    lf &= (lpelfe)
+!    printd('EnumFontFamExProc(face=%s, size=%ix%i, weight=%i)', lf.lfFaceName, lf.lfWidth, lf.lfHeight, lf.lfWeight)
+!  END
+!  RETURN 1  !The return value must be a nonzero value to continue enumeration; to stop enumeration, the return value must be zero.
+callback::EnumFontFamExProc   PROCEDURE(LONG lpelfe,LONG lpntme,ULONG pFontType,LONG lParam)
+f                               &TLogicalFont
+  CODE
+  IF lParam
+    f &= (lParam)
+    RETURN f.EnumFontFamiliesCB(lpelfe, lpntme, pFontType)
+  END
+  RETURN 1  !The return value must be a nonzero value to continue enumeration; to stop enumeration, the return value must be zero.
+!callback::EnumFontFamExProc   PROCEDURE(LONG lpelfe,LONG lpntme,ULONG pFontType,LONG lParam)
+!lf                              &tagLOGFONTA
+!q                               &tagLOGFONTQ
+!  CODE
+!  printd('callback::EnumFontFamExProc: lParam.%x', lParam)
+!  RETURN 1
+!  q &= (lParam)
+!  IF q &= NULL
+!    printd('callback::EnumFontFamExProc: queue is null.')
+!    RETURN 0
+!  END
+!  
+!  IF lpelfe
+!    lf &= (lpelfe)
+!    q :=: lf
+!    ADD(q)
+!    printd('callback::EnumFontFamExProc(face=%s, size=%ix%i, weight=%i)', q.lfFaceName, q.lfWidth, q.lfHeight, q.lfWeight)
+!  END
+!  RETURN 1  !The return value must be a nonzero value to continue enumeration; to stop enumeration, the return value must be zero.
+!!!endregion
+
 !!!region TWnd
 TWnd.Construct                PROCEDURE()
   CODE
@@ -2431,6 +2477,19 @@ TLogicalFont.GetProperties    PROCEDURE(*tagLOGFONTA lplf)
 TLogicalFont.GetPropertiesW   PROCEDURE(*tagLOGFONTW lplf)
   CODE
   RETURN CHOOSE(SELF.GetObject(SIZE(tagLOGFONTW), ADDRESS(lplf)) <> 0)
+  
+TLogicalFont.EnumFontFamiliesEx   PROCEDURE(<STRING pFaceName>, BYTE pCharSet=0)
+dc                                  TDC
+lf                                  LIKE(tagLOGFONTA)
+  CODE
+  dc.GetDC(0)
+  lf.lfFaceName = pFaceName
+  lf.lfCharSet = pCharSet
+  RETURN winapi::EnumFontFamiliesEx(dc.GetHandle(), ADDRESS(lf), ADDRESS(callback::EnumFontFamExProc), ADDRESS(SELF), 0)
+  
+TLogicalFont.EnumFontFamiliesCB   PROCEDURE(LONG pLogFont, LONG ptextMetric, ULONG pFontType)
+  CODE
+  RETURN 1
 !!!endregion
   
 !!!region TIODevice
