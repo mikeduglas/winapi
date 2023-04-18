@@ -1,3 +1,6 @@
+18.04.2023
+- TLogicalFont: EnumFontFamiliesEx method added.
+
 17.04.2023
 - TRectF class added.
 
