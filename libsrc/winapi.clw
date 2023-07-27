@@ -833,6 +833,13 @@ TWnd.ClientToScreen           PROCEDURE(*POINT ppt)
   CODE
   winapi::ClientToScreen(SELF.hwnd, ppt)
   
+TWnd.ClientToScreen           PROCEDURE(*TPoint ppt)
+pt                              LIKE(POINT)
+  CODE
+  SELF.ClientToScreen(pt)
+  ppt.x = pt.x
+  ppt.y = pt.y
+
 TWnd.ClientToScreen           PROCEDURE(*_RECT_ prc)
 pt1                             LIKE(POINT), AUTO
 pt2                             LIKE(POINT), AUTO

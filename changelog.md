@@ -1,3 +1,6 @@
+27.07.2023
+- TWnd: ClientToScreen(*TPoint ppt) overloaded method.
+
 18.04.2023
 - TLogicalFont: EnumFontFamiliesEx method added.
 

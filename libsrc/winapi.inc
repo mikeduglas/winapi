@@ -125,6 +125,7 @@ ScreenToClient                  PROCEDURE(*TPoint ppt)
 ScreenToClient                  PROCEDURE(*_RECT_ prc)
 ScreenToClient                  PROCEDURE(*TRect prc)
 ClientToScreen                  PROCEDURE(*POINT ppt)
+ClientToScreen                  PROCEDURE(*TPoint ppt)
 ClientToScreen                  PROCEDURE(*_RECT_ prc)
 ClientToScreen                  PROCEDURE(*TRect prc)
 
