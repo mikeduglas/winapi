@@ -12,6 +12,7 @@ A set of helper classes:
 - TBrush (GDI brush)
 - TBitmap (GDI bitmap)
 - TLogicalFont (GDI font)
+- TRgn (GDI region)
 - TIODevice (I/O device)
 - TDiskFile (file)
 - TTempFile (temp files and folders)

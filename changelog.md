@@ -1,3 +1,8 @@
+05.05.2025
+- TRgn class added (region GDI object).
+- TWnd, TDC classes: new and overloaded methods that support the region objects:
+TWnd.RedrawWindow, TDC.GetDCEx, TDC.SelectClipRgn, TDC.FillRgn, TDC.FrameRgn, TDC.InvertRgn, TDC.PaintRgn, TDC.PolyFillMode.
+
 27.07.2023
 - TWnd: ClientToScreen(*TPoint ppt) overloaded method.
 

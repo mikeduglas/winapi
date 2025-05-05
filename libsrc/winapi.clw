@@ -1,6 +1,6 @@
 !Base Windows classes
-!18.04.2023 revision
-!mikeduglas (c) 2019-2023
+!05.05.2025 revision
+!mikeduglas (c) 2019-2025
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
   MEMBER
@@ -117,6 +117,19 @@ DWORD                         EQUATE(ULONG)
       winapi::CreateFontIndirectW(*tagLOGFONTW lplf),HFONT,PASCAL,RAW,NAME('CreateFontIndirectW')
       winapi::EnumFontFamiliesEx(HDC hdc,LONG lpLogfont,LONG lpProc,LONG lParam,ULONG dwFlags),LONG,PASCAL,RAW,NAME('EnumFontFamiliesExA')
 
+      winapi::CreateRectRgn(LONG pX1,LONG pY1,LONG pX2,LONG pY2),HRGN,PASCAL,NAME('CreateRectRgn')
+      winapi::CreateRoundRectRgn(LONG pX1,LONG pY1,LONG pX2,LONG pY2,LONG pWidth,LONG pHeight),HRGN,PASCAL,NAME('CreateRoundRectRgn')
+      winapi::CreateEllipticRgn(LONG pX1,LONG pY1,LONG pX2,LONG pY2),HRGN,PASCAL,NAME('CreateEllipticRgn')
+      winapi::CreatePolygonRgn(LONG pPoints,LONG pCount,LONG pFillMode),HRGN,PASCAL,NAME('CreatePolygonRgn')
+      winapi::CreatePolyPolygonRgn(LONG pPolygons,LONG pPolyCounts,LONG pPolyCountsCount,LONG pFillMode),HRGN,PASCAL,NAME('CreatePolyPolygonRgn')
+      winapi::SetRectRgn(HRGN hrgn,LONG pX1,LONG pY1,LONG pX2,LONG pY2),BOOL,PASCAL,NAME('SetRectRgn')
+      winapi::CombineRgn(HRGN hDst,HRGN hSrc1,HRGN hSrc2,LONG pFillMode),LONG,PASCAL,NAME('CombineRgn')
+      winapi::EqualRgn(HRGN hrgn1,HRGN hrgn2),BOOL,PASCAL,NAME('EqualRgn')
+      winapi::GetRgnBox(HRGN hrgn,LONG pRect),LONG,PASCAL,NAME('GetRgnBox')
+      winapi::OffsetRgn(HRGN hrgn,LONG pX,LONG pY),LONG,PASCAL,NAME('OffsetRgn')
+      winapi::PtInRegion(HRGN hrgn,LONG pX,LONG pY),BOOL,PASCAL,NAME('PtInRegion')
+      winapi::RectInRegion(HRGN hrgn,LONG pRect),BOOL,PASCAL,NAME('RectInRegion')
+
       winapi::GetDeviceCaps(HDC pDC, LONG pIndex), LONG, PASCAL, NAME('GetDeviceCaps')
       winapi::SetGraphicsMode(HDC pDC, LONG pMode), LONG,PROC,PASCAL,NAME('SetGraphicsMode')
       winapi::SetMapMode(HDC pDC, LONG pMode), LONG,PROC,PASCAL,NAME('SetMapMode')
@@ -124,9 +137,11 @@ DWORD                         EQUATE(ULONG)
       winapi::ModifyWorldTransform(HDC pDC, LONG lpxf, UNSIGNED pMode), BOOL,PROC,PASCAL,NAME('ModifyWorldTransform')
       winapi::DPtoLP(HDC pDC, LONG lppt, LONG pNumPoints), BOOL,PROC,PASCAL,NAME('DPtoLP')
       winapi::MulDiv(LONG,LONG,LONG), LONG, PASCAL, NAME('MulDiv')
-      winapi::ExcludeClipRect(HDC hdc, LONG left, LONG top, LONG right, LONG bottom), LONG,PROC,PASCAL,NAME('ExcludeClipRect')
       winapi::ExtTextOut(HDC hdc,LONG x,LONG y,ULONG options,*_RECT_ lprect,LONG lpString,ULONG lenstr,LONG lpDx),BOOL,PROC,RAW,PASCAL,NAME('ExtTextOutA')
       winapi::LPtoDP(HDC hdc,LONG ppt,LONG pCount),BOOL,PROC,PASCAL,NAME('LPtoDP')
+
+      winapi::SelectClipRgn(HDC hdc, HRGN hrgn),LONG,PROC,PASCAL,NAME('SelectClipRgn')
+      winapi::ExcludeClipRect(HDC hdc, LONG left,LONG top, LONG right, LONG bottom), LONG,PROC,PASCAL,NAME('ExcludeClipRect')
 
       winapi::SetCapture(HWND hwnd), HWND, PASCAL, PROC, NAME('SetCapture')
       winapi::ReleaseCapture(), BOOL, PASCAL, PROC, NAME('ReleaseCapture')
@@ -167,8 +182,15 @@ DWORD                         EQUATE(ULONG)
       winapi::Ellipse(HDC hdc,LONG pLeft,LONG pTop,LONG pRight,LONG pBottom),BOOL,PROC,PASCAL,NAME('Ellipse')
       winapi::Rectangle(HDC hdc,LONG pLeft,LONG pTop,LONG pRight,LONG pBottom),BOOL,PROC,PASCAL,NAME('Rectangle')
       winapi::RoundRect(HDC hdc,SIGNED left,SIGNED top,SIGNED right,SIGNED bottom,SIGNED width,SIGNED height),BOOL,PROC,RAW,PASCAL,NAME('RoundRect')
-      winapi::Polygon(HDC HDC, LONG apt, LONG cpt),BOOL,PASCAL,PROC,NAME('Polygon')
+      winapi::Polygon(HDC hdc, LONG apt, LONG cpt),BOOL,PASCAL,PROC,NAME('Polygon')
       winapi::Pie(HDC hdc,LONG left,LONG top,LONG right,LONG bottom,LONG xr1,LONG yr1,LONG xr2,LONG yr2),BOOL,PASCAL,PROC,NAME('Pie')
+
+      winapi::FillRgn(HDC hdc,HRGN hrgn,HBRUSH hbr),BOOL,PASCAL,PROC,NAME('FillRgn')
+      winapi::FrameRgn(HDC hdc,HRGN hrgn,HBRUSH hbr,LONG w,LONG h),BOOL,PASCAL,PROC,NAME('FrameRgn')
+      winapi::InvertRgn(HDC hdc,HRGN hrgn),BOOL,PASCAL,PROC,NAME('InvertRgn')
+      winapi::PaintRgn(HDC hdc,HRGN hrgn),BOOL,PASCAL,PROC,NAME('PaintRgn')
+      winapi::GetPolyFillMode(HDC hdc),LONG,PASCAL,PROC,NAME('GetPolyFillMode')
+      winapi::SetPolyFillMode(HDC hdc,LONG mode),LONG,PASCAL,PROC,NAME('SetPolyFillMode')
 
       winapi::GetArcDirection(HDC hdc),LONG,PASCAL,NAME('GetArcDirection')
       winapi::SetArcDirection(HDC hdc,LONG dir),LONG,PASCAL,NAME('SetArcDirection')
@@ -905,6 +927,12 @@ r                               LIKE(_RECT_), AUTO
   CODE
   rc.AssignTo(r)
   RETURN SELF.RedrawWindow(r, hrgnUpdate, pFlags)
+
+TWnd.RedrawWindow             PROCEDURE(*TRect rc, *TRgn pRgnUpdate, UNSIGNED pFlags)
+r                               LIKE(_RECT_), AUTO
+  CODE
+  rc.AssignTo(r)
+  RETURN SELF.RedrawWindow(r, pRgnUpdate.handle, pFlags)
 
 TWnd.RedrawWindow             PROCEDURE(UNSIGNED pFlags)
   CODE
@@ -1682,17 +1710,25 @@ TDC.GetDC                     PROCEDURE(TWnd wnd)
   CODE
   RETURN SELF.GetDC(wnd.GetHandle())
   
-TDC.GetDCEx                   PROCEDURE(HWND hwnd, HRGN hrgn, ULONG flags)
+TDC.GetDCEx                   PROCEDURE(HWND hwnd, HRGN hrgnClip, ULONG flags)
   CODE
   SELF.ReleaseDC()
   SELF.hwnd = hwnd
-  SELF.handle = winapi::GetDCEx(hwnd, hrgn, flags)
+  SELF.handle = winapi::GetDCEx(hwnd, hrgnClip, flags)
   RETURN SELF.handle
-  
-TDC.GetDCEx                   PROCEDURE(TWnd wnd, HRGN hrgn, ULONG flags)
+    
+TDC.GetDCEx                   PROCEDURE(HWND hwnd, TRgn pRgnClip, ULONG flags)
   CODE
-  RETURN SELF.GetDCEx(wnd.GetHandle(), hrgn, flags)
+  RETURN SELF.GetDCEx(hwnd, pRgnClip.handle, flags)
+
+TDC.GetDCEx                   PROCEDURE(TWnd wnd, HRGN hrgnClip, ULONG flags)
+  CODE
+  RETURN SELF.GetDCEx(wnd.GetHandle(), hrgnClip, flags)
   
+TDC.GetDCEx                   PROCEDURE(TWnd wnd, TRgn pRgnClip, ULONG flags)
+  CODE
+  RETURN SELF.GetDCEx(wnd.GetHandle(), pRgnClip.handle, flags)
+
 TDC.GetDCEx                   PROCEDURE(HWND hwnd, ULONG flags)
   CODE
   RETURN SELF.GetDCEx(hwnd, 0, flags)
@@ -1988,6 +2024,10 @@ r                               LIKE(_RECT_), AUTO
   rc.AssignTo(r)
   RETURN SELF.DrawFocusRect(r)
 
+TDC.SelectClipRgn             PROCEDURE(TRgn pRgn)
+  CODE
+  RETURN winapi::SelectClipRgn(SELF.handle, pRgn.handle)
+  
 TDC.ExcludeClipRect           PROCEDURE(*_RECT_ pRect)
   CODE
   RETURN winapi::ExcludeClipRect(SELF.handle, pRect.left, pRect.top, pRect.right, pRect.bottom)
@@ -2157,6 +2197,31 @@ TDC.LPtoDP                    PROCEDURE(*POINT ppt)
 TDC.LPtoDP                    PROCEDURE(LONG ppt, LONG pCount)
   CODE
   RETURN winapi::LPtoDP(SELF.handle, ppt, pCount)
+  
+TDC.FillRgn                   PROCEDURE(TRgn pRgn, TBrush pBrush)
+  CODE
+  RETURN winapi::FillRgn(SELF.handle, pRgn.handle, pBrush.handle)
+    
+TDC.FrameRgn                  PROCEDURE(TRgn pRgn, TBrush pBrush, LONG pWidth, LONG pHeight)
+  CODE
+  RETURN winapi::FrameRgn(SELF.handle, pRgn.handle, pBrush.handle, pWidth, pHeight)
+
+TDC.InvertRgn                 PROCEDURE(TRgn pRgn)
+  CODE
+  RETURN winapi::InvertRgn(SELF.handle, pRgn.handle)
+  
+TDC.PaintRgn                  PROCEDURE(TRgn pRgn)
+  CODE
+  RETURN winapi::PaintRgn(SELF.handle, pRgn.handle)
+
+TDC.PolyFillMode              PROCEDURE(<LONG pMode>)
+  CODE
+  IF OMITTED(pMode)
+    RETURN winapi::GetPolyFillMode(SELF.handle)
+  ELSE
+    winapi::SetPolyFillMode(SELF.handle, pMode)
+    RETURN pMode
+  END
 !!!endregion
   
 !!!region TPaintDC
@@ -2499,6 +2564,89 @@ TLogicalFont.EnumFontFamiliesCB   PROCEDURE(LONG pLogFont, LONG ptextMetric, ULO
   RETURN 1
 !!!endregion
   
+!!!region TRgn
+TRgn.CreateRectRgn            PROCEDURE(LONG pX1, LONG pY1, LONG pX2, LONG pY2)
+  CODE
+  SELF.handle = winapi::CreateRectRgn(pX1, pY1, pX2, pY2)
+  RETURN SELF.handle
+  
+TRgn.CreateRectRgn            PROCEDURE(TRect pRect)
+  CODE
+  RETURN SELF.CreateRectRgn(pRect.left, pRect.top, pRect.right, pRect.bottom)
+  
+TRgn.CreateRoundRectRgn       PROCEDURE(LONG pX1, LONG pY1, LONG pX2, LONG pY2, LONG pWidth, LONG pHeight)
+  CODE
+  SELF.handle = winapi::CreateRoundRectRgn(pX1, pY1, pX2, pY2, pWidth, pHeight)
+  RETURN SELF.handle
+  
+TRgn.CreateRoundRectRgn       PROCEDURE(TRect pRect, LONG pWidth, LONG pHeight)
+  CODE
+  RETURN SELF.CreateRoundRectRgn(pRect.left, pRect.top, pRect.right, pRect.bottom, pWidth, pHeight)
+
+TRgn.CreateEllipticRgn        PROCEDURE(LONG pX1, LONG pY1, LONG pX2, LONG pY2)
+  CODE
+  SELF.handle = winapi::CreateEllipticRgn(pX1, pY1, pX2, pY2)
+  RETURN SELF.handle
+  
+TRgn.CreateEllipticRgn        PROCEDURE(TRect pRect)
+  CODE
+  RETURN SELF.CreateEllipticRgn(pRect.left, pRect.top, pRect.right, pRect.bottom)
+
+TRgn.CreatePolygonRgn         PROCEDURE(LONG pPointsAdr, LONG pPointsCount, LONG pFillMode)
+  CODE
+  SELF.handle = winapi::CreatePolygonRgn(pPointsAdr, pPointsCount, pFillMode)
+  RETURN SELF.handle
+
+TRgn.CreatePolyPolygonRgn     PROCEDURE(LONG pPointsAdr, *LONG[] pPolyCounts, LONG pFillMode)
+  CODE
+  SELF.handle = winapi::CreatePolyPolygonRgn(pPointsAdr, ADDRESS(pPolyCounts), MAXIMUM(pPolyCounts, 1), pFillMode)
+  RETURN SELF.handle
+
+TRgn.SetRectRgn               PROCEDURE(LONG pX1, LONG pY1, LONG pX2, LONG pY2)
+  CODE
+  RETURN winapi::SetRectRgn(SELF.handle, pX1, pY1, pX2, pY2)
+  
+TRgn.SetRectRgn               PROCEDURE(TRect pRect)
+  CODE
+  RETURN SELF.SetRectRgn(pRect.left, pRect.top, pRect.right, pRect.bottom)
+  
+TRgn.CombineRgn               PROCEDURE(TRgn pSrc1, TRgn pSrc2, LONG pFillMode)
+  CODE
+  RETURN winapi::CombineRgn(SELF.handle, pSrc1.handle, pSrc2.handle, pFillMode)
+  
+TRgn.EqualRgn                 PROCEDURE(TRgn pRgn)
+  CODE
+  RETURN winapi::EqualRgn(SELF.handle, pRgn.handle)
+  
+TRgn.GetRgnBox                PROCEDURE(*TRect pRect)
+rc                              LIKE(_RECT_), AUTO
+complexity                      LONG, AUTO
+  CODE
+  complexity = winapi::GetRgnBox(SELF.handle, ADDRESS(rc))
+  pRect.Assign(rc)
+  RETURN complexity
+  
+TRgn.OffsetRgn                PROCEDURE(LONG pX, LONG pY)
+complexity                      LONG, AUTO
+  CODE
+  complexity = winapi::OffsetRgn(SELF.handle, pX, pY)
+  RETURN complexity
+
+TRgn.PtInRegion               PROCEDURE(LONG pX, LONG pY)
+  CODE
+  RETURN winapi::OffsetRgn(SELF.handle, pX, pY)
+  
+TRgn.PtInRegion               PROCEDURE(TPoint pt)
+  CODE
+  RETURN SELF.PtInRegion(pt.x, pt.y)
+  
+TRgn.RectInRegion             PROCEDURE(TRect pRect)
+rc                              LIKE(_RECT_), AUTO
+  CODE
+  pRect.AssignTo(rc)
+  RETURN winapi::RectInRegion(SELF.handle, ADDRESS(rc))
+!!!endregion
+
 !!!region TIODevice
 TIODevice.GetHandle           PROCEDURE()
   CODE

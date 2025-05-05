@@ -1,6 +1,6 @@
 !Base Windows classes
-!18.04.2023 revision
-!mikeduglas (c) 2019-2023
+!05.05.2025 revision
+!mikeduglas (c) 2019-2025
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
   INCLUDE('svapi.inc'), ONCE
@@ -142,6 +142,7 @@ IsWindowVisible                 PROCEDURE(), BOOL
 
 RedrawWindow                    PROCEDURE(*_RECT_ rc, HRGN hrgnUpdate, UNSIGNED pFlags), BOOL, PROC
 RedrawWindow                    PROCEDURE(*TRect rc, HRGN hrgnUpdate, UNSIGNED pFlags), BOOL, PROC
+RedrawWindow                    PROCEDURE(*TRect rc, *TRgn pRgnUpdate, UNSIGNED pFlags), BOOL, PROC
 RedrawWindow                    PROCEDURE(UNSIGNED pFlags), BOOL, PROC  !- both rc and hrgn are NULL
 
 Redraw                          PROCEDURE(_RECT_ rc), BOOL, PROC
@@ -374,8 +375,10 @@ FromHDC                         PROCEDURE(HDC pDC)
 FromHDC                         PROCEDURE(HDC pDC, HWND hwnd)
 GetDC                           PROCEDURE(HWND hwnd), HDC, PROC, VIRTUAL
 GetDC                           PROCEDURE(TWnd wnd), HDC, PROC
-GetDCEx                         PROCEDURE(HWND hwnd, HRGN hrgn, ULONG flags), HDC, PROC
-GetDCEx                         PROCEDURE(TWnd wnd, HRGN hrgn, ULONG flags), HDC, PROC
+GetDCEx                         PROCEDURE(HWND hwnd, HRGN hrgnClip, ULONG flags), HDC, PROC
+GetDCEx                         PROCEDURE(HWND hwnd, TRgn pRgnClip, ULONG flags), HDC, PROC
+GetDCEx                         PROCEDURE(TWnd wnd, HRGN hrgnClip, ULONG flags), HDC, PROC
+GetDCEx                         PROCEDURE(TWnd wnd, TRgn pRgnClip, ULONG flags), HDC, PROC
 GetDCEx                         PROCEDURE(HWND hwnd, ULONG flags), HDC, PROC
 GetDCEx                         PROCEDURE(TWnd wnd, ULONG flags), HDC, PROC
 GetWindowDC                     PROCEDURE(HWND hwnd), HDC, PROC
@@ -523,6 +526,9 @@ SetArcDirection                 PROCEDURE(LONG dir), LONG, PROC
 DrawFocusRect                   PROCEDURE(*_RECT_ rc), BOOL, PROC
 DrawFocusRect                   PROCEDURE(*TRect rc), BOOL, PROC
 
+
+SelectClipRgn                   PROCEDURE(TRgn pRgn), LONG, PROC
+
 ExcludeClipRect                 PROCEDURE(*_RECT_ pRect), LONG, PROC
 ExcludeClipRect                 PROCEDURE(*TRect pRect), LONG, PROC
 
@@ -585,6 +591,12 @@ Draw3dRect                      PROCEDURE(LONG pX, LONG pY, LONG pW, LONG pH, LO
 
 LPtoDP                          PROCEDURE(*POINT ppt), BOOL, PROC
 LPtoDP                          PROCEDURE(LONG ppt, LONG pCount), BOOL, PROC
+
+FillRgn                         PROCEDURE(TRgn pRgn, TBrush pBrush), BOOL, PROC
+FrameRgn                        PROCEDURE(TRgn pRgn, TBrush pBrush, LONG pWidth, LONG pHeight), BOOL, PROC
+InvertRgn                       PROCEDURE(TRgn pRgn), BOOL, PROC
+PaintRgn                        PROCEDURE(TRgn pRgn), BOOL, PROC
+PolyFillMode                    PROCEDURE(<LONG pMode>), LONG, PROC
                               END
 
 !- TPaintDC
@@ -690,6 +702,27 @@ GetProperties                   PROCEDURE(*tagLOGFONTA plf), BOOL, PROC
 GetPropertiesW                  PROCEDURE(*tagLOGFONTW plf), BOOL, PROC
 EnumFontFamiliesEx              PROCEDURE(<STRING pFaceName>, BYTE pCharSet=0), LONG, PROC
 EnumFontFamiliesCB              PROCEDURE(LONG pLogFont, LONG ptextMetric, ULONG pFontType), LONG, PROTECTED, VIRTUAL
+                              END
+
+!- Region
+TRgn                          CLASS(TGdiObj), TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+CreateRectRgn                   PROCEDURE(LONG pX1, LONG pY1, LONG pX2, LONG pY2), HRGN, PROC
+CreateRectRgn                   PROCEDURE(TRect pRect), HRGN, PROC
+CreateRoundRectRgn              PROCEDURE(LONG pX1, LONG pY1, LONG pX2, LONG pY2, LONG pWidth, LONG pHeight), HRGN, PROC
+CreateRoundRectRgn              PROCEDURE(TRect pRect, LONG pWidth, LONG pHeight), HRGN, PROC
+CreateEllipticRgn               PROCEDURE(LONG pX1, LONG pY1, LONG pX2, LONG pY2), HRGN, PROC
+CreateEllipticRgn               PROCEDURE(TRect pRect), HRGN, PROC
+CreatePolygonRgn                PROCEDURE(LONG pPointsAdr, LONG pPointsCount, LONG pFillMode), HRGN, PROC
+CreatePolyPolygonRgn            PROCEDURE(LONG pPointsAdr, *LONG[] pPolyCounts, LONG pFillMode), HRGN, PROC
+SetRectRgn                      PROCEDURE(LONG pX1, LONG pY1, LONG pX2, LONG pY2), BOOL, PROC
+SetRectRgn                      PROCEDURE(TRect pRect), BOOL, PROC
+CombineRgn                      PROCEDURE(TRgn pSrc1, TRgn pSrc2, LONG pFillMode), LONG, PROC
+EqualRgn                        PROCEDURE(TRgn pRgn), BOOL
+GetRgnBox                       PROCEDURE(*TRect pRect), LONG, PROC
+OffsetRgn                       PROCEDURE(LONG pX, LONG pY), LONG, PROC
+PtInRegion                      PROCEDURE(LONG pX, LONG pY), BOOL
+PtInRegion                      PROCEDURE(TPoint pt), BOOL
+RectInRegion                    PROCEDURE(TRect pRect), BOOL
                               END
 
 !- I/O device
