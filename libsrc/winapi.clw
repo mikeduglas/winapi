@@ -1,5 +1,5 @@
 !Base Windows classes
-!05.05.2025 revision
+!19.06.2025 revision
 !mikeduglas (c) 2019-2025
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -313,7 +313,7 @@ bmBits                          LONG
                               END
 
 !-- Screen capture
-tagBITMAPFILEHEADER              GROUP, TYPE
+tagBITMAPFILEHEADER           GROUP, TYPE
 bfType                          USHORT
 bfSize                          DWORD
 bfReserved1                     USHORT
@@ -1355,6 +1355,29 @@ TCWnd.Init                    PROCEDURE(<*WINDOW w>)
 !!!endregion
   
 !!!region TPoint
+TPoint.Assign                 PROCEDURE(SIGNED pX, SIGNED pY)
+  CODE
+  SELF.x = pX
+  SELF.y = pY
+  
+TPoint.Assign                 PROCEDURE(POINT pPt)
+  CODE
+  SELF.Assign(pPt.x, pPt.y)
+  
+TPoint.Assign                 PROCEDURE(TPoint pPt)
+  CODE
+  SELF.Assign(pPt.x, pPt.y)
+  
+TPoint.AssignTo               PROCEDURE(*POINT pPt)
+  CODE
+  pPt.x = SELF.x
+  pPt.y = SELF.y
+  
+TPoint.AssignTo               PROCEDURE(*TPoint pPt)
+  CODE
+  pPt.x = SELF.x
+  pPt.y = SELF.y
+  
 TPoint.Offset                 PROCEDURE(SIGNED xOffset, SIGNED yOffset)
   CODE
   SELF.x += xOffset
@@ -2296,7 +2319,7 @@ TGdiObj.GetObject             PROCEDURE(LONG cbBuffer, LONG lpvObject)
   
 TGdiObj.GetStockObject        PROCEDURE(LONG fnObject)
   CODE
-  SELF.handle =  winapi::GetStockObject(fnObject)
+  SELF.handle = winapi::GetStockObject(fnObject)
   RETURN SELF.handle
 !!!endregion
 
@@ -3805,7 +3828,7 @@ TStringEncoding.FromUtf16     PROCEDURE(CONST *STRING pInput, UNSIGNED pCodepage
   CODE
   RETURN SELF.Convert(pInput, CP_UTF16, pCodepage)
 
-TStringEncoding.ToUtf16        PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_ACP)
+TStringEncoding.ToUtf16       PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_ACP)
   CODE
   RETURN SELF.Convert(pInput, pCodepage, CP_UTF16)
 

@@ -1,5 +1,5 @@
 !Base Windows classes
-!05.05.2025 revision
+!19.06.2025 revision
 !mikeduglas (c) 2019-2025
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -265,6 +265,11 @@ Init                            PROCEDURE(<*WINDOW w>), DERIVED
                               END
 
 TPoint                        CLASS(POINT), TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+Assign                          PROCEDURE(SIGNED pX, SIGNED pY)
+Assign                          PROCEDURE(POINT pPt)
+Assign                          PROCEDURE(TPoint pPt)
+AssignTo                        PROCEDURE(*POINT pPt)
+AssignTo                        PROCEDURE(*TPoint pPt)
 Offset                          PROCEDURE(SIGNED xOffset, SIGNED yOffset) !- Adds values to the x and y members of the TPoint
 Offset                          PROCEDURE(*POINT pt)
 Offset                          PROCEDURE(*TPoint pt)
@@ -546,7 +551,9 @@ WindowFromDC                    PROCEDURE(), HWND
 DrawIconEx                      PROCEDURE(SIGNED xLeft,SIGNED yTop,HICON hIcon,SIGNED cxWidth,SIGNED cyWidth,UNSIGNED iStepIfAniCur,HBRUSH hbrFlickerFreeDraw,UNSIGNED diFlags),BOOL,PROC
 DrawIconEx                      PROCEDURE(SIGNED xLeft,SIGNED yTop,HICON hIcon,SIGNED cxWidth,SIGNED cyWidth,UNSIGNED iStepIfAniCur,*TBrush brFlickerFreeDraw,UNSIGNED diFlags),BOOL,PROC
 
+!!!<summary>Draws an image from (0, 0).</summary>
 DrawImage                       PROCEDURE(STRING pImageFile, *TRect rc), BOOL, PROC
+!!!<summary>Draws an image from (0, 0).</summary>
 DrawImage                       PROCEDURE(STRING pImageFile, UNSIGNED pW, UNSIGNED pH), BOOL, PROC
 
 GetDeviceCaps                   PROCEDURE(LONG pIndex), LONG
@@ -1301,7 +1308,7 @@ FromUtf16                       PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP
 FromUtf16                       PROCEDURE(CONST *STRING pInput, UNSIGNED pCodepage = CP_ACP), STRING
 !!!<summary>Converts input string to utf-16.</summary>
 !!!<returns>utf-16 encoded string without null terminator <0,0>.</returns>
-ToUtf16                          PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_ACP), STRING
+ToUtf16                         PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_ACP), STRING
 !!!<summary>Converts input string to utf-16.</summary>
 !!!<returns>utf-16 encoded string with null terminator <0,0>.</returns>
 ToCWStr                         PROCEDURE(STRING pInput, UNSIGNED pCodepage = CP_ACP), STRING
