@@ -1,5 +1,5 @@
 !Base Windows classes
-!19.06.2025 revision
+!23.06.2025 revision
 !mikeduglas (c) 2019-2025
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -261,6 +261,11 @@ UpdateLayeredWindow             PROCEDURE(HDC pHdcDst, LONG pptDst, LONG pSize, 
 
 !- Window{PROP:ClientHandle}
 TCWnd                         CLASS(TWnd), TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+Init                            PROCEDURE(<*WINDOW w>), DERIVED
+                              END
+
+!- Toolbar client window ("ClaToolBar" class name)
+TToolbarWnd                   CLASS(TWnd), TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
 Init                            PROCEDURE(<*WINDOW w>), DERIVED
                               END
 

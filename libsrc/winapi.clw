@@ -1,5 +1,5 @@
 !Base Windows classes
-!19.06.2025 revision
+!23.06.2025 revision
 !mikeduglas (c) 2019-2025
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -1354,6 +1354,19 @@ TCWnd.Init                    PROCEDURE(<*WINDOW w>)
   SELF.hwnd = SELF.W{PROP:ClientHandle}
 !!!endregion
   
+!!!region TToolbarWnd
+TToolbarWnd.Init              PROCEDURE(<*WINDOW w>)
+parentW                         TWnd
+  CODE
+  parentW.Init(w)
+  SELF.FindWindowEx(parentW.hwnd, 0, 'ClaToolBar', '')
+  IF NOT OMITTED(w)
+    SELF.W &= w
+  ELSE
+    SELF.W &= SYSTEM{PROP:Target}
+  END
+!!!endregion
+
 !!!region TPoint
 TPoint.Assign                 PROCEDURE(SIGNED pX, SIGNED pY)
   CODE

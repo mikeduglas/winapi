@@ -1,3 +1,9 @@
+23.06.2025
+- TToolbarWnd class added (toolbar hwnd).
+
+19.06.2025
+- TPoint methods Assign, AssignTo added.
+
 05.05.2025
 - TRgn class added (region GDI object).
 - TWnd, TDC classes: new and overloaded methods that support the region objects:

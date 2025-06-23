@@ -3,6 +3,7 @@ A set of helper classes:
 
 - TWnd (hwnd)
 - TCWnd (client hwnd)
+- TToolbarWnd (toolbar hwnd)
 - TRect (rect)
 - TRectF (rectf)
 - TDC (device context)
