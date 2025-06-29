@@ -1,5 +1,5 @@
 !Base Windows classes
-!23.06.2025 revision
+!29.06.2025 revision
 !mikeduglas (c) 2019-2025
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -42,6 +42,7 @@ DWORD                         EQUATE(ULONG)
       winapi::SendMessage(HWND hWnd, UNSIGNED uMsg, UNSIGNED wParam, LONG lParam), LONG, PASCAL, PROC, NAME('SendMessageA')
       winapi::PostMessage(HWND hWnd, UNSIGNED nMsg, UNSIGNED wParam, LONG lParam), BOOL, PASCAL, PROC, NAME('PostMessageA')
       winapi::PeekMessage(LONG lpMsg, HWND hWnd, LONG wMsgFilterMin, LONG wMsgFilterMax, LONG wRemoveMsg), BOOL, PASCAL, PROC, NAME('PeekMessageA')
+      winapi::GetMessage(LONG lpMsg, HWND hWnd, LONG wMsgFilterMin, LONG wMsgFilterMax), BOOL, PASCAL, PROC, NAME('GetMessageA')
       winapi::ShowWindow(HWND hWnd, SIGNED nCmdShow),BOOL,PASCAL,PROC,NAME('ShowWindow')
       winapi::SetForegroundWindow(HWND hwnd),BOOL,PASCAL,PROC,NAME('SetForegroundWindow')
       winapi::GetFocus(),HWND,PASCAL,NAME('GetFocus')
@@ -742,6 +743,10 @@ TWnd.PeekMessage              PROCEDURE(LONG lpMsg, LONG wMsgFilterMin = 0, LONG
   CODE
   RETURN winapi::PeekMessage(lpMsg, SELF.hwnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg)
   
+TWnd.GetMessage                         PROCEDURE(LONG lpMsg, LONG wMsgFilterMin = 0, LONG wMsgFilterMax = 0)
+  CODE
+  RETURN winapi::GetMessage(lpMsg, SELF.hwnd, wMsgFilterMin, wMsgFilterMax)
+
 TWnd.SendEraseBkgnd           PROCEDURE()
 dc                              TDC
   CODE

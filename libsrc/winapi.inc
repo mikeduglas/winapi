@@ -1,5 +1,5 @@
 !Base Windows classes
-!23.06.2025 revision
+!29.06.2025 revision
 !mikeduglas (c) 2019-2025
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -90,6 +90,7 @@ SetPropA                        PROCEDURE(STRING pPropId, HANDLE pData), BOOL, P
 SendMessage                     PROCEDURE(UNSIGNED uMsg, UNSIGNED wParam, LONG lParam), LONG, PROC
 PostMessage                     PROCEDURE(UNSIGNED uMsg, UNSIGNED wParam, LONG lParam), BOOL, PROC
 PeekMessage                     PROCEDURE(LONG lpMsg, LONG wMsgFilterMin = 0, LONG wMsgFilterMax = 0, LONG wRemoveMsg = 0), BOOL, PROC
+GetMessage                      PROCEDURE(LONG lpMsg, LONG wMsgFilterMin = 0, LONG wMsgFilterMax = 0), BOOL, PROC
 
 SendEraseBkgnd                  PROCEDURE(), BOOL, PROC
 
