@@ -1,5 +1,5 @@
 !Base Windows classes
-!29.06.2025 revision
+!30.06.2025 revision
 !mikeduglas (c) 2019-2025
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -830,9 +830,9 @@ TWnd.ScreenToClient           PROCEDURE(*POINT ppt)
 TWnd.ScreenToClient           PROCEDURE(*TPoint ppt)
 pt                              LIKE(POINT)
   CODE
+  ppt.AssignTo(pt)
   SELF.ScreenToClient(pt)
-  ppt.x = pt.x
-  ppt.y = pt.y
+  ppt.Assign(pt)
 
 TWnd.ScreenToClient           PROCEDURE(*_RECT_ prc)
 pt1                             LIKE(POINT), AUTO
@@ -863,9 +863,9 @@ TWnd.ClientToScreen           PROCEDURE(*POINT ppt)
 TWnd.ClientToScreen           PROCEDURE(*TPoint ppt)
 pt                              LIKE(POINT)
   CODE
+  ppt.AssignTo(pt)
   SELF.ClientToScreen(pt)
-  ppt.x = pt.x
-  ppt.y = pt.y
+  ppt.Assign(pt)
 
 TWnd.ClientToScreen           PROCEDURE(*_RECT_ prc)
 pt1                             LIKE(POINT), AUTO
