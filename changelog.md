@@ -1,3 +1,6 @@
+13.07.2025
+- TRect.RectInRect added.
+ 
 23.06.2025
 - TToolbarWnd class added (toolbar hwnd).
 

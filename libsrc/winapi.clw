@@ -1,5 +1,5 @@
 !Base Windows classes
-!30.06.2025 revision
+!13.07.2025 revision
 !mikeduglas (c) 2019-2025
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -1513,6 +1513,13 @@ rc                              LIKE(_RECT_)
 TRect.PtInRect                PROCEDURE(*TPoint pt)
   CODE
   RETURN SELF.PtInRect(pt.x, pt.y)
+  
+TRect.RectInRect                        PROCEDURE(TRect rc)
+  CODE
+  IF SELF.PtInRect(rc.left, rc.top) AND SELF.PtInRect(rc.right, rc.top) AND SELF.PtInRect(rc.left, rc.bottom)
+    RETURN TRUE
+  END
+  RETURN FALSE
   
 TRect.Intersect               PROCEDURE(_RECT_ rc)
   CODE

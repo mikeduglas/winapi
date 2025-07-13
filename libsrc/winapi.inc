@@ -1,5 +1,5 @@
 !Base Windows classes
-!30.06.2025 revision
+!13.07.2025 revision
 !mikeduglas (c) 2019-2025
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -312,6 +312,8 @@ Equal                           PROCEDURE(*TRect rc), BOOL
 PtInRect                        PROCEDURE(SIGNED pX, SIGNED pY), BOOL
 PtInRect                        PROCEDURE(*POINT pt), BOOL
 PtInRect                        PROCEDURE(*TPoint pt), BOOL
+
+RectInRect                      PROCEDURE(TRect rc), BOOL
 
 Intersect                       PROCEDURE(_RECT_ rc), BOOL
 Intersect                       PROCEDURE(*TRect rc), BOOL
