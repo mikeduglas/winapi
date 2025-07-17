@@ -771,7 +771,7 @@ GetFileSizeEx                   PROCEDURE(*_ULARGE_INTEGER pFileSize), BOOL, PRO
 !!!FILE_CURRENT (1) - The starting point is the current value of the file pointer.
 !!!FILE_END (2) - The starting point is the current end-of-file position.
 !!!</param>
-SetFilePointer                  PROCEDURE(LONG pDistanceToMove, ULONG pMoveMethod), ULONG
+SetFilePointer                  PROCEDURE(LONG pDistanceToMove, ULONG pMoveMethod), ULONG, PROC
 SetFilePointerEx                PROCEDURE(_ULARGE_INTEGER pDistanceToMove, *_ULARGE_INTEGER pNewFilePointer, ULONG pMoveMethod), BOOL, PROC
                               END
 
