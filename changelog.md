@@ -1,3 +1,8 @@
+07.09.2025
+- TWnd: GetClassLongA and GetClassLongW methods added.
+- TWnd: ValidHandle method added.
+- TMdiTabBarWnd class added (MDI Tabbar hwnd).
+
 13.07.2025
 - TRect.RectInRect added.
  

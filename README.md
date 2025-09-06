@@ -4,6 +4,7 @@ A set of helper classes:
 - TWnd (hwnd)
 - TCWnd (client hwnd)
 - TToolbarWnd (toolbar hwnd)
+- TMdiTabBarWnd (MDI Tabbar hwnd)
 - TRect (rect)
 - TRectF (rectf)
 - TDC (device context)
@@ -52,5 +53,6 @@ See [change log](https://github.com/mikeduglas/winapi/blob/master/changelog.md).
 - [Composite label](https://github.com/mikeduglas/CompositeLabel)
 - [DataGrid](https://github.com/mikeduglas/DataGrid)
 - [Custom Desktops](https://github.com/mikeduglas/Custom-Desktops)
-- [Sheet Extender](https://github.com/mikeduglas/SheetExtender)
+- [Sheet Extender](https://github.com/mikeduglas/SheetExtender)  
+and others.
 
