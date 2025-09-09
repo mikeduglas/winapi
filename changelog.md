@@ -1,3 +1,6 @@
+09.09.2025
+- TWnd: GetWindowText fixed.
+
 07.09.2025
 - TWnd: GetClassLongA and GetClassLongW methods added.
 - TWnd: ValidHandle method added.

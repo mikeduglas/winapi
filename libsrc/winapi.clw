@@ -1,5 +1,5 @@
 !Base Windows classes
-!07.09.2025 revision
+!09.09.2025 revision
 !mikeduglas (c) 2019-2025
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -1162,18 +1162,18 @@ TWnd.GetWindowTextLengthW               PROCEDURE()
 
 TWnd.GetWindowText                      PROCEDURE()
 nLen                                      LONG, AUTO
-sText                                     &STRING, AUTO
+szText                                    &CSTRING, AUTO
 aText                                     ANY
 rc                                        LONG, AUTO
 nErr                                      LONG, AUTO
   CODE
   nLen = SELF.GetWindowTextLength()
   IF nLen
-    sText &= NEW STRING(nLen+1)
-    rc = winapi::GetWindowText(SELF.hwnd, ADDRESS(sText), nLen+1)
+    szText &= NEW CSTRING(nLen+1)
+    rc = winapi::GetWindowText(SELF.hwnd, ADDRESS(szText), nLen+1)
     IF rc <> 0
-      aText = sText
-      DISPOSE(sText)
+      aText = CLIP(szText)
+      DISPOSE(szText)
     ELSE
       nErr = winapi::GetLastError()
       IF nErr
