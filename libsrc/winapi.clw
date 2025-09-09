@@ -64,6 +64,9 @@ DWORD                                   EQUATE(ULONG)
       winapi::WindowFromPoint(POINT pt),HWND,RAW,PASCAL,NAME('WindowFromPoint')
       winapi::UpdateLayeredWindow(HWND hWnd,HDC hdcDst,LONG pptDst,LONG psize,HDC hdcSrc,LONG pptSrc,COLORREF crKey, |
         LONG pblend, DWORD dwFlags),BOOL,RAW,PASCAL,NAME('UpdateLayeredWindow')
+      winapi::GetTopWindow(HWND hwnd),HWND,PASCAL,NAME('GetTopWindow')
+      winapi::BringWindowToTop(HWND hwnd),BOOL,PROC,PASCAL,PROC,NAME('BringWindowToTop')
+      winapi::GetWindowThreadProcessId(HWND hwnd,LONG lpdwProcessId),ULONG,PASCAL,NAME('GetWindowThreadProcessId')
 
       winapi::GetDC(HWND hwnd), HDC, PASCAL, NAME('GetDC')
       winapi::GetDCEx(HWND hwnd, HRGN hrgnClip, ULONG flags), HDC, PASCAL, NAME('GetDCEx')
@@ -1360,6 +1363,18 @@ ret                                       BOOL, AUTO
     printd('UpdateLayeredWindow(%x) failed, error %i', SELF.hwnd, winapi::GetLastError())
   END
   RETURN ret
+  
+TWnd.GetTopWindow                       PROCEDURE()
+  CODE
+  RETURN winapi::GetTopWindow(SELF.hwnd)
+  
+TWnd.BringWindowToTop                   PROCEDURE()
+  CODE
+  RETURN winapi::BringWindowToTop(SELF.hwnd)
+  
+TWnd.GetWindowThreadProcessId           PROCEDURE(LONG lpdwProcessId=0)
+  CODE
+  RETURN winapi::GetWindowThreadProcessId(SELF.hwnd, lpdwProcessId)
 !!!endregion
 
 !!!region TCWnd

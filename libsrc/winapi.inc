@@ -6,7 +6,7 @@
   INCLUDE('svapi.inc'), ONCE
 
 !- means that a method expects UTF-16LE encoded string
-STRINGW                       EQUATE(STRING)
+STRINGW                                 EQUATE(STRING)
 
   MAP
     MODULE('winapi.clw')
@@ -17,102 +17,102 @@ STRINGW                       EQUATE(STRING)
     END
   END
 
-tagWINDOWPLACEMENT            GROUP, TYPE
-length                          UNSIGNED
-flags                           UNSIGNED
-showCmd                         UNSIGNED
-ptMinPosition                   LIKE(POINT)
-ptMaxPosition                   LIKE(POINT)
-rcNormalPosition                LIKE(_RECT_)
-rcDevice                        LIKE(_RECT_)
-                              END
+tagWINDOWPLACEMENT                      GROUP, TYPE
+length                                    UNSIGNED
+flags                                     UNSIGNED
+showCmd                                   UNSIGNED
+ptMinPosition                             LIKE(POINT)
+ptMaxPosition                             LIKE(POINT)
+rcNormalPosition                          LIKE(_RECT_)
+rcDevice                                  LIKE(_RECT_)
+                                        END
 
 !Used in SetWorldTransform, ModifyWorldTransform.
 !https://docs.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-xform
-tagXFORM                      GROUP, TYPE
-eM11                            SREAL
-eM12                            SREAL
-eM21                            SREAL
-eM22                            SREAL
-eDx                             SREAL
-eDy                             SREAL
-                              END
+tagXFORM                                GROUP, TYPE
+eM11                                      SREAL
+eM12                                      SREAL
+eM21                                      SREAL
+eM22                                      SREAL
+eDx                                       SREAL
+eDy                                       SREAL
+                                        END
 
 
 !- Window{PROP:Handle}
-TWnd                          CLASS, TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
-W                               &WINDOW, PROTECTED
-FEQ                             SIGNED, PROTECTED
-hwnd                            HWND, PROTECTED
-wndProc                         LONG, PRIVATE
-userData                        LONG, PRIVATE
+TWnd                                    CLASS, TYPE, MODULE('winapi.clw'), LINK('winapi.clw')
+W                                         &WINDOW, PROTECTED
+FEQ                                       SIGNED, PROTECTED
+hwnd                                      HWND, PROTECTED
+wndProc                                   LONG, PRIVATE
+userData                                  LONG, PRIVATE
 
-Construct                       PROCEDURE()
-Destruct                        PROCEDURE(), VIRTUAL
+Construct                                 PROCEDURE()
+Destruct                                  PROCEDURE(), VIRTUAL
 
-Init                            PROCEDURE(<*WINDOW w>), VIRTUAL
-Init                            PROCEDURE(SIGNED pFeq), VIRTUAL
-GetHandle                       PROCEDURE(), HWND
-SetHandle                       PROCEDURE(HWND hwnd)
-GetWindow                       PROCEDURE(), *WINDOW  !- returns a WINDOW passed as an argument to Init.
-GetClassName                    PROCEDURE(), STRING
-GetClassLongA                   PROCEDURE(LONG pIndex), ULONG
-GetClassLongW                   PROCEDURE(LONG pIndex), ULONG
+Init                                      PROCEDURE(<*WINDOW w>), VIRTUAL
+Init                                      PROCEDURE(SIGNED pFeq), VIRTUAL
+GetHandle                                 PROCEDURE(), HWND
+SetHandle                                 PROCEDURE(HWND hwnd)
+GetWindow                                 PROCEDURE(), *WINDOW  !- returns a WINDOW passed as an argument to Init.
+GetClassName                              PROCEDURE(), STRING
+GetClassLongA                             PROCEDURE(LONG pIndex), ULONG
+GetClassLongW                             PROCEDURE(LONG pIndex), ULONG
 
 !!!<summary>Determines whether the specified window handle identifies an existing window.</summary>
-IsWindow                        PROCEDURE(), BOOL
+IsWindow                                  PROCEDURE(), BOOL
 !!!<summary>Is hwnd valid (not 0).</summary>
-ValidHandle                     PROCEDURE(), BOOL
+ValidHandle                               PROCEDURE(), BOOL
 
-SetWndProc                      PROCEDURE(LONG lpCallback, LONG lpUserData) !- ADDRESS(proc), ADDRESS(self)
-ResetWndProc                    PROCEDURE()
-CallWindowProc                  PROCEDURE(UNSIGNED wMsg, UNSIGNED wParam, LONG lParam), LONG, PROC
-DefWindowProc                   PROCEDURE(UNSIGNED wMsg, UNSIGNED wParam, LONG lParam), LONG
-GetWndProc                      PROCEDURE(), LONG     !- returns _previous_ window proc address
-GetUserData                     PROCEDURE(), LONG     !- returns _previous_ window user data
+SetWndProc                                PROCEDURE(LONG lpCallback, LONG lpUserData) !- ADDRESS(proc), ADDRESS(self)
+ResetWndProc                              PROCEDURE()
+CallWindowProc                            PROCEDURE(UNSIGNED wMsg, UNSIGNED wParam, LONG lParam), LONG, PROC
+DefWindowProc                             PROCEDURE(UNSIGNED wMsg, UNSIGNED wParam, LONG lParam), LONG
+GetWndProc                                PROCEDURE(), LONG     !- returns _previous_ window proc address
+GetUserData                               PROCEDURE(), LONG     !- returns _previous_ window user data
 
-GetFEQ                          PROCEDURE(), SIGNED
-GetParent                       PROCEDURE(), HWND
-SetParent                       PROCEDURE(HWND hWndNewParent), HWND, PROC
-SetParent                       PROCEDURE(TWnd hWndNewParent), HWND, PROC
+GetFEQ                                    PROCEDURE(), SIGNED
+GetParent                                 PROCEDURE(), HWND
+SetParent                                 PROCEDURE(HWND hWndNewParent), HWND, PROC
+SetParent                                 PROCEDURE(TWnd hWndNewParent), HWND, PROC
 
-GetDesktopWindow                PROCEDURE(), HWND, PROC   !- sets hwnd to desktop window and returns it.
-GetWindow                       PROCEDURE(UNSIGNED uCmd), HWND    !- winapi call
+GetDesktopWindow                          PROCEDURE(), HWND, PROC   !- sets hwnd to desktop window and returns it.
+GetWindow                                 PROCEDURE(UNSIGNED uCmd), HWND    !- winapi call
 
 !!!<summary>Gets Clarion property value</summary>
-GetProp                         PROCEDURE(LONG prop), ?
+GetProp                                   PROCEDURE(LONG prop), ?
 !!!<summary>Sets Clarion property value</summary>
-SetProp                         PROCEDURE(LONG prop, ? value)
+SetProp                                   PROCEDURE(LONG prop, ? value)
 
-GetWindowLong                   PROCEDURE(LONG nIndex), LONG
-SetWindowLong                   PROCEDURE(LONG nIndex, LONG dwNewLong), LONG, PROC
+GetWindowLong                             PROCEDURE(LONG nIndex), LONG
+SetWindowLong                             PROCEDURE(LONG nIndex, LONG dwNewLong), LONG, PROC
 
 !!!<summary>Gets Window property value</summary>
-GetPropA                        PROCEDURE(STRING pPropId), HANDLE
+GetPropA                                  PROCEDURE(STRING pPropId), HANDLE
 !!!<summary>Sets Window property value</summary>
-SetPropA                        PROCEDURE(STRING pPropId, HANDLE pData), BOOL, PROC
+SetPropA                                  PROCEDURE(STRING pPropId, HANDLE pData), BOOL, PROC
 
-SendMessage                     PROCEDURE(UNSIGNED uMsg, UNSIGNED wParam, LONG lParam), LONG, PROC
-PostMessage                     PROCEDURE(UNSIGNED uMsg, UNSIGNED wParam, LONG lParam), BOOL, PROC
-PeekMessage                     PROCEDURE(LONG lpMsg, LONG wMsgFilterMin = 0, LONG wMsgFilterMax = 0, LONG wRemoveMsg = 0), BOOL, PROC
-GetMessage                      PROCEDURE(LONG lpMsg, LONG wMsgFilterMin = 0, LONG wMsgFilterMax = 0), BOOL, PROC
+SendMessage                               PROCEDURE(UNSIGNED uMsg, UNSIGNED wParam, LONG lParam), LONG, PROC
+PostMessage                               PROCEDURE(UNSIGNED uMsg, UNSIGNED wParam, LONG lParam), BOOL, PROC
+PeekMessage                               PROCEDURE(LONG lpMsg, LONG wMsgFilterMin = 0, LONG wMsgFilterMax = 0, LONG wRemoveMsg = 0), BOOL, PROC
+GetMessage                                PROCEDURE(LONG lpMsg, LONG wMsgFilterMin = 0, LONG wMsgFilterMax = 0), BOOL, PROC
 
-SendEraseBkgnd                  PROCEDURE(), BOOL, PROC
+SendEraseBkgnd                            PROCEDURE(), BOOL, PROC
 
-GetClientRect                   PROCEDURE(*_RECT_ rc)
-GetClientRect                   PROCEDURE(*TRect rc)
+GetClientRect                             PROCEDURE(*_RECT_ rc)
+GetClientRect                             PROCEDURE(*TRect rc)
 
-GetWindowRect                   PROCEDURE(*_RECT_ rc)
-GetWindowRect                   PROCEDURE(*TRect rc)
+GetWindowRect                             PROCEDURE(*_RECT_ rc)
+GetWindowRect                             PROCEDURE(*TRect rc)
 
-GetRelativeRect                 PROCEDURE(*_RECT_ rc) !- get relative to parent window coordinates
-GetRelativeRect                 PROCEDURE(*TRect rc) !- get relative to parent window coordinates
-GetRelativeRect                 PROCEDURE(HWND pParentHwnd, *_RECT_ rc) !- get relative to window coordinates
-GetRelativeRect                 PROCEDURE(HWND pParentHwnd, *TRect rc) !- get relative to window coordinates
-GetRelativeRect                 PROCEDURE(TWnd pWin, *_RECT_ rc)!- get relative to window coordinates
-GetRelativeRect                 PROCEDURE(TWnd pWin, *TRect rc)!- get relative to window coordinates
+GetRelativeRect                           PROCEDURE(*_RECT_ rc) !- get relative to parent window coordinates
+GetRelativeRect                           PROCEDURE(*TRect rc) !- get relative to parent window coordinates
+GetRelativeRect                           PROCEDURE(HWND pParentHwnd, *_RECT_ rc) !- get relative to window coordinates
+GetRelativeRect                           PROCEDURE(HWND pParentHwnd, *TRect rc) !- get relative to window coordinates
+GetRelativeRect                           PROCEDURE(TWnd pWin, *_RECT_ rc)!- get relative to window coordinates
+GetRelativeRect                           PROCEDURE(TWnd pWin, *TRect rc)!- get relative to window coordinates
 
-SetWindowPos                    PROCEDURE(HWND hWndInsertAfter, LONG x, LONG y, LONG cx, LONG cy, ULONG uFlags), BOOL, PROC
+SetWindowPos                              PROCEDURE(HWND hWndInsertAfter, LONG x, LONG y, LONG cx, LONG cy, ULONG uFlags), BOOL, PROC
 !!!<summary>
 !!!Changes the position and dimensions of the specified window.
 !!!For a top-level window, the position and dimensions are relative to the upper-left corner of the screen.
@@ -122,66 +122,66 @@ SetWindowPos                    PROCEDURE(HWND hWndInsertAfter, LONG x, LONG y, 
 !!!Indicates whether the window is to be repainted. If this parameter is TRUE, the window receives a message.
 !!!If the parameter is FALSE, no repainting of any kind occurs. This applies to the client area, the nonclient area (including the title bar and scroll bars), and any part of the parent window uncovered as a result of moving a child window.
 !!!</param>
-MoveWindow                      PROCEDURE(LONG x, LONG y, LONG nWidth, LONG nHeight, BOOL bRepaint), BOOL, PROC
-DestroyWindow                   PROCEDURE(), BOOL, PROC
-IsZoomed                        PROCEDURE(), BOOL
+MoveWindow                                PROCEDURE(LONG x, LONG y, LONG nWidth, LONG nHeight, BOOL bRepaint), BOOL, PROC
+DestroyWindow                             PROCEDURE(), BOOL, PROC
+IsZoomed                                  PROCEDURE(), BOOL
 
-ScreenToClient                  PROCEDURE(*POINT ppt)
-ScreenToClient                  PROCEDURE(*TPoint ppt)
-ScreenToClient                  PROCEDURE(*_RECT_ prc)
-ScreenToClient                  PROCEDURE(*TRect prc)
-ClientToScreen                  PROCEDURE(*POINT ppt)
-ClientToScreen                  PROCEDURE(*TPoint ppt)
-ClientToScreen                  PROCEDURE(*_RECT_ prc)
-ClientToScreen                  PROCEDURE(*TRect prc)
+ScreenToClient                            PROCEDURE(*POINT ppt)
+ScreenToClient                            PROCEDURE(*TPoint ppt)
+ScreenToClient                            PROCEDURE(*_RECT_ prc)
+ScreenToClient                            PROCEDURE(*TRect prc)
+ClientToScreen                            PROCEDURE(*POINT ppt)
+ClientToScreen                            PROCEDURE(*TPoint ppt)
+ClientToScreen                            PROCEDURE(*_RECT_ prc)
+ClientToScreen                            PROCEDURE(*TRect prc)
 
-InvalidateRect                  PROCEDURE(_RECT_ rc, BOOL bErase), BOOL, PROC
-InvalidateRect                  PROCEDURE(TRect rc, BOOL bErase), BOOL, PROC
-InvalidateRect                  PROCEDURE(BOOL bErase), BOOL, PROC
+InvalidateRect                            PROCEDURE(_RECT_ rc, BOOL bErase), BOOL, PROC
+InvalidateRect                            PROCEDURE(TRect rc, BOOL bErase), BOOL, PROC
+InvalidateRect                            PROCEDURE(BOOL bErase), BOOL, PROC
 
-ShowWindow                      PROCEDURE(SIGNED nCmdShow), BOOL, PROC
-SetForegroundWindow             PROCEDURE(), BOOL, PROC
-UpdateWindow                    PROCEDURE(), BOOL, PROC
-EnableWindow                    PROCEDURE(BOOL pEnable), BOOL, PROC
+ShowWindow                                PROCEDURE(SIGNED nCmdShow), BOOL, PROC
+SetForegroundWindow                       PROCEDURE(), BOOL, PROC
+UpdateWindow                              PROCEDURE(), BOOL, PROC
+EnableWindow                              PROCEDURE(BOOL pEnable), BOOL, PROC
 
-IsWindowVisible                 PROCEDURE(), BOOL
+IsWindowVisible                           PROCEDURE(), BOOL
 
-RedrawWindow                    PROCEDURE(*_RECT_ rc, HRGN hrgnUpdate, UNSIGNED pFlags), BOOL, PROC
-RedrawWindow                    PROCEDURE(*TRect rc, HRGN hrgnUpdate, UNSIGNED pFlags), BOOL, PROC
-RedrawWindow                    PROCEDURE(*TRect rc, *TRgn pRgnUpdate, UNSIGNED pFlags), BOOL, PROC
-RedrawWindow                    PROCEDURE(UNSIGNED pFlags), BOOL, PROC  !- both rc and hrgn are NULL
+RedrawWindow                              PROCEDURE(*_RECT_ rc, HRGN hrgnUpdate, UNSIGNED pFlags), BOOL, PROC
+RedrawWindow                              PROCEDURE(*TRect rc, HRGN hrgnUpdate, UNSIGNED pFlags), BOOL, PROC
+RedrawWindow                              PROCEDURE(*TRect rc, *TRgn pRgnUpdate, UNSIGNED pFlags), BOOL, PROC
+RedrawWindow                              PROCEDURE(UNSIGNED pFlags), BOOL, PROC  !- both rc and hrgn are NULL
 
-Redraw                          PROCEDURE(_RECT_ rc), BOOL, PROC
-Redraw                          PROCEDURE(TRect rc), BOOL, PROC
+Redraw                                    PROCEDURE(_RECT_ rc), BOOL, PROC
+Redraw                                    PROCEDURE(TRect rc), BOOL, PROC
 
-SetCapture                      PROCEDURE(), HANDLE, PROC
-ReleaseCapture                  PROCEDURE(), BOOL, PROC
-DragDetect                      PROCEDURE(POINT pt),BOOL
+SetCapture                                PROCEDURE(), HANDLE, PROC
+ReleaseCapture                            PROCEDURE(), BOOL, PROC
+DragDetect                                PROCEDURE(POINT pt),BOOL
 
-GetDlgCtrlID                    PROCEDURE(), LONG
+GetDlgCtrlID                              PROCEDURE(), LONG
 
 !- pRect (0,0) based (i.e. from (0,0) to (w,h)
-GetBitmap                       PROCEDURE(<_RECT_ pRect>, LONG dwRop=SRCCOPY), *STRING  !- For IMAGEs only!
-GetBitmap                       PROCEDURE(TRect pRect, LONG dwRop=SRCCOPY), *STRING  !- For IMAGEs only!
-SaveBitmap                      PROCEDURE(STRING pFIleName, <_RECT_ pRect>), BOOL, PROC !- For IMAGEs only!
-SaveBitmap                      PROCEDURE(STRING pFIleName, TRect pRect), BOOL, PROC !- For IMAGEs only!
+GetBitmap                                 PROCEDURE(<_RECT_ pRect>, LONG dwRop=SRCCOPY), *STRING  !- For IMAGEs only!
+GetBitmap                                 PROCEDURE(TRect pRect, LONG dwRop=SRCCOPY), *STRING  !- For IMAGEs only!
+SaveBitmap                                PROCEDURE(STRING pFIleName, <_RECT_ pRect>), BOOL, PROC !- For IMAGEs only!
+SaveBitmap                                PROCEDURE(STRING pFIleName, TRect pRect), BOOL, PROC !- For IMAGEs only!
 !!!<summary>Copies a window snapshot to the destination image control.</summary>
 !!!<param name="pImageFeq">The destination control feq.</param>
 !!!<param name="pRect">The rectangle of a snapshot. If omitted, full window ssnapshot is copied.</param>
-CopyBitmap                      PROCEDURE(SIGNED pImageFeq, <_RECT_ pRect>), BOOL, PROC !- For IMAGEs only!
+CopyBitmap                                PROCEDURE(SIGNED pImageFeq, <_RECT_ pRect>), BOOL, PROC !- For IMAGEs only!
 !!!<summary>Copies a window snapshot to the destination image control.</summary>
 !!!<param name="pImageFeq">The destination control feq.</param>
 !!!<param name="pRect">The rectangle of a snapshot.</param>
-CopyBitmap                      PROCEDURE(SIGNED pImageFeq, TRect pRect), BOOL, PROC !- For IMAGEs only!
+CopyBitmap                                PROCEDURE(SIGNED pImageFeq, TRect pRect), BOOL, PROC !- For IMAGEs only!
 
-PrintWindow                     PROCEDURE(HDC hdcBlt, ULONG nFlags), BOOL, PROC
-PrintWindow                     PROCEDURE(TDC hdcBlt, ULONG nFlags), BOOL, PROC
+PrintWindow                               PROCEDURE(HDC hdcBlt, ULONG nFlags), BOOL, PROC
+PrintWindow                               PROCEDURE(TDC hdcBlt, ULONG nFlags), BOOL, PROC
 
-GetScrollInfo                   PROCEDURE(SIGNED fnBar, *SCROLLINFO lpsi), BOOL, PROC
-SetScrollInfo                   PROCEDURE(SIGNED fnBar, SCROLLINFO lpsi, BOOL pRedraw), LONG, PROC
-GetScrollRange                  PROCEDURE(*SIGNED pHMin, *SIGNED pHMax, *SIGNED pVMin, *SIGNED pVMax)
-GetScrollRange                  PROCEDURE(*_RECT_ pRect)
-ShowScrollBar                   PROCEDURE(SIGNED wBar, BOOL bShow), BOOL, PROC
+GetScrollInfo                             PROCEDURE(SIGNED fnBar, *SCROLLINFO lpsi), BOOL, PROC
+SetScrollInfo                             PROCEDURE(SIGNED fnBar, SCROLLINFO lpsi, BOOL pRedraw), LONG, PROC
+GetScrollRange                            PROCEDURE(*SIGNED pHMin, *SIGNED pHMax, *SIGNED pVMin, *SIGNED pVMax)
+GetScrollRange                            PROCEDURE(*_RECT_ pRect)
+ShowScrollBar                             PROCEDURE(SIGNED wBar, BOOL bShow), BOOL, PROC
 
 !!!<summary>Associate a hot key with the window.
 !!!When the user presses the hot key, the system activates the window.</summary>
@@ -198,44 +198,44 @@ ShowScrollBar                   PROCEDURE(SIGNED wBar, BOOL bShow), BOOL, PROC
 !!!1: The function is successful, and no other window has the same hot key.
 !!!2: The function is successful, but another window already has the same hot key.
 !!!</returns>
-SetHotKey                       PROCEDURE(STRING pChar, USHORT pModifier), SIGNED, PROC
+SetHotKey                                 PROCEDURE(STRING pChar, USHORT pModifier), SIGNED, PROC
 
-GetFocus                        PROCEDURE(), HWND
-SetFocus                        PROCEDURE(), HWND, PROC
-Focused                         PROCEDURE(), BOOL
+GetFocus                                  PROCEDURE(), HWND
+SetFocus                                  PROCEDURE(), HWND, PROC
+Focused                                   PROCEDURE(), BOOL
 
 !!!<summary>Retrieves the length, in characters, of the specified window's title bar text (if the window has a title bar). If the specified window is a control, the function retrieves the length of the text within the control. However, GetWindowTextLength cannot retrieve the length of the text of an edit control in another application.</summary>
-GetWindowTextLength             PROCEDURE(), LONG
-GetWindowTextLengthW            PROCEDURE(), LONG
-GetWindowText                   PROCEDURE(), STRING
-GetWindowTextW                  PROCEDURE(), STRING
+GetWindowTextLength                       PROCEDURE(), LONG
+GetWindowTextLengthW                      PROCEDURE(), LONG
+GetWindowText                             PROCEDURE(), STRING
+GetWindowTextW                            PROCEDURE(), STRING
 
 !- GetWindowSubclass requires Comctl32.dll version 6.0 or later
-GetWindowSubclass               PROCEDURE(LONG pfnSubclass, ULONG uIdSubclass, *UNSIGNED dwRefData), BOOL, PROC
-SetWindowSubclass               PROCEDURE(LONG pfnSubclass, ULONG uIdSubclass, UNSIGNED dwRefData), BOOL, PROC
-RemoveWindowSubclass            PROCEDURE(LONG pfnSubclass, ULONG uIdSubclass), BOOL, PROC
-DefSubclassProc                 PROCEDURE(ULONG wMsg, UNSIGNED wParam, LONG lParam), LONG, PROC
+GetWindowSubclass                         PROCEDURE(LONG pfnSubclass, ULONG uIdSubclass, *UNSIGNED dwRefData), BOOL, PROC
+SetWindowSubclass                         PROCEDURE(LONG pfnSubclass, ULONG uIdSubclass, UNSIGNED dwRefData), BOOL, PROC
+RemoveWindowSubclass                      PROCEDURE(LONG pfnSubclass, ULONG uIdSubclass), BOOL, PROC
+DefSubclassProc                           PROCEDURE(ULONG wMsg, UNSIGNED wParam, LONG lParam), LONG, PROC
 
-ShowCaret                       PROCEDURE(), BOOL, PROC
-HideCaret                       PROCEDURE(), BOOL, PROC
+ShowCaret                                 PROCEDURE(), BOOL, PROC
+HideCaret                                 PROCEDURE(), BOOL, PROC
 
 !!!<summary>
 !!!Retrieves a handle to the top-level window whose class name and window name match the specified strings. 
 !!!This function does not search child windows. This function does not perform a case-sensitive search.
 !!!</summary>
-FindWindow                      PROCEDURE(STRING pClassName, STRING pWindowName), HWND, PROC
+FindWindow                                PROCEDURE(STRING pClassName, STRING pWindowName), HWND, PROC
 !!!<summary>
 !!!Retrieves a handle to the top-level window whose window name matches the specified strings. 
 !!!This function does not search child windows. This function does not perform a case-sensitive search.
 !!!</summary>
-FindWindow                      PROCEDURE(STRING pWindowName), HWND, PROC
-FindWindowEx                    PROCEDURE(HWND hWndParent, HWND hWndChildAfter, STRING pClassName, STRING pWindowName), HWND, PROC
-FindWindowEx                    PROCEDURE(HWND hWndParent, HWND hWndChildAfter, STRING pWindowName), HWND, PROC
-FindWindowEx                    PROCEDURE(HWND hWndChildAfter, STRING pWindowName), HWND, PROC
+FindWindow                                PROCEDURE(STRING pWindowName), HWND, PROC
+FindWindowEx                              PROCEDURE(HWND hWndParent, HWND hWndChildAfter, STRING pClassName, STRING pWindowName), HWND, PROC
+FindWindowEx                              PROCEDURE(HWND hWndParent, HWND hWndChildAfter, STRING pWindowName), HWND, PROC
+FindWindowEx                              PROCEDURE(HWND hWndChildAfter, STRING pWindowName), HWND, PROC
 
-GetWindowPlacement              PROCEDURE(*tagWINDOWPLACEMENT pwndpl), BOOL, PROC
+GetWindowPlacement                        PROCEDURE(*tagWINDOWPLACEMENT pwndpl), BOOL, PROC
 
-ModifyWindowLong                PROCEDURE(LONG pIndex, UNSIGNED pRemove, UNSIGNED pAdd, ULONG pFlags=0)
+ModifyWindowLong                          PROCEDURE(LONG pIndex, UNSIGNED pRemove, UNSIGNED pAdd, ULONG pFlags=0)
 
 !!!<summary>Modifies a window's style.</summary>
 !!!<param name="pRemove">Specifies window styles to be removed during style modification.</param>
@@ -245,7 +245,7 @@ ModifyWindowLong                PROCEDURE(LONG pIndex, UNSIGNED pRemove, UNSIGNE
 !!!If nFlags is nonzero, ModifyStyle calls the Windows API function SetWindowPos and redraws the window by combining nFlags with the following four preset flags:
 !!!SWP_NOSIZE, SWP_NOMOVE, SWP_NOZORDER, SWP_NOACTIVATE.
 !!!</remarks>
-ModifyStyle                     PROCEDURE(UNSIGNED pRemove, UNSIGNED pAdd, ULONG pFlags=0)
+ModifyStyle                               PROCEDURE(UNSIGNED pRemove, UNSIGNED pAdd, ULONG pFlags=0)
 !!!<summary>Modifies a window's extended style.</summary>
 !!!<param name="pRemove">Specifies extended styles to be removed during style modification.</param>
 !!!<param name="pAdd">Specifies extended styles to be added during style modification.</param>
@@ -254,16 +254,23 @@ ModifyStyle                     PROCEDURE(UNSIGNED pRemove, UNSIGNED pAdd, ULONG
 !!!If nFlags is nonzero, ModifyStyle calls the Windows API function SetWindowPos and redraws the window by combining nFlags with the following four preset flags:
 !!!SWP_NOSIZE, SWP_NOMOVE, SWP_NOZORDER, SWP_NOACTIVATE.
 !!!</remarks>
-ModifyStyleEx                   PROCEDURE(UNSIGNED pRemove, UNSIGNED pAdd, ULONG pFlags=0)
+ModifyStyleEx                             PROCEDURE(UNSIGNED pRemove, UNSIGNED pAdd, ULONG pFlags=0)
 
 !!!<summary>Retrieves a handle to the window that contains the specified point.</summary>
 !!!<param name="pPt">The point to be checked.</param>
-WindowFromPoint                 PROCEDURE(POINT pPt), HWND, PROC
+WindowFromPoint                           PROCEDURE(POINT pPt), HWND, PROC
 
 !!!<summary>Updates the position, size, shape, content, and translucency of a layered window.</summary>
-UpdateLayeredWindow             PROCEDURE(HDC pHdcDst, LONG pptDst, LONG pSize, HDC pHdcSrc, LONG pptSrc, COLORREF pCrKey, |
-                                  LONG pBlend, ULONG pFlags), BOOL, PROC
-                              END
+UpdateLayeredWindow                       PROCEDURE(HDC pHdcDst, LONG pptDst, LONG pSize, HDC pHdcSrc, LONG pptSrc, COLORREF pCrKey, |
+                                            LONG pBlend, ULONG pFlags), BOOL, PROC
+
+!!!<summary>Examines the Z order of the child windows associated with the specified parent window and retrieves a handle to the child window at the top of the Z order.</summary>
+GetTopWindow                              PROCEDURE(), HWND
+!!!<summary>Brings the specified window to the top of the Z order. If the window is a top-level window, it is activated. If the window is a child window, the top-level parent window associated with the child window is activated.</summary>
+BringWindowToTop                          PROCEDURE(), BOOL, PROC
+!!!<summary>Retrieves the identifier of the thread that created the specified window and, optionally, the identifier of the process that created the window.</summary>
+GetWindowThreadProcessId                  PROCEDURE(LONG lpdwProcessId=0), ULONG
+                                        END
 
 !- Window{PROP:ClientHandle}
 TCWnd                                   CLASS(TWnd), TYPE, MODULE('winapi.clw'), LINK('winapi.clw')

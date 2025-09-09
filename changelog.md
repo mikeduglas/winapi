@@ -1,4 +1,5 @@
 09.09.2025
+- TWnd: GetTopWindow, BringWindowToTop, GetWindowThreadProcessId methods added.
 - TWnd: GetWindowText fixed.
 
 07.09.2025
