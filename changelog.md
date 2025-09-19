@@ -1,3 +1,7 @@
+19.09.2025
+- TWnd: CreateWindow, CreateWindowEx methods added.
+- TBitmap: GetBitmapDimensionEx, SetBitmapDimensionEx methods added.
+
 09.09.2025
 - TWnd: GetTopWindow, BringWindowToTop, GetWindowThreadProcessId methods added.
 - TWnd: GetWindowText fixed.

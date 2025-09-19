@@ -1,5 +1,5 @@
 !Base Windows classes
-!09.09.2025 revision
+!19.09.2025 revision
 !mikeduglas (c) 2019-2025
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -23,6 +23,9 @@ DWORD                                   EQUATE(ULONG)
     INCLUDE('printf.inc')
 
     MODULE('win api')
+      winapi::CreateWindowEx(UNSIGNED dwExStyle,LONG lpClassName,LONG lpWindowName, |
+        UNSIGNED dwStyle,LONG x,LONG y,LONG nWidth,LONG nHeight, |
+        HWND hWndParent,HMENU hMenu,HINSTANCE hInstance,LONG lpParam),HWND,PASCAL,NAME('CreateWindowExA')
       winapi::GetClassName(HWND hwnd,LONG lpClassName,LONG nMaxCount),LONG,PASCAL,NAME('GetClassNameA')
       winapi::GetClassLongA(HWND hwnd,LONG nIndex),DWORD,PASCAL,NAME('GetClassLongA')
       winapi::GetClassLongW(HWND hwnd,LONG nIndex),DWORD,PASCAL,NAME('GetClassLongW')
@@ -94,6 +97,8 @@ DWORD                                   EQUATE(ULONG)
       winapi::DeleteObject(HGDIOBJ hObj), BOOL, RAW, PASCAL, NAME('DeleteObject'), PROC
       winapi::CreateCompatibleBitmap(HDC hdc, SIGNED cx, SIGNED cy), HBITMAP, PASCAL, NAME('CreateCompatibleBitmap')
       winapi::LoadImage(HINSTANCE hInst, *CSTRING szIcon, UNSIGNED uType, SIGNED cxDesired, SIGNED cyDesired, UNSIGNED fuLoad),HANDLE,PASCAL,RAW,NAME('LoadImageA')
+      winapi::GetBitmapDimensionEx(HBITMAP hbit,LONG lpsize),BOOL,PASCAL,RAW,NAME('GetBitmapDimensionEx')
+      winapi::SetBitmapDimensionEx(HBITMAP hbm,LONG w,LONG h,LONG lpsz),BOOL,PASCAL,RAW,NAME('SetBitmapDimensionEx')
       winapi::CreatePen(SIGNED fnPenStyle, SIGNED nWidth, COLORREF crColor), HPEN, PASCAL, NAME('CreatePen')
       winapi::MoveToEx(HDC hdc, SIGNED x, SIGNED y, *POINT lpPoint), BOOL,RAW,PASCAL,PROC,NAME('MoveToEx')
       winapi::LineTo(HDC hdc, SIGNED x, SIGNED y), BOOL, PASCAL, PROC, NAME('LineTo')
@@ -275,6 +280,8 @@ DWORD                                   EQUATE(ULONG)
       winapi::GlobalFree(HGLOBAL hMem),BOOL,PASCAL,PROC,NAME('GlobalFree')
       winapi::GlobalSize(HGLOBAL hMem),LONG,PASCAL,PROC,NAME('GlobalSize')
 
+      winapi::InitCommonControlsEx(LONG picce),BOOL,PASCAL,NAME('InitCommonControlsEx')
+
       COMPILE('_C100_', _C100_)
       winapi::PrintWindow(HWND hWnd,HDC hdcBlt,ULONG nFlags), BOOL, PASCAL, PROC, NAME('PrintWindow')
       !'_C100_'
@@ -443,6 +450,12 @@ TH32CS_SNAPPROCESS                      EQUATE(02h)
 TH32CS_SNAPMODULE                       EQUATE(08h)
 TH32CS_SNAPMODULE32                     EQUATE(10h)
 
+!- Carries information used to load common control classes from the dynamic-link library (DLL). This structure is used with the InitCommonControlsEx function.
+tagINITCOMMONCONTROLSEX                 GROUP, TYPE
+dwSize                                    UNSIGNED
+dwICC                                     UNSIGNED
+                                        END
+
 
 QueryFullProcessImageName               PROCEDURE(HANDLE hProcess,DWORD dwFlags,*CSTRING lpExeName,*DWORD lpdwSize)
 szDllName                                 CSTRING('Kernel32')
@@ -506,7 +519,21 @@ b                                           BYTE
   CODE
   ClaClrGrp :=: winClrGrp
   RETURN claColor
-
+  
+winapi::InitCommonControls              PROCEDURE(UNSIGNED pICCFlags)
+icex                                      LIKE(tagINITCOMMONCONTROLSEX)
+  CODE
+  !- Initialize common controls.
+  icex.dwSize = SIZE(tagINITCOMMONCONTROLSEX)
+  icex.dwICC = pICCFlags
+  IF NOT winapi::InitCommonControlsEx(ADDRESS(icex))
+    printd('InitCommonControlsEx failed: error %i', winapi::GetLastError())
+    RETURN FALSE
+  END
+  RETURN TRUE
+!!!endregion
+  
+!!!region macros
 BNOT                                    PROCEDURE(UNSIGNED pValue)
   CODE
   RETURN BXOR(pValue, -1)
@@ -586,6 +613,47 @@ TWnd.Init                               PROCEDURE(SIGNED pFeq)
   SELF.FEQ = pFeq
   SELF.W &= NULL
   SELF.SetHandle(SELF.FEQ{PROP:Handle})
+
+TWnd.CreateWindow                       PROCEDURE(STRING pClassName, STRING pWindowName, |
+                                          UNSIGNED pStyle, LONG pX, LONG pY, LONG pWidth, LONG pHeight, |
+                                          HWND pWndParent, HMENU pMenu, HINSTANCE pInstance, LONG pParam)
+  CODE
+  RETURN SELF.CreateWindowEx(0, pClassName, pWindowName, pStyle, pX, pY, pWidth, pHeight, pWndParent, pMenu, pInstance, pParam)
+  
+TWnd.CreateWindow                       PROCEDURE(STRING pClassName, STRING pWindowName, |
+                                          UNSIGNED pStyle, TRect pRect, |
+                                          TWnd pWndParent, HMENU pMenu=0, HINSTANCE pInstance=0, LONG pParam=0)
+  CODE
+  RETURN SELF.CreateWindowEx(0, pClassName, pWindowName, pStyle, pRect, pWndParent, pMenu, pInstance, pParam)
+  
+TWnd.CreateWindowEx                     PROCEDURE(UNSIGNED pExStyle, STRING pClassName, STRING pWindowName, |
+                                          UNSIGNED pStyle, LONG pX, LONG pY, LONG pWidth, LONG pHeight, |
+                                          HWND pWndParent, HMENU pMenu, HINSTANCE pInstance, LONG pParam)
+szClassName                               CSTRING(LEN(CLIP(pClassName))+1), AUTO
+szWindowName                              CSTRING(LEN(CLIP(pWindowName))+1), AUTO
+
+  CODE
+  szClassName = CLIP(pClassName)
+  szWindowName = CLIP(pWindowName)
+  SELF.hwnd = winapi::CreateWindowEx( |
+    pExStyle, | 
+    CHOOSE(szClassName <> '', ADDRESS(szClassName), 0), | 
+    CHOOSE(szWindowName <> '', ADDRESS(szWindowName), 0), | 
+    pStyle, | 
+    pX, pY, pWidth, pHeight, | 
+    pWndParent, pMenu, pInstance, pParam)
+  IF SELF.hwnd = 0
+    printd('CreateWindowEx error %i', winapi::GetLastError())
+  END
+  
+  RETURN SELF.hwnd
+  
+TWnd.CreateWindowEx                     PROCEDURE(UNSIGNED pExStyle, STRING pClassName, STRING pWindowName, |
+                                          UNSIGNED pStyle, TRect pRect, |
+                                          TWnd pWndParent, HMENU pMenu=0, HINSTANCE pInstance=0, LONG pParam=0)
+  CODE
+  RETURN SELF.CreateWindowEx(pExStyle, pClassName, pWindowName, pStyle, pRect.left, pRect.top, pRect.Width(), pRect.Height(), pWndParent.GetHandle(), pMenu, |
+    CHOOSE(pInstance=0, SYSTEM{PROP:AppInstance}, pInstance), pParam)
 
 TWnd.GetHandle                          PROCEDURE()
   CODE
@@ -2585,6 +2653,28 @@ rc                                        BOOL(FALSE)
   ELSE
     RETURN FALSE
   END
+  
+TBitmap.GetBitmapDimensionEx            PROCEDURE(*SIZE pSize)
+  CODE
+  CLEAR(pSize)
+  RETURN winapi::GetBitmapDimensionEx(SELF.handle, ADDRESS(pSize))
+  
+TBitmap.GetBitmapDimensionEx            PROCEDURE(*LONG pWidth, *LONG pHeight)
+sz                                        LIKE(SIZE), AUTO
+  CODE
+  IF SELF.GetBitmapDimensionEx(sz)
+    pWidth = sz.cx
+    pHeight = sz.cy
+    RETURN TRUE
+  ELSE
+    pWidth = 0
+    pHeight = 0
+    RETURN FALSE
+  END
+
+TBitmap.SetBitmapDimensionEx            PROCEDURE(LONG pWidth, LONG pHeight, <*SIZE pPrevSize>)
+  CODE
+  RETURN winapi::SetBitmapDimensionEx(SELF.handle, pWidth, pHeight, CHOOSE(NOT OMITTED(pPrevSize), ADDRESS(pPrevSize), 0))
 !!!endregion
   
 !!!region TLogicalFont

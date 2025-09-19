@@ -1,5 +1,5 @@
 !Base Windows classes
-!09.09.2025 revision
+!19.09.2025 revision
 !mikeduglas (c) 2019-2025
 !mikeduglas@yandex.ru, mikeduglas66@gmail.com
 
@@ -14,6 +14,8 @@ STRINGW                                 EQUATE(STRING)
       COLORREF::FromClarion(LONG pClaColor), COLORREF
       COLORREF::ToRGB(COLORREF pWinColor, *BYTE r, *BYTE g, *BYTE b)
       COLORREF::ToClarion(COLORREF pWinColor), LONG
+
+      winapi::InitCommonControls(UNSIGNED pICCFlags), BOOL, PROC
     END
   END
 
@@ -52,6 +54,20 @@ Destruct                                  PROCEDURE(), VIRTUAL
 
 Init                                      PROCEDURE(<*WINDOW w>), VIRTUAL
 Init                                      PROCEDURE(SIGNED pFeq), VIRTUAL
+
+CreateWindow                              PROCEDURE(STRING pClassName, STRING pWindowName, |
+                                            UNSIGNED pStyle, LONG pX, LONG pY, LONG pWidth, LONG pHeight, |
+                                            HWND pWndParent, HMENU pMenu, HINSTANCE pInstance, LONG pParam), HWND, PROC
+CreateWindow                              PROCEDURE(STRING pClassName, STRING pWindowName, |
+                                            UNSIGNED pStyle, TRect pRect, |
+                                            TWnd pWndParent, HMENU pMenu=0, HINSTANCE pInstance=0, LONG pParam=0), HWND, PROC
+CreateWindowEx                            PROCEDURE(UNSIGNED pExStyle, STRING pClassName, STRING pWindowName, |
+                                            UNSIGNED pStyle, LONG pX, LONG pY, LONG pWidth, LONG pHeight, |
+                                            HWND pWndParent, HMENU pMenu, HINSTANCE pInstance, LONG pParam), HWND, PROC
+CreateWindowEx                            PROCEDURE(UNSIGNED pExStyle, STRING pClassName, STRING pWindowName, |
+                                            UNSIGNED pStyle, TRect pRect, |
+                                            TWnd pWndParent, HMENU pMenu=0, HINSTANCE pInstance=0, LONG pParam=0), HWND, PROC
+
 GetHandle                                 PROCEDURE(), HWND
 SetHandle                                 PROCEDURE(HWND hwnd)
 GetWindow                                 PROCEDURE(), *WINDOW  !- returns a WINDOW passed as an argument to Init.
@@ -689,6 +705,10 @@ GetBits                                   PROCEDURE(*TDC pDC), *STRING
 
 SaveBitmap                                PROCEDURE(HDC pDC, STRING pFileName), BOOL, PROC
 SaveBitmap                                PROCEDURE(*TDC pDC, STRING pFileName), BOOL, PROC
+
+GetBitmapDimensionEx                      PROCEDURE(*SIZE pSize), BOOL, PROC
+GetBitmapDimensionEx                      PROCEDURE(*LONG pWidth, *LONG pHeight), BOOL, PROC
+SetBitmapDimensionEx                      PROCEDURE(LONG pWidth, LONG pHeight, <*SIZE pPrevSize>), BOOL, PROC
                                         END
 
 !- Font
